@@ -8,7 +8,7 @@
   </head>
   <body>
     <div id="nav">
-      <ul id="nav-list">
+      <ul id="nav-list" class="nav-ul">
         <li class="nav-li"><a href="index.html">About</a></li>
         <li class="nav-li"><a href="gallery.html">Gallery</a></li>
         <li class="nav-li"><a href="blog.html">Blog</a></li>
@@ -16,64 +16,143 @@
       </ul>
     </div>
 
-    <div id="content">
+    <div class="content" id="blog-content">
       <div class="header">
         <h1>Blog</h1>
       </div>
 
-      <div class="flex-container" id="blog-container">
+      <section>
         <div id="blog-nav">
-          <ul>
-            <li>Date - Title</li>
-          </ul>
+          <nav>
+            <h3><b>Posts</b></h3>
+            <ul class="nav-ul">
+              <li><a href="#post4-lnk">6/24 - First Week at Google</a></li>
+              <li><a href="#post3-lnk">6/24 - Where Am I?</a></li>
+              <li><a href="#post2-lnk">6/24 - Favorite Books</a></li>
+              <li><a href="#post1-lnk">6/24 - Projects I've Done</a></li>
+            </ul>
+
+            <div class="centered-button">
+              <button type="button" onclick="location.href=randomPost()"><b>Feeling Lucky?</b></button>
+            </div>
+          </nav>
         </div>
 
-        <div class="blog">
-          <div class="blog-post blog1">
-            <p class="date">6/24/2020</p>
-            <div class="header">
-              <h3>Fun Title!</h3>
-            </div>
-            <p>Paragraph 1.</p>
-            <br />
-            <p>Paragraph 2.</p>
-            <br />
-            <p>Paragraph 3.</p>
+        <div id="blog" class="flex-container">
+          <div class="col">
+            <a class="anchor" id="post4-lnk" aria-label="Beginning of post"></a>
+            <article class="blog-post blog1" id="post4">
+              <p class="date">6/24/2020</p>
+              <div class="header"><h3>First Week at Google</h3></div>
+              <p>
+                Lorem ipsum dolor sit amet, sint rebum eam ex, eum in officiis deserunt voluptatum. Sit at latine
+                euismod patrioque, id est natum minim feugiat, vim viderer abhorreant ut. Nam ne fastidii propriae
+                interesset, consequat appellantur et sit. Qui placerat recusabo te. Vim ullum alienum ut, reprimique
+                definitionem sea ad.
+                <br /><br />
+                Ei nam altera explicari. At odio dicant eum. Ea pro mazim eligendi, id sit quis enim mollis. Usu et
+                primis consequuntur, ex per tamquam menandri consequat. Cu nibh ipsum perpetua sea. Omnis dicam
+                scriptorem nec in, atqui harum intellegam sea cu, ei mei nonumes nominavi.
+                <br /><br />
+                Clita laudem cu cum, ea pri eius mediocritatem, quas eruditi fabulas est eu. Sed ea viris lobortis, mei
+                id partem nominavi phaedrum, has cu veri lucilius eloquentiam. Exerci graeci eripuit nec no, novum
+                disputando nam in. Eam id errem consectetuer, at sit suas nonumy voluptaria. Animal reprehendunt at vis,
+                te nec unum volumus temporibus.
+              </p>
+            </article>
+
+            <a class="anchor" id="post2-lnk" aria-label="Beginning of post"></a>
+            <article class="blog-post blog2" id="post2">
+              <p class="date">6/24/2020</p>
+              <div class="header"><h3>Favorite Books</h3></div>
+              <p>
+                Lorem ipsum dolor sit amet, sint rebum eam ex, eum in officiis deserunt voluptatum. Sit at latine
+                euismod patrioque, id est natum minim feugiat, vim viderer abhorreant ut. Nam ne fastidii propriae
+                interesset, consequat appellantur et sit. Qui placerat recusabo te. Vim ullum alienum ut, reprimique
+                definitionem sea ad.
+                <br /><br />
+                Ei nam altera explicari. At odio dicant eum. Ea pro mazim eligendi, id sit quis enim mollis. Usu et
+                primis consequuntur, ex per tamquam menandri consequat. Cu nibh ipsum perpetua sea. Omnis dicam
+                scriptorem nec in, atqui harum intellegam sea cu, ei mei nonumes nominavi.
+                <br /><br />
+                Clita laudem cu cum, ea pri eius mediocritatem, quas eruditi fabulas est eu. Sed ea viris lobortis, mei
+                id partem nominavi phaedrum, has cu veri lucilius eloquentiam. Exerci graeci eripuit nec no, novum
+                disputando nam in. Eam id errem consectetuer, at sit suas nonumy voluptaria. Animal reprehendunt at vis,
+                te nec unum volumus temporibus.
+                <br /><br />
+                Lorem ipsum dolor sit amet, ei graeco melius qui, no sea oporteat reprimique. His eu dicit nullam
+                electram, fierent facilisi ut est. Wisi quas insolens cum et, sed laboramus forensibus democritum eu,
+                pericula maiestatis liberavisse no ius. Congue soluta imperdiet qui cu, sit ne velit augue tibique. Eum
+                zril signiferumque no, praesent pertinacia comprehensam eos ea. Nisl affert propriae quo et, id eros
+                aeterno aliquam mea.
+                <br /><br />
+                Ad euismod molestie dissentiet per. Vel meis novum persecuti ad, cu vim erant mucius, cum case omnis
+                electram ad. Te dicant nostro viderer qui, his homero laoreet at. Vel no quaestio interpretaris, putent
+                iudicabit sit at. Eu probo imperdiet has, an ius mollis consetetur, altera disputationi vis ei. Eum ne
+                impedit verterem perpetua, modo docendi phaedrum eu est. Sed discere appetere ex.
+                <br /><br />
+                Id vim case erat senserit, no prima ullum eam. Te nec enim case necessitatibus. Cum ea movet everti
+                partiendo, alterum corpora salutatus est ut. Unum vide essent eam ne, affert interpretaris no pri, an
+                odio mentitum invenire mea. Pro no recusabo appellantur, cu sale efficiantur his.
+              </p>
+            </article>
           </div>
 
-          <div class="blog-post blog2">
-            <p class="date">6/24/2020</p>
-            <div class="header">
-              <h3>Fun Title!</h3>
-            </div>
-            <p>Paragraph 1.</p>
-            <br />
-            <p>Paragraph 2.</p>
-          </div>
+          <div class="col">
+            <a class="anchor" id="post3-lnk" aria-label="Beginning of post"></a>
+            <article class="blog-post blog2" id="post3">
+              <p class="date">6/24/2020</p>
+              <div class="header"><h3>Where Am I?</h3></div>
+              <p>
+                Lorem ipsum dolor sit amet, in quas putant volutpat eos, est essent epicuri pericula in, salutandi
+                expetendis eos ei. No vim accusata invenire, incorrupte reprimique ut cum. No altera malorum sed, et has
+                oblique appellantur. Regione viderer senserit cu vel.
+                <br /><br />
+                Cu usu antiopam explicari. Vim ei aeque laoreet commune, albucius postulant te sea. At nihil everti
+                timeam duo. In stet solum pro, duo suas singulis atomorum id. Ne mollis salutandi est, at has decore
+                pertinax constituam.
+                <br /><br />
+                Hinc nonumy latine sit ex, per ea enim dissentiet instructior. At oblique diceret duo. Quo ad movet
+                nostrum erroribus, quas ferri pertinax et eam. Ut eam melius recusabo accommodare. Populo explicari vix
+                in, oblique facilisis rationibus te ius.
+                <br /><br />
+                Imperdiet evertitur ne mea, no velit democritum dissentias eum, in ceteros eleifend deseruisse has.
+                Natum porro eu vix. Te inermis dissentiet neglegentur est. Per tale erant ex. Eu vel labitur euismod
+                labores, ea partem labore equidem vix.
+                <br /><br />
+                Ex odio wisi consul nam. Vim ea diam omnes molestiae, ius exerci oblique placerat ut, eos ne zril
+                homero. His et periculis erroribus, in vel veritus invenire torquatos, at vix hinc prima officiis. Qui
+                alienum abhorreant intellegebat ut, id has latine appellantur, mei ad doctus principes consectetuer. Ad
+                ferri tritani mea, ex eam omnesque moderatius intellegebat, duo no torquatos disputando. Fugit admodum
+                delicatissimi at usu. At vel dicat tincidunt eloquentiam, at viris equidem maiestatis eos, nostrum
+                accumsan forensibus mea at.
+              </p>
+            </article>
 
-          <div class="blog-post blog2">
-            <p class="date">6/24/2020</p>
-            <div class="header">
-              <h3>Fun Title!</h3>
-            </div>
-            <p>Paragraph 1.</p>
-          </div>
-
-          <div class="blog-post blog1">
-            <p class="date">6/24/2020</p>
-            <div class="header">
-              <h3>Fun Title!</h3>
-            </div>
-            <p>Paragraph 1.</p>
-            <br />
-            <p>Paragraph 2.</p>
-            <br />
-            <p>Paragraph 3.</p>
-            <br />
-            <p>Paragraph 4.</p>
+            <article class="blog-post blog1" id="post1">
+              <a class="anchor" id="post1-lnk" aria-label="Beginning of post"></a>
+              <p class="date">6/24/2020</p>
+              <div class="header"><h3>Projects I've Done</h3></div>
+              <p>
+                Lorem ipsum dolor sit amet, vel iusto erroribus te. Ea vix lucilius recusabo. Qui ei tale persius,
+                labores contentiones ne duo, vide nusquam conclusionemque te mel. In his tantas assueverit, at harum
+                causae usu.
+                <br /><br />
+                Vix nominavi antiopam ut, cu partem quodsi his. Mei solum virtute legimus ut. Minim invenire eu eam, vel
+                ad appareat officiis perfecto. Ei zril probatus principes per, at quo everti omittantur. Eu usu diam
+                voluptatum, dicant mentitum assentior an his.
+                <br /><br />
+                Est ea novum omnes partiendo, pri ut fabulas maiestatis. Odio primis inermis ea pri. Duo no solum saepe
+                omnium. Tation salutatus vix id, in mei graeci latine.
+                <br /><br />
+                Per ad dicam ridens partiendo, in eam sumo minim incorrupte, pro omittam senserit repudiare ut. Mei cu
+                prima paulo. Eius inimicus comprehensam pri no, ius percipit praesent eu, duo erat aperiam te. Vim hinc
+                vituperatoribus ei. Veri tempor maiestatis eam te, mel ea tota nulla movet.
+              </p>
+            </article>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </body>
 </html>

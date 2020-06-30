@@ -12,6 +12,60 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/** Returns an array of post links to be used in randomPost() */
+function postLinks() {
+  return ['#post1-lnk', '#post2-lnk', '#post3-lnk', '#post4-lnk'];
+}
+
+/** Returns the link to a random post on the blog */
+function randomPost() {
+  // array with all post links
+  const posts = postLinks();
+
+  // returns a random link
+  return posts[Math.floor(Math.random() * posts.length)];
+}
+
+/**
+Tests randomPost() by verifying it spits out only one of the random post
+options & logging the percentage of times it returns each
+*/
+function testRandomPost(trials = 10000) {
+  const postLinks = postLinks();
+  const postLinkCount = postLinks.length;
+  const sums = new Array(postLinkCount);
+  for (let i = 0; i < postLinkCount; i++) {
+    sums[i] = 0;
+  }
+
+  for (let i = 0; i < trials; i++) {
+    switch (randomPost()) {
+      case '#post1-lnk':
+        sums[0]++;
+        break;
+      case '#post2-lnk':
+        sums[1]++;
+        break;
+      case '#post3-lnk':
+        sums[2]++;
+        break;
+      case '#post4-lnk':
+        sums[3]++;
+        break;
+      default:
+        console.log('Illegal response found.');
+        return;
+    }
+  }
+
+  /* Logs percentage of times each one occurred; should be ~ 25% */
+  for (let i = 0; i < postLinkCount; i++) {
+    console.log(`${postLinks[i]}: ${sums[i] / trials * 100}%`);
+  }
+}
+
+testRandomPost(10000);  // runs 10000 trials on randomPost()
+
 /** Gets html content from data tag and updates "About" page with it */
 async function getHello() {
   const response = await fetch('/data');
