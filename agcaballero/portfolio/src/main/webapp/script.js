@@ -72,3 +72,4 @@ async function getHello() {
   const html = await response.text();
   document.getElementById('hello-name').innerHTML = html;
 }
+
