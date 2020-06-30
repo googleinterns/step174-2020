@@ -11,3 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/** Gets html content from data tag and updates "About" page with it */
+async function getHello() {
+  const response = await fetch('/data');
+  const html = await response.text();
+  document.getElementById('hello-name').innerHTML = html;
+}
