@@ -21,21 +21,49 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Returns a collection of TimeRange objects to indicate available meeting times
- * for indicated people and duration given through a request object.
+ * Contains methods for querying availability between attendees.
  */
 public final class FindMeetingQuery {
+  /**
+   * Returns a collection of TimeRange objects to indicate available meeting times
+   * for indicated people and duration given through a request object.
+   */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+    // Perform queries with and without optional attendees.
+    Collection<TimeRange> mandatoryCheck = coreQuery(events, request, false);
+    Collection<TimeRange> optionalCheck = coreQuery(events, request, true);
+
+    // Return optional attendee checks if valid.
+    if ((optionalCheck.size() != 0) || (request.getAttendees().size() == 0)) {
+      return optionalCheck;
+    } else {
+      return mandatoryCheck;
+    }
+  }
+  /**
+   * Performs interval detection functionality for querying function.
+   */
+  public Collection<TimeRange> coreQuery(
+      Collection<Event> events, MeetingRequest request, boolean withOptional) {
     // Create an output collection holding a starting full day block.
     Collection<TimeRange> rangeOutput = new HashSet<>();
     TimeRange fullDay = TimeRange.fromStartDuration(0, 24 * 60);
     rangeOutput.add(fullDay);
 
     // Obtain data from the request.
-    Collection<String> attendees = request.getAttendees();
+    Collection<String> attendees = new HashSet<>();
+    Collection<String> mandatoryAttendees = request.getAttendees();
+    Collection<String> optionalAttendees = request.getOptionalAttendees();
     long requestDuration = request.getDuration();
 
     Collection<TimeRange> busyTimes = new HashSet<>();
+
+    attendees.addAll(mandatoryAttendees);
+
+    // Include Optional Attendees if indicated.
+    if (withOptional) {
+      attendees.addAll(optionalAttendees);
+    }
 
     // Detect relevant busy time ranges based on attendees.
     for (Event toCheck : events) {
