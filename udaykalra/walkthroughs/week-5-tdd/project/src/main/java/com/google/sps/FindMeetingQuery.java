@@ -40,6 +40,7 @@ public final class FindMeetingQuery {
       return mandatoryCheck;
     }
   }
+  
   /**
    * Performs interval detection functionality for querying function.
    */
