@@ -41,18 +41,28 @@ public final class FindMeetingQuery {
     Collection<String> attendees = request.getAttendees();
     Collection<String> optionalAttendees = request.getOptionalAttendees();
     
-    // has the + 1 to account for last minute in day
-    int[] minutes = new int[MINUTES_IN_DAY];
+    // Holds whether the mandatory attendees can attend & the number of optional attendees 
+    // that can attend. If minuteStatus[number] is equal to MANDATORY_UNAVAILABLE, then mandatory
+    // attendees can't attend at that number. If it's equal to 0, then all attendees can attend.
+    // If it's equal to a negative int, then the abs value of that negative number is the number 
+    // of optional attendees who can't attend. The +1 is to account for last minute in day
+    int[] minuteStatus = new int[MINUTES_IN_DAY + 1];
+
+    // TODO: make this a thing
+    // keeps track of the max status reached (that is not MANDATORY_UNAVAILABLE)
+    // int maxStatus = Integer.MIN_VALUE;
+    // keep track of min status reached 
+    int minStatus = 0;
 
     for(Event event: events) {
       int status = 0;
-      int mandatoryOverlap = attendeeOverlap(event.getAttendees(), attendees);
+      int mandatoryOverlap = amountOfOverlap(event.getAttendees(), attendees);
 
       if(mandatoryOverlap > 0) {
         status = MANDATORY_UNAVAILABLE;
       } 
       else {
-        int optionalOverlap = attendeeOverlap(event.getAttendees(), optionalAttendees);
+        int optionalOverlap = amountOfOverlap(event.getAttendees(), optionalAttendees);
         
         if(optionalOverlap > 0) {
           status = optionalOverlap;
@@ -63,92 +73,99 @@ public final class FindMeetingQuery {
       if(status != 0) {
         TimeRange range = event.getWhen();
 
-        for(int i = range.start(); i < range.end(); i++)
+        for(int i = range.start(); i < range.end(); i++) {
           // don't change it if it's already set to being unavailable
-          if(minutes[i] != MANDATORY_UNAVAILABLE) {
-            if(status == MANDATORY_UNAVAILABLE)
-              minutes[i] = MANDATORY_UNAVAILABLE;
-            else 
+          if(minuteStatus[i] != MANDATORY_UNAVAILABLE) {
+            if(status == MANDATORY_UNAVAILABLE) {
+              minuteStatus[i] = MANDATORY_UNAVAILABLE;
+            }
+            else {
               // if it's available but some attendees can't make it
               // then just subtract the ones who can't make it from 
               // the status (so the number of optional attendees who can't make
               // it will compound)
-              minutes[i] -=  status;
-          }
-      }
-    }
+              minuteStatus[i] -=  status;
 
-    System.out.println(Arrays.toString(minutes));
-
-    int start = 0;
-    int statusOfTimes = Integer.MIN_VALUE;
-    int lastMaxStatus = Integer.MIN_VALUE;
-    int maxStatusFound = Integer.MIN_VALUE;
-    ArrayList<TimeRange> times = new ArrayList<TimeRange>();
-
-    // add available times to times array
-    for(int i = 0; i < minutes.length; i++) {
-      int currentStatus = minutes[i];
-
-      if(currentStatus == MANDATORY_UNAVAILABLE) {
-        if(i - 1 > 0 && minutes[i - 1] == maxStatusFound) {
-          if(statusOfTimes != maxStatusFound) {
-            ArrayList<TimeRange> previousTimes = new ArrayList<TimeRange>(times);
-            times = new ArrayList<TimeRange>();
-            boolean addable = addMeeting(request, start, i, false, times);
-
-            if(! addable) {
-              maxStatusFound = lastMaxStatus;
-              times = previousTimes;
-            }
-            else {
-              System.out.println("replaced");
-              statusOfTimes = maxStatusFound;
+              // if a new minimum status is found, update the min status champion
+              if (minuteStatus[i] < minStatus) {
+                minStatus = minuteStatus[i];
+              }
             }
           }
-          else 
-            addMeeting(request, start, i, false, times);
-
-          start = i;
         }
       }
-      else if(i - 1 > 0 &&
-        minutes[i - 1] == MANDATORY_UNAVAILABLE)
-        start = i;
+    }
 
-      if(currentStatus != MANDATORY_UNAVAILABLE
-        && currentStatus > maxStatusFound) {
-        lastMaxStatus = maxStatusFound;
-        maxStatusFound = currentStatus;
+    System.out.println(Arrays.toString(minuteStatus));
 
-        start = i;
+    for(int status = 0; status >= minStatus; status--) {
+      System.out.println(status);
+      System.out.println(attendees.size());
+      System.out.println(optionalAttendees.size());
+
+      // If there are no mandatory attendees, make sure that the status is not greater than
+      // the number of optional attendees (if so, no attendees can go at all). As no attendees can 
+      // go, break out of this loop.
+      if(attendees.size() == 0 && Math.abs(status) >= optionalAttendees.size()) {
+        System.out.println("HERE");
+        break;
       }
-      else 
-        continue;   
-    }
-    
-    // add meeting for end of day
-    if(minutes[MINUTES_IN_DAY - 1] == maxStatusFound) {
-      addMeeting(request, start, TimeRange.END_OF_DAY, true, times);
+      
+      // an array list of available times 
+      ArrayList<TimeRange> availableTimes = new ArrayList<TimeRange>();
+      int start = 0;
+      boolean wasLastMinuteAvailable = true;
+
+      for(int i = 0; i < minuteStatus.length; i++) {
+
+        boolean currentMinuteAvailable;
+
+        currentMinuteAvailable = minuteStatus[i] != MANDATORY_UNAVAILABLE && minuteStatus[i] >= status;
+
+        if(wasLastMinuteAvailable) {
+          // If the previous minute was available, but the current minute is unavailable or if it's
+          // the end of the day, this is the end of an available time range. If the time range is longer 
+          // than the required duration, it's recorded as an available time range.
+          if(! currentMinuteAvailable || i == minuteStatus.length - 1) {
+            int end = i;
+            int duration = end - start;
+
+            if(duration >= request.getDuration()) {
+              availableTimes.add(TimeRange.fromStartEnd(start, end - 1, true)); // add time range (inclusive of start & end) 
+            }
+        
+            wasLastMinuteAvailable = false;
+          }      
+        }
+        else {
+        // If the last minute was unavailable, but this minute is available, then this is the beginning
+        // of a new available time range, so start will be set to this minute and wasLastMinuteAvailable to true.
+          if(currentMinuteAvailable) {
+            start = i;
+            wasLastMinuteAvailable = true;
+          }
+        }
+      }
+
+      if(availableTimes.size() > 0) return availableTimes;
     }
 
-    System.out.println(maxStatusFound);
-
-    return times;
+    // if the array returns no available times, return an empty array
+    return new ArrayList<TimeRange>();
   }
   
   /**
-   * A private helper method to determine the amount of overlap between two groups
-   * of attendees, represented as String collections
+   * A private helper method to determine the amount of overlap between
+   * two String Collections
    *
-   * @return the number of attendees who overlap between the two meetings
+   * @return the number of elements the two Collections have in common
    */
-  private int attendeeOverlap(Collection<String> groupA, Collection<String> groupB) {
+  private int amountOfOverlap(Collection<String> left, Collection<String> right) {
     int overlap = 0;
 
-    for(String attendeeA: groupA)
-      for(String attendeeB: groupB)
-        if(attendeeA.equals(attendeeB))
+    for(String leftElement: left)
+      for(String rightElement: right)
+        if(leftElement.equals(rightElement))
           overlap++;
 
     return overlap;

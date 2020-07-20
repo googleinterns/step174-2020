@@ -58,8 +58,7 @@ public final class FindMeetingQueryTest {
     query = new FindMeetingQuery();
   }
 
-  @Ignore
-  @Test
+  @Test @Ignore
   public void optionsForNoAttendees() {
     MeetingRequest request = new MeetingRequest(NO_ATTENDEES, DURATION_1_HOUR);
 
@@ -347,7 +346,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test 
+  @Test @Ignore
   public void onlyOptionalWithGaps() {
     // Have two optional attendees, who have gaps in their schedule.
     // Return these gaps if they're of long enough duration.
