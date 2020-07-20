@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+/*
+ * A class to find a time that satisfies a meeting query and ensures
+ * all mandatory attendees can attend and the most possible
+ * optional attendees can attend.
+ */
 public final class FindMeetingQuery {
    
   /** the number of minutes in a day */
@@ -48,9 +53,6 @@ public final class FindMeetingQuery {
     // of optional attendees who can't attend. The +1 is to account for last minute in day
     int[] minuteStatus = new int[MINUTES_IN_DAY + 1];
 
-    // TODO: make this a thing
-    // keeps track of the max status reached (that is not MANDATORY_UNAVAILABLE)
-    // int maxStatus = Integer.MIN_VALUE;
     // keep track of min status reached 
     int minStatus = 0;
 
@@ -96,61 +98,15 @@ public final class FindMeetingQuery {
       }
     }
 
-    System.out.println(Arrays.toString(minuteStatus));
-
     for(int status = 0; status >= minStatus; status--) {
-      System.out.println(status);
-      System.out.println(attendees.size());
-      System.out.println(optionalAttendees.size());
-
-      // If there are no mandatory attendees, make sure that the status is not greater than
-      // the number of optional attendees (if so, no attendees can go at all). As no attendees can 
-      // go, break out of this loop.
-      if(attendees.size() == 0 && Math.abs(status) >= optionalAttendees.size()) {
-        System.out.println("HERE");
-        break;
-      }
-      
       // an array list of available times 
-      ArrayList<TimeRange> availableTimes = new ArrayList<TimeRange>();
-      int start = 0;
-      boolean wasLastMinuteAvailable = true;
+      ArrayList<TimeRange> availableTimes = (ArrayList<TimeRange>) findTimesForStatus(request, minuteStatus, status);
 
-      for(int i = 0; i < minuteStatus.length; i++) {
-
-        boolean currentMinuteAvailable;
-
-        currentMinuteAvailable = minuteStatus[i] != MANDATORY_UNAVAILABLE && minuteStatus[i] >= status;
-
-        if(wasLastMinuteAvailable) {
-          // If the previous minute was available, but the current minute is unavailable or if it's
-          // the end of the day, this is the end of an available time range. If the time range is longer 
-          // than the required duration, it's recorded as an available time range.
-          if(! currentMinuteAvailable || i == minuteStatus.length - 1) {
-            int end = i;
-            int duration = end - start;
-
-            if(duration >= request.getDuration()) {
-              availableTimes.add(TimeRange.fromStartEnd(start, end - 1, true)); // add time range (inclusive of start & end) 
-            }
-        
-            wasLastMinuteAvailable = false;
-          }      
-        }
-        else {
-        // If the last minute was unavailable, but this minute is available, then this is the beginning
-        // of a new available time range, so start will be set to this minute and wasLastMinuteAvailable to true.
-          if(currentMinuteAvailable) {
-            start = i;
-            wasLastMinuteAvailable = true;
-          }
-        }
-      }
-
+      // as soon as the times are found return it, bc status only declines after this point
       if(availableTimes.size() > 0) return availableTimes;
     }
 
-    // if the array returns no available times, return an empty array
+    // if there are no available times, return an empty array list
     return new ArrayList<TimeRange>();
   }
   
@@ -170,20 +126,50 @@ public final class FindMeetingQuery {
 
     return overlap;
   }
-   
 
-  /** Private helper method where if a possible time range is long enough,
-   *  will add that time to the TimeRange collection
+  /** 
+   * A private helper method that locates the times that work for the current status (which 
+   * indicates how many optional attendees can make it). It will return whatever time ranges
+   * are of a long enough duration.
    * 
-   * @return true, if the time range is long enough, false, if not
+   * @return the time ranges that allow this number of optional attendees and are long enough
    */
-  private boolean addMeeting(MeetingRequest request, int start, int end, boolean inclusive, Collection<TimeRange> times) {
-    int duration = end - start + 1;
-    boolean longEnough = duration >= request.getDuration();
+  private Collection<TimeRange> findTimesForStatus(MeetingRequest request, int[] minuteStatus, int status) {
+    ArrayList<TimeRange> availableTimes = new ArrayList<TimeRange>();
+    int start = 0;
+    boolean wasLastMinuteAvailable = minuteStatus[0] != MANDATORY_UNAVAILABLE && minuteStatus[0] >= status;
+  
+    for(int i = 0; i < minuteStatus.length; i++) {
+    
+      // checks if the current minute is available by checking that mandatory attendees are available
+      // and the status is same or better than current status
+      boolean currentMinuteAvailable = minuteStatus[i] != MANDATORY_UNAVAILABLE && minuteStatus[i] >= status;
 
-    if(longEnough)
-      times.add(TimeRange.fromStartEnd(start, end, inclusive)); 
+      if(wasLastMinuteAvailable) {
+        // If the previous minute was available, but the current minute is unavailable or if it's
+        // the end of the day, this is the end of an available time range. If the time range is longer 
+        // than the required duration, it's recorded as an available time range.
+        if(! currentMinuteAvailable || i == minuteStatus.length - 1) {
+          int end = i;
+          int duration = end - start;
 
-    return longEnough;
+          if(duration >= request.getDuration()) {
+            availableTimes.add(TimeRange.fromStartEnd(start, end - 1, true)); // add time range (inclusive of start & end) 
+          }
+        
+          wasLastMinuteAvailable = false;
+        }      
+      }
+      else {
+        // If the last minute was unavailable, but this minute is available, then this is the beginning
+        // of a new available time range, so start will be set to this minute and wasLastMinuteAvailable to true.
+        if(currentMinuteAvailable) {
+          start = i;
+          wasLastMinuteAvailable = true;
+        }
+      }
+    }
+
+    return availableTimes;
   }
 }
