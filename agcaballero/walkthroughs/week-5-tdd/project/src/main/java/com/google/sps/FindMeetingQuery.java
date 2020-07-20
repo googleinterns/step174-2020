@@ -22,6 +22,12 @@ public final class FindMeetingQuery {
    
   /** the number of minutes in a day */
   private static final int MINUTES_IN_DAY = 24 * 60;
+  /** 
+   * a constant to represent when mandatory attendees unavailable 
+   * this number is positive to differentiate it from the negative 
+   * values of optional attendees who can't come
+   */ 
+  private static final int MANDATORY_UNAVAILABLE = 10;
   
   /**
    * Takes the events of the day and information about a potential meeting 
@@ -35,144 +41,132 @@ public final class FindMeetingQuery {
     Collection<String> attendees = request.getAttendees();
     Collection<String> optionalAttendees = request.getOptionalAttendees();
     
-    // are there any mandatory employees?
-    boolean mandatory = false;
-    if(attendees.size() > 0) {
-      mandatory = true;
-    }
-    
-    // are there any optional employees?
-    boolean optional = false; 
-    if(optionalAttendees.size() > 0) {
-      optional = true;
-    }
-
-    // minutes of day is + 1 to account for first and last minute of day
-    int[] minutes = new int[MINUTES_IN_DAY + 1];
-    // 0 - all attendees (mandatory & optional) can attend 
-    // 1 - mandatory attendees can attend (but not all optional)
-    // 2 - not all mandatory attendees can attend (even if all optional can)
+    // has the + 1 to account for last minute in day
+    int[] minutes = new int[MINUTES_IN_DAY];
 
     for(Event event: events) {
       int status = 0;
-      
-      if (attendeeOverlap(event.getAttendees(), attendees)) {
-        status = 2;
-      }
-      else if (attendeeOverlap(event.getAttendees(), optionalAttendees)) {
-        status = 1;
-      }
+      int mandatoryOverlap = attendeeOverlap(event.getAttendees(), attendees);
 
-      if (status != 0) {
-
+      if(mandatoryOverlap > 0) {
+        status = MANDATORY_UNAVAILABLE;
+      } 
+      else {
+        int optionalOverlap = attendeeOverlap(event.getAttendees(), optionalAttendees);
+        
+        if(optionalOverlap > 0) {
+          status = optionalOverlap;
+        }
+      }
+       
+      // 0 is default so does not need to be set
+      if(status != 0) {
         TimeRange range = event.getWhen();
 
         for(int i = range.start(); i < range.end(); i++)
-          // make sure 2s (which are higher priority than 1s) are not overwritten
-          if(minutes[i] != 2)
-            minutes[i] = status;
+          // don't change it if it's already set to being unavailable
+          if(minutes[i] != MANDATORY_UNAVAILABLE) {
+            if(status == MANDATORY_UNAVAILABLE)
+              minutes[i] = MANDATORY_UNAVAILABLE;
+            else 
+              // if it's available but some attendees can't make it
+              // then just subtract the ones who can't make it from 
+              // the status (so the number of optional attendees who can't make
+              // it will compound)
+              minutes[i] -=  status;
+          }
       }
     }
-    
-    // declare variables necessary to keep track of times that work for everyone
-    // and times that work just for mandatory employees
-    int start = 0, startWithOptional = 0; 
-    boolean available = false, availableWithOptional = false;
-    ArrayList<TimeRange> times = new ArrayList<TimeRange>();
-    ArrayList<TimeRange> timesWithOptional = new ArrayList<TimeRange>();
 
-    switch(minutes[start]) {
-      case 0:
-       availableWithOptional = true;
-      case 1: 
-       available = true;
-    }
+    System.out.println(Arrays.toString(minutes));
+
+    int start = 0;
+    int statusOfTimes = Integer.MIN_VALUE;
+    int lastMaxStatus = Integer.MIN_VALUE;
+    int maxStatusFound = Integer.MIN_VALUE;
+    ArrayList<TimeRange> times = new ArrayList<TimeRange>();
 
     // add available times to times array
     for(int i = 0; i < minutes.length; i++) {
-      switch(minutes[i]) {
-        case 0:
-          if(! availableWithOptional && optional) {
-            startWithOptional = i;
-            availableWithOptional = true;
-          }
+      int currentStatus = minutes[i];
 
-          if(! available) {
-            start = i;
-            available = true;
-          }
+      if(currentStatus == MANDATORY_UNAVAILABLE) {
+        if(i - 1 > 0 && minutes[i - 1] == maxStatusFound) {
+          if(statusOfTimes != maxStatusFound) {
+            ArrayList<TimeRange> previousTimes = new ArrayList<TimeRange>(times);
+            times = new ArrayList<TimeRange>();
+            boolean addable = addMeeting(request, start, i, false, times);
 
-          break;
-
-        case 1:
-          if(availableWithOptional && optional) {
-            addMeeting(request, startWithOptional, i, false, timesWithOptional);
-            availableWithOptional = false;
+            if(! addable) {
+              maxStatusFound = lastMaxStatus;
+              times = previousTimes;
+            }
+            else {
+              System.out.println("replaced");
+              statusOfTimes = maxStatusFound;
+            }
           }
-          
-          if(! available) {
-            start = i;
-            available = true;
-          }
-
-          break;
-
-        case 2: 
-          if(availableWithOptional && optional) {
-            addMeeting(request, startWithOptional, i, false, timesWithOptional);
-            availableWithOptional = false;
-          }
-          
-          if(available) {
+          else 
             addMeeting(request, start, i, false, times);
-            available = false;
-          }
 
-          break;
+          start = i;
+        }
       }
-    }
+      else if(i - 1 > 0 &&
+        minutes[i - 1] == MANDATORY_UNAVAILABLE)
+        start = i;
 
-    // add meetings for end of day
-    if(availableWithOptional && optional) {
-      addMeeting(request, startWithOptional, TimeRange.END_OF_DAY, true, timesWithOptional);
-    }
-          
-    if(available) {
-      addMeeting(request, start, TimeRange.END_OF_DAY, true, times);
+      if(currentStatus != MANDATORY_UNAVAILABLE
+        && currentStatus > maxStatusFound) {
+        lastMaxStatus = maxStatusFound;
+        maxStatusFound = currentStatus;
+
+        start = i;
+      }
+      else 
+        continue;   
     }
     
-    // if there are any times where everyone can attend, return those
-    // else just return times where all mandatory attendees can come
-    if(timesWithOptional.size() > 0 || (! mandatory && optional)) {
-      return timesWithOptional;
+    // add meeting for end of day
+    if(minutes[MINUTES_IN_DAY - 1] == maxStatusFound) {
+      addMeeting(request, start, TimeRange.END_OF_DAY, true, times);
     }
-    else  {
-      return times;
-    }
+
+    System.out.println(maxStatusFound);
+
+    return times;
   }
   
   /**
-   * A private helper method to determine if there is overlap between two groups
+   * A private helper method to determine the amount of overlap between two groups
    * of attendees, represented as String collections
    *
-   * @return true if overlap between attendees of two events, false otherwise
+   * @return the number of attendees who overlap between the two meetings
    */
-  private boolean attendeeOverlap(Collection<String> groupA, Collection<String> groupB) {
+  private int attendeeOverlap(Collection<String> groupA, Collection<String> groupB) {
+    int overlap = 0;
+
     for(String attendeeA: groupA)
       for(String attendeeB: groupB)
-        if(attendeeA.equals(attendeeB)) return true;
+        if(attendeeA.equals(attendeeB))
+          overlap++;
 
-    return false;
+    return overlap;
   }
    
 
   /** Private helper method where if a possible time range is long enough,
    *  will add that time to the TimeRange collection
+   * 
+   * @return true, if the time range is long enough, false, if not
    */
-  private void addMeeting(MeetingRequest request, int start, int end, boolean inclusive, Collection<TimeRange> times) {
+  private boolean addMeeting(MeetingRequest request, int start, int end, boolean inclusive, Collection<TimeRange> times) {
     int duration = end - start + 1;
+    boolean longEnough = duration >= request.getDuration();
 
-    if(duration >= request.getDuration())
+    if(longEnough)
       times.add(TimeRange.fromStartEnd(start, end, inclusive)); 
+
+    return longEnough;
   }
 }

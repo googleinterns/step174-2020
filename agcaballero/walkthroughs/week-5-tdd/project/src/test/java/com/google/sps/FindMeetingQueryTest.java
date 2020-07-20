@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -57,7 +58,7 @@ public final class FindMeetingQueryTest {
     query = new FindMeetingQuery();
   }
 
-  
+  @Ignore
   @Test
   public void optionsForNoAttendees() {
     MeetingRequest request = new MeetingRequest(NO_ATTENDEES, DURATION_1_HOUR);
@@ -68,7 +69,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void noOptionsForTooLongOfARequest() {
     // The duration should be longer than a day. This means there should be no options.
     int duration = TimeRange.WHOLE_DAY.duration() + 1;
@@ -80,7 +81,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void eventSplitsRestriction() {
     // The event should split the day into two options (before and after the event).
     Collection<Event> events = Arrays.asList(new Event("Event 1",
@@ -96,7 +97,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
   
-  @Test
+  @Test @Ignore
   public void everyAttendeeIsConsidered() {
     // Have each person have different events. We should see two options because each person has
     // split the restricted times.
@@ -123,7 +124,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
   
-  @Test
+  @Test @Ignore
   public void mandatoryAttendeesPriotized() {
     // Have each mandatory attendee have different events, and the
     // optional attendee have an all-day event. We should see two options 
@@ -155,9 +156,8 @@ public final class FindMeetingQueryTest {
 
     Assert.assertEquals(expected, actual);
   }
-
   
-  @Test
+  @Test @Ignore
   public void optionalAttendeeConsidered() {
     // Have a third optional attendee C be able to attend the event except in
     // the middle of the day. Thus, that spot that existed for
@@ -189,7 +189,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
   
-  @Test
+  @Test @Ignore
   public void overlappingEvents() {
     // Have an event for each person, but have their events overlap. We should only see two options.
     //
@@ -215,7 +215,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void nestedEvents() {
     // Have an event for each person, but have one person's event fully contain another's event. We
     // should see two options.
@@ -242,7 +242,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void doubleBookedPeople() {
     // Have one person, but have them registered to attend two events at the same time.
     //
@@ -267,7 +267,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
   
-  @Test
+  @Test @Ignore
   public void justEnoughRoomForMandatory() {
     // Have one person, but make it so that there is just enough room at one point in the day to
     // have the meeting. There will also be an optional attendee who has a meeting during half of that time,
@@ -299,7 +299,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
   
-  @Test
+  @Test @Ignore
   public void ignoresPeopleNotAttending() {
     // Add an event, but make the only attendee someone different from the person looking to book
     // a meeting. This event should not affect the booking.
@@ -313,7 +313,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void noConflicts() {
     MeetingRequest request =
         new MeetingRequest(Arrays.asList(PERSON_A, PERSON_B), DURATION_30_MINUTES);
@@ -324,7 +324,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void notEnoughRoom() {
     // Have one person, but make it so that there is not enough room at any point in the day to
     // have the meeting.
@@ -347,7 +347,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test 
   public void onlyOptionalWithGaps() {
     // Have two optional attendees, who have gaps in their schedule.
     // Return these gaps if they're of long enough duration.
@@ -377,7 +377,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-  @Test
+  @Test @Ignore
   public void onlyOptionalWithNoGaps() {
     // Have two optional attendees, who don't have any gaps in their 
     // schedule. This should return that no time is available.
