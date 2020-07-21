@@ -24,6 +24,12 @@ import java.util.Set;
  * Contains methods for querying availability between attendees.
  */
 public final class FindMeetingQuery {
+  public static final int OVERLAP_WITH_SAME_START = 1;
+  public static final int OVERLAP_WITH_SAME_END = 2;
+  public static final int OVERLAPS_END = 3;
+  public static final int OVERLAPS_START = 4;
+  public static final int OVERLAP_CONTAINS = 5;
+
   /**
    * Returns a collection of TimeRange objects to indicate available meeting times
    * for indicated people and duration given through a request object.
@@ -61,7 +67,7 @@ public final class FindMeetingQuery {
     Collection<String> optionalAttendees = request.getOptionalAttendees();
     long requestDuration = request.getDuration();
 
-    Collection<TimeRange> busyTimes = new HashSet<>();
+    Collection<TimeRange> busyRanges = new HashSet<>();
 
     attendees.addAll(mandatoryAttendees);
 
@@ -72,32 +78,23 @@ public final class FindMeetingQuery {
 
     // Detect relevant busy time ranges based on attendees.
     for (Event event : events) {
-      boolean attendeePresent = false;
       if (!(Collections.disjoint(attendees, event.getAttendees()))) {
-        busyTimes.add(event.getWhen());
+        busyRanges.add(event.getWhen());
       }
     }
-    
 
-    /* Iteratively cut availableRange's times based on 
+    /* Iteratively cut availableRange's times based on
      * overlap with busy events and store results in availableRanges.
      */
-    for (TimeRange busy : busyTimes) {
-      //Make a snapshot of TimeRanges for each busy check
-      Collection<TimeRange> rangesSnapshot = new HashSet<>();
-      rangesSnapshot.addAll(availableRanges);
-      for (TimeRange toCut : rangesSnapshot) {
-        
-        //For a single busy event, check all time ranges for overlap and cut
-        overlapCut(toCut, busy, availableRanges);
-        }
-      }
-    
+    for (TimeRange busyRange : busyRanges) {
+      // For a single busy event, check all time ranges for overlap and cut
+      removeOverlapsWithTimeRange(busyRange, availableRanges);
+    }
 
     // Eliminate invalid time intervals by duration.
-    for (TimeRange index : availableRanges) {
-      if (index.duration() < requestDuration) {
-        availableRanges.remove(index);
+    for (TimeRange toEvaluate : availableRanges) {
+      if (toEvaluate.duration() < requestDuration) {
+        availableRanges.remove(toEvaluate);
       }
     }
 
@@ -108,68 +105,124 @@ public final class FindMeetingQuery {
   }
 
   /**
-   * Checks whether or not a given time range overlaps with a given busy range and cuts the event
-   * shorter in a collection if needed.
+   * Mutates timeRanges by removing the time range defined in possiblyOverlappingTimeRange from any
+   * overlapping TimeRange objects it contains.
    */
-  private void overlapCut(TimeRange givenRange, TimeRange busyRange, Collection<TimeRange> whereCut){
-      // Obtain output and busy time range data.
-        int givenStart = givenRange.start();
-        int givenEnd = givenRange.end();
+  private void removeOverlapsWithTimeRange(
+      TimeRange possiblyOverlappingTimeRange, Collection timeRanges) {
 
-        int busyStart = busyRange.start();
-        int busyEnd = busyRange.end();
+    // Make a snapshot of TimeRanges for each busy check
+    Collection<TimeRange> rangesSnapshot = new HashSet<>();
+    rangesSnapshot.addAll(timeRanges);
 
-        if (givenRange.overlaps(busyRange)) {
-          whereCut.remove(givenRange);
-          /*
-           * Case 1: Busy meeting at start of free interval and ends sooner.
-           * Reduce length of free interval.
-           */
-          if ((givenStart == busyStart) && (givenEnd > busyEnd)) {
-            TimeRange replaceTime = TimeRange.fromStartDuration(busyEnd, givenEnd - busyEnd);
-            whereCut.add(replaceTime);
-          }
-          /*
-           * Case 2: Busy meeting starts during free interval and ends at same time.
-           * Reduce length of free interval.
-           */
-          else if ((givenEnd == busyEnd) && (givenStart < busyStart)) {
-            TimeRange replaceTime = TimeRange.fromStartDuration(givenStart, busyStart - givenStart);
-            whereCut.add(replaceTime);
-          }
-          /*
-           * Case 3: Busy meeting starts during free interval and ends after.
-           * Reduce length of free interval.
-           */
-          else if ((givenStart < busyStart) && (givenEnd < busyEnd)) {
-            TimeRange replaceTime = TimeRange.fromStartDuration(givenStart, busyStart - givenStart);
-            whereCut.add(replaceTime);
-          }
-          /*
-           * Case 4: Busy meeting is completely overlapped by free interval.
-           * Chop out of free interval.
-           */
-          else if ((givenStart < busyStart) && (givenEnd > busyEnd)) {
-            TimeRange replaceTimeA =
-                TimeRange.fromStartDuration(givenStart, busyStart - givenStart);
-            TimeRange replaceTimeB = TimeRange.fromStartDuration(busyEnd, givenEnd - busyEnd);
-            whereCut.add(replaceTimeA);
-            whereCut.add(replaceTimeB);
-          }
-        }
-        if (busyRange.overlaps(givenRange)) {
-          whereCut.remove(givenRange);
-          /*
-           * Case 5: Busy meeting starts before free interval and ends during.
-           * Reduce length of free interval.
-           */
-          if ((givenStart > busyStart) && (givenEnd > busyEnd)) {
-            TimeRange replaceTime = TimeRange.fromStartDuration(busyEnd, givenEnd - busyEnd);
-            whereCut.add(replaceTime);
-          }
+    for (TimeRange currentTimeRange : rangesSnapshot) {
 
+      // Check for overlap and adjust currentTimeRange
+      if (currentTimeRange.overlaps(possiblyOverlappingTimeRange)) {
+        timeRanges.remove(currentTimeRange);
+        replaceOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange, timeRanges);
+      }
 
+      if (possiblyOverlappingTimeRange.overlaps(currentTimeRange)) {
+        timeRanges.remove(currentTimeRange);
+        replaceOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange, timeRanges);
+      }
+    }
   }
 
-}
+  /**
+   * Replaces a TimeRange in a collection to remove an overlap with overlappingTimeRange. The
+   * replacement omits the overlap through either:
+   *  1. trimming the TimeRange,
+   *  2. splitting the TimeRange and trimming the resulting TimeRanges.
+   * If events do not overlap, no changes will occur.
+   */
+  private void replaceOverlappedTimeRange(
+      TimeRange overlappingTimeRange, TimeRange toReplace, Collection<TimeRange> whereReplace) {
+    // Obtain timeRange and overlappingTimeRange start/end data..
+    int toReplaceStartMinute = toReplace.start();
+    int toReplaceEndMinute = toReplace.end();
+
+    int overlappingStartMinute = overlappingTimeRange.start();
+    int overlappingEndMinute = overlappingTimeRange.end();
+
+    int overlapType = classifyOverlap(overlappingTimeRange, toReplace);
+
+    // Case 1&4: Trim front of toReplace.
+    if ((overlapType == OVERLAP_WITH_SAME_START) || (overlapType == OVERLAPS_START)) {
+      TimeRange replaceTime = TimeRange.fromStartDuration(
+          overlappingEndMinute, toReplaceEndMinute - overlappingEndMinute);
+      whereReplace.add(replaceTime);
+    }
+
+    // Case 2&3: Trim end of toReplace.
+    else if ((overlapType == OVERLAP_WITH_SAME_END) || (overlapType == OVERLAPS_END)) {
+      TimeRange replaceTime = TimeRange.fromStartDuration(
+          toReplaceStartMinute, overlappingStartMinute - toReplaceStartMinute);
+      whereReplace.add(replaceTime);
+    }
+    
+    // Case 5: Chop overlappingTimeRange out of toReplace.
+    else if (overlapType == OVERLAP_CONTAINS) {
+      TimeRange replaceTimeA = TimeRange.fromStartDuration(
+          toReplaceStartMinute, overlappingStartMinute - toReplaceStartMinute);
+      TimeRange replaceTimeB = TimeRange.fromStartDuration(
+          overlappingEndMinute, toReplaceEndMinute - overlappingEndMinute);
+      whereReplace.add(replaceTimeA);
+      whereReplace.add(replaceTimeB);
+    }
+  }
+
+  /**
+   * Returns integer representing overlap case type:
+   *  1. OVERLAP_WITH_SAME_START - TimeRanges start at same time and overlappingTimeRange
+   *     ends sooner.
+   *  2. OVERLAP_WITH_SAME_END - overlappingTimeRange starts during timeRange and
+   *     both end together.
+   *  3. OVERLAPS_END - overlappingTimeRange starts during timeRange and ends after.
+   *  4. OVERLAPS_START - overlappingTimeRange starts before timeRange and ends
+   *     during.
+   *  5. OVERLAP_CONTAINS - overlappingTimeRange is completely overlapped by
+   *     timeRange.
+   *  0. Does not overlap
+   */
+  private int classifyOverlap(TimeRange overlappingTimeRange, TimeRange timeRange) {
+    // Obtain timeRange and overlappingTimeRange start/end data..
+    int timeRangeStartMinute = timeRange.start();
+    int timeRangeEndMinute = timeRange.end();
+
+    int overlappingStartMinute = overlappingTimeRange.start();
+    int overlappingEndMinute = overlappingTimeRange.end();
+
+    // Define Overlap Cases
+    boolean overlapWithSameStart = (timeRangeStartMinute == overlappingStartMinute)
+        && (timeRangeEndMinute > overlappingEndMinute);
+
+    boolean overlapWithSameEnd = (timeRangeEndMinute == overlappingEndMinute)
+        && (timeRangeStartMinute < overlappingStartMinute);
+
+    boolean overlapsEnd = (timeRangeStartMinute < overlappingStartMinute)
+        && (timeRangeEndMinute < overlappingEndMinute);
+
+    boolean overlapsStart = (timeRangeStartMinute > overlappingStartMinute)
+        && (timeRangeEndMinute > overlappingEndMinute);
+
+    boolean containedInCurrent = (timeRangeStartMinute < overlappingStartMinute)
+        && (timeRangeEndMinute > overlappingEndMinute);
+
+    // Return appropriate overlap type
+    if (overlapWithSameStart) {
+      return OVERLAP_WITH_SAME_START;
+    } else if (overlapWithSameEnd) {
+      return OVERLAP_WITH_SAME_END;
+    } else if (overlapsEnd) {
+      return OVERLAPS_END;
+    } else if (overlapsStart) {
+      return OVERLAPS_START;
+    } else if (containedInCurrent) {
+      return OVERLAP_CONTAINS;
+    } else {
+      return 0;
+    }
+  }
 }
