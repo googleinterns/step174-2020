@@ -78,7 +78,7 @@ public final class FindMeetingQuery {
 
     // Detect relevant busy time ranges based on attendees.
     for (Event event : events) {
-      if (!(Collections.disjoint(attendees, event.getAttendees()))) {
+      if (!Collections.disjoint(attendees, event.getAttendees())) {
         busyRanges.add(event.getWhen());
       }
     }
