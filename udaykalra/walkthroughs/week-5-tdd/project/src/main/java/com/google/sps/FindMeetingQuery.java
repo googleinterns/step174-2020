@@ -118,12 +118,7 @@ public final class FindMeetingQuery {
     for (TimeRange currentTimeRange : rangesSnapshot) {
 
       // Check for overlap and adjust currentTimeRange
-      if (currentTimeRange.overlaps(possiblyOverlappingTimeRange)) {
-        timeRanges.remove(currentTimeRange);
-        replaceOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange, timeRanges);
-      }
-
-      if (possiblyOverlappingTimeRange.overlaps(currentTimeRange)) {
+      if ((currentTimeRange.overlaps(possiblyOverlappingTimeRange)) || (possiblyOverlappingTimeRange.overlaps(currentTimeRange))) {
         timeRanges.remove(currentTimeRange);
         replaceOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange, timeRanges);
       }
