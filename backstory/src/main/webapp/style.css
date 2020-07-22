@@ -3,6 +3,71 @@
 html,
 body {
   height: 100%;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
+}
+
+.horizontal-flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.vertical-flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: 'Lato', sans-serif; /* override Arial for buttons */
+  letter-spacing: .08em; /* give more space between Roboto letters */
+}
+
+/* Headers */
+.header {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.blue-header {
+  color: #4285F4; /* Google blue */
+}
+
+/* Perspective Analysis Page */
+#perspective-page {
+  justify-content: center;
+  text-align: center;
+}
+
+#perspective-content {
+  align-items: center;
+}
+
+#perspective-form {
+  align-items: center;
+  width: 50%;
+}
+
+#perspective-form input {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: medium;
+  height: 150px;
+  margin: 0px 10px 10px;
+  width: 80%;
+}
+
+#perspective-form button {
+  background-color: #4285F4; /* Google blue */
+  border: solid thick #4285F4; /* Google blue */
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  height: 40px;
+  margin: 10px;
+  width: 80px;
+}
+
+#toxicity-percentage {
+  padding: 40px; /* leave enough space for percentage to pop up */
 }
