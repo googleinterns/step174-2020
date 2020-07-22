@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
+    <title>Uday's Portfolio</title>
+  </head>
   <body onload="getCommentData(20)">
     <link rel="stylesheet" href="style.css" />
 
@@ -68,11 +71,11 @@
       <div class="row bottomRow">
         <div class="col-sm-10 center">
           <div class="textbox center">
-            <form action="/data" method="POST">
+            <form action="/data" method="post">
               <h1>Comments:</h1>
               <textarea name="text-input">Type Here!</textarea>
               <br /><br />
-              <input type="submit" />
+              <button id="submit-button" type="submit">Submit</button>
             </form>
             <label for="comment-count">Limit Comments(Choose to Show Comments):</label>
             <input
@@ -87,7 +90,7 @@
             <button type="button" id="delete-all" onclick="deleteCommentData()">
               Delete All Comments
             </button>
-            <button onclick="getCommentData(50)">Get All Comments</button>
+            <button type="button" onclick="getCommentData(50)">Get All Comments</button>
             <div id="quote-container"></div>
           </div>
         </div>

@@ -11,6 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+/* eslint-disable no-undef */
+
+const forValidate = false;
 
 /**
  * Delete comments and re-get Data
@@ -37,8 +40,12 @@ function createMap() {
   const schoolMarker = new google.maps.Marker({
     position: {lat: 32.879838, lng: -117.232351},
     map: map,
-    title: 'UC San Diego'
+    title: 'UC San Diego',
   });
+
+  if (forValidate) {
+    console.log(schoolMarker);
+  }
 }
 
 google.charts.load('current', {'packages': ['corechart']});
@@ -47,7 +54,7 @@ google.charts.setOnLoadCallback(drawChart);
 /** Fetches skill data and uses it to create a chart. */
 function drawChart() {
   fetch('/endorse-data')
-      .then(response => response.json())
+      .then((response) => response.json())
       .then((skillVotes) => {
         const data = new google.visualization.DataTable();
         data.addColumn('string', 'Skill');
@@ -64,7 +71,7 @@ function drawChart() {
           'title': 'Endorse a Skill!',
           'width': 600,
           'height': 500,
-          'alignment': 'center'
+          'alignment': 'center',
         };
 
         const chart = new google.visualization.ColumnChart(
@@ -78,14 +85,19 @@ function drawChart() {
  */
 function getCommentData(commentsLimit = 20) {
   fetch('/data?comment-count=' + commentsLimit)  // sends a request to /data
-      .then(response => response.json())         // parses the response as JSON
-      .then((comments) => {  // now we can reference the fields as an
-                             // object!
+      .then((response) => response.json())       // parses the response as JSON
+      .then((comments) => {  // now we can reference the object
         const commentsElement = document.getElementById('quote-container');
         commentsElement.innerHTML = '';
-        for (var index = 0; index < comments.length; index += 1) {
+        for (let index = 0; index < comments.length; index += 1) {
           console.log(comments);
           commentsElement.appendChild(createCommentListItem(comments[index]));
         }
       });
+}
+
+/* Function calls to aid validation */
+if (forValidate) {
+  deleteCommentData();
+  createMap();
 }

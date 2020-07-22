@@ -1,0 +1,41 @@
+name: jelares-CI
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'jelares/portfolio/*'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'jelares/portfolio/*'
+      - '.github/workflows/jelares-lint.yml'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Maven compile
+      run: cd jelares/portfolio; mvn package
+    - name: install node dependencies
+      if: always()
+      run: make node_modules
+    - name: Check HTML Formatting
+      if: always()
+      run: find jelares/portfolio/src/main -iname *.html | xargs node_modules/prettier/bin-prettier.js -c
+    - name: Check CSS Formatting
+      if: always()
+      run: find jelares/portfolio/src/main -iname *.css | xargs node_modules/prettier/bin-prettier.js -c
+    - name: Check JavaScript Formatting
+      if: always()
+      run: find jelares/portfolio/src/main -type f -iname "*.js" -exec bash -c 'diff -u <(cat "$1") <(node_modules/clang-format/bin/linux_x64/clang-format --style=Google "$1")' bash {} ';'
+    - name: Check Java Formatting
+      if: always()
+      run: find jelares/portfolio/src/main -type f -iname "*.java" -exec bash -c 'diff -u <(cat "$1") <(node_modules/clang-format/bin/linux_x64/clang-format \--style=Google "$1")' bash {} ';'
+    - name: Notify on failure
+      if: failure()
+      run: echo 'run "make validate" and "make pretty" to see/fix errors locally'

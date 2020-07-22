@@ -22,12 +22,6 @@ validate: node_modules
 	find agcaballero/portfolio/src/main -iname *.html | xargs $(HTML_VALIDATE)
 	find agcaballero/portfolio/src/main -iname *.css | xargs $(CSS_VALIDATOR)
 	find agcaballero/portfolio/src/main -iname *.js | xargs $(ESLINT)
-	find jelares/portfolio/src/main -iname *.html | xargs $(HTML_VALIDATE)
-	find jelares/portfolio/src/main -iname *.css | xargs $(CSS_VALIDATOR)
-	find jelares/portfolio/src/main -iname *.js | xargs $(ESLINT)
-	find udaykalra/portfolio/src/main -iname *.html | xargs $(HTML_VALIDATE)
-	find udaykalra/portfolio/src/main -iname *.css | xargs $(CSS_VALIDATOR)
-	find udaykalra/portfolio/src/main -iname *.js | xargs $(ESLINT)
 
 package:
 	mvn package

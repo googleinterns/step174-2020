@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* JS Functions for Overall Website
- * Features: n/a (at the moment)
- */
+package com.google.sps.servletData;
+
+/** Holds the possible actions the user could take on the login/logout link on the home page */
+public enum AuthenticationAction {
+  LOGOUT, LOGIN
+}

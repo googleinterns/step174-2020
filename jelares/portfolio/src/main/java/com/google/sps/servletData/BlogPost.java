@@ -12,6 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* JS Functions for Overall Website
- * Features: n/a (at the moment)
- */
+package com.google.sps.servletData;
+
+/** Represents a blog post */
+public final class BlogPost {
+  private final String imageUrl;
+  private final String title;
+  private final String content;
+
+  public BlogPost(String imageUrl, String title, String content) {
+    this.imageUrl = imageUrl;
+    this.title = title;
+    this.content = content;
+  }
+
+  /** Get the ImageUrl */
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  /** Get the content */
+  public String getContent() {
+    return content;
+  }
+
+  /** Get the title */
+  public String getTitle() {
+    return title;
+  }
+}
