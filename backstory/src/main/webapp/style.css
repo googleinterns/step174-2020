@@ -23,6 +23,10 @@ button {
   letter-spacing: .08em; /* give more space between Roboto letters */
 }
 
+textarea {
+  font-family: 'Roboto', sans-serif;
+}
+
 /* Headers */
 .header {
   font-family: 'Montserrat', sans-serif;
@@ -32,7 +36,35 @@ button {
   color: #4285F4; /* Google blue */
 }
 
-/* Perspective Analysis Page */
+/* Index Page */
+#demo-divs a,
+#demo-divs a:visited {
+  color: white;
+  text-decoration: none;
+}
+
+.demo-div {
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.demo-div h3 {
+  padding: 15px 25px;
+}
+
+#vision-demo-div {
+  background-color: #DB4437; /* Google red */
+}
+
+#gpt2-demo-div {
+  background-color: #F4B400; /* Google yellow */
+}
+
+#perspective-demo-div {
+  background-color: #0F9D58; /* Google green */
+}
+
+/* Perspective Demo Page */
 #perspective-page {
   justify-content: center;
   text-align: center;
@@ -47,12 +79,13 @@ button {
   width: 50%;
 }
 
-#perspective-form input {
+#perspective-form textarea {
   border-radius: 5px;
   border-style: solid;
   border-width: medium;
   height: 150px;
   margin: 0px 10px 10px;
+  padding: 10px;
   width: 80%;
 }
 

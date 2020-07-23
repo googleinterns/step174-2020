@@ -11,19 +11,23 @@
     <link rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Lato">
     <script src="script.js"></script>
-    <script src="perspective.js"></script>
   </head>
 
   <body class="vertical-flex-container" id="perspective-page">
     <div class="content vertical-flex-container" id="perspective-content">
-      <h1 class="header blue-header">Check Toxicity</h1>
+      <h1 class="header blue-header">Backstory Demo</h1>
 
-      <form class="vertical-flex-container" id="perspective-form" onsubmit="printToxicity()">
-        <input type="text" name="text"></input>
-        <button type="submit">Submit</button>
-      </form>
-
-      <div id="toxicity-percentage"></div>
+      <div class="vertical-flex-container" id="demo-divs">
+        <a href="visionDemo.html"><div class="demo-div" id="vision-demo-div">
+          <h3>Cloud Vision Demo</h3>
+        </div></a>
+        <a href=""><div class="demo-div" id="gpt2-demo-div">
+          <h3>GPT-2 Demo</h3>
+        </div></a>
+        <a href="perspective-demo.html"><div class="demo-div" id="perspective-demo-div">
+          <h3>Perspective Demo</h3>
+        </div></a>
+      </div>
     </div>
   </body>
 </html>
