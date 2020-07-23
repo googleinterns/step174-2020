@@ -120,20 +120,27 @@ public final class FindMeetingQuery {
       // Check for overlap and adjust currentTimeRange
       if ((currentTimeRange.overlaps(possiblyOverlappingTimeRange)) || (possiblyOverlappingTimeRange.overlaps(currentTimeRange))) {
         timeRanges.remove(currentTimeRange);
-        replaceOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange, timeRanges);
+        
+        //Get TimeRange(s) to replace currentTimeRange
+        Collection<TimeRange> replacementRanges = getReplacementForOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange);
+        for(TimeRange replacementRange : replacementRanges){
+          timeRanges.add(replacementRange);
+        }
       }
     }
   }
 
   /**
-   * Replaces a TimeRange in a collection to remove an overlap with overlappingTimeRange. The
+   * Returns a collection of TimeRanges to replace an overlap with overlappingTimeRange. The
    * replacement omits the overlap through either:
-   *  1. trimming the TimeRange,
+   *  1. trimming the TimeRange into a shorter one,
    *  2. splitting the TimeRange and trimming the resulting TimeRanges.
    * If events do not overlap, no changes will occur.
    */
-  private void replaceOverlappedTimeRange(
-      TimeRange overlappingTimeRange, TimeRange toReplace, Collection<TimeRange> whereReplace) {
+  private Collection<TimeRange> getReplacementForOverlappedTimeRange(
+      TimeRange overlappingTimeRange, TimeRange toReplace) {
+
+    Collection<TimeRange> replacementRanges = new HashSet<>();
     // Obtain timeRange and overlappingTimeRange start/end data..
     int toReplaceStartMinute = toReplace.start();
     int toReplaceEndMinute = toReplace.end();
@@ -147,14 +154,14 @@ public final class FindMeetingQuery {
     if ((overlapType == OVERLAP_WITH_SAME_START) || (overlapType == OVERLAPS_START)) {
       TimeRange replaceTime = TimeRange.fromStartDuration(
           overlappingEndMinute, toReplaceEndMinute - overlappingEndMinute);
-      whereReplace.add(replaceTime);
+      replacementRanges.add(replaceTime);
     }
 
     // Case 2&3: Trim end of toReplace.
     else if ((overlapType == OVERLAP_WITH_SAME_END) || (overlapType == OVERLAPS_END)) {
       TimeRange replaceTime = TimeRange.fromStartDuration(
           toReplaceStartMinute, overlappingStartMinute - toReplaceStartMinute);
-      whereReplace.add(replaceTime);
+      replacementRanges.add(replaceTime);
     }
     
     // Case 5: Chop overlappingTimeRange out of toReplace.
@@ -163,9 +170,10 @@ public final class FindMeetingQuery {
           toReplaceStartMinute, overlappingStartMinute - toReplaceStartMinute);
       TimeRange replaceTimeB = TimeRange.fromStartDuration(
           overlappingEndMinute, toReplaceEndMinute - overlappingEndMinute);
-      whereReplace.add(replaceTimeA);
-      whereReplace.add(replaceTimeB);
+      replacementRanges.add(replaceTimeA);
+      replacementRanges.add(replaceTimeB);
     }
+    return replacementRanges;
   }
 
   /**
