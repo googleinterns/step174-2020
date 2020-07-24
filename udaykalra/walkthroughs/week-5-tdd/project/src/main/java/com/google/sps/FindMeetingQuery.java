@@ -35,7 +35,6 @@ public final class FindMeetingQuery {
    * for indicated people and duration given through a request object.
    */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-
     // Perform queries with and without optional attendees.
     Collection<TimeRange> mandatoryCheck = coreQuery(events, request, false);
     Collection<TimeRange> optionalCheck = coreQuery(events, request, true);
@@ -47,14 +46,13 @@ public final class FindMeetingQuery {
       return mandatoryCheck;
     }
   }
-  
+
   /**
    * Performs interval detection functionality for querying function.
    */
   public Collection<TimeRange> coreQuery(
       Collection<Event> events, MeetingRequest request, boolean withOptional) {
-    
-    /* Create an output collection with a full day to cut(shorten or split) 
+    /* Create an output collection with a full day to cut(shorten or split)
      * into the available ranges.
      */
     TimeRange fullDay = TimeRange.WHOLE_DAY;
@@ -135,8 +133,7 @@ public final class FindMeetingQuery {
    * replacement omits the overlap through either:
    *  1. trimming the TimeRange into a shorter one,
    *  2. splitting the TimeRange and trimming the resulting TimeRanges.
-   * If events do not overlap, the returned collection will only inclued
-   * overlappedTimeRange.
+   * If events do not overlap, the returned collection will be empty.
    */
   private Collection<TimeRange> getReplacementForOverlappedTimeRange(
       TimeRange overlappingTimeRange, TimeRange overlappedTimeRange) {
@@ -172,8 +169,6 @@ public final class FindMeetingQuery {
           overlappingEndMinute, overlappedTimeRangeEndMinute - overlappingEndMinute);
       replacementRanges.add(replaceTimeA);
       replacementRanges.add(replaceTimeB);
-    } else {
-      replacementRanges.add(overlappedTimeRange);
     }
     return replacementRanges;
   }
