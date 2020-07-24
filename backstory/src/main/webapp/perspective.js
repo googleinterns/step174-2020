@@ -21,8 +21,6 @@
 
 /** displays the Perspective scores for the given text  */
 async function displayScores() {
-  console.log('working!');
-
   const text = document.getElementById('text-for-analysis').value;
   
   if(text === '' || text === null) {
@@ -30,21 +28,18 @@ async function displayScores() {
     return;
   }
 
+  // get display 
   const display = document.getElementById('attributes');
-  console.log('got display');
 
+  // grab data and get its text version (it is sent as JSON)
   const data = await fetch('/perspective?text=' + text);
-  console.log('got data');
-
   const json = await data.text();
-  console.log(json);
 
-  const obj = JSON.parse(json);
-  console.log('converted JSON');
-
-  console.log(formatAttributeArray(obj.analyses));
-  display.innerHTML = formatAttributeArray(obj.analyses);
-  console.log('success');
+  // parse the JSON into an object
+  const objOfAnalysis = JSON.parse(json);
+  
+  // properly format and display HTML
+  display.innerHTML = formatAttributeArray(objOfAnalysis.analyses);
 }
 
 /** 
