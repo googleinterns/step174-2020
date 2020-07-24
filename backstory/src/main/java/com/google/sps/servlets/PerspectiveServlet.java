@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that filters text using the Perspective API. */
 @WebServlet("/perspective")
 public final class PerspectiveServlet extends HttpServlet {
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(PerspectiveAPIKey.getKey());

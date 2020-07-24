@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PerspectiveAnalysis {
-
   /** a private class that keeps the analysis and type for each AttributeType we want analyzed */
   private class AttributeAnalysis {
     /** the attribute score given by analysis */
@@ -44,11 +43,12 @@ public class PerspectiveAnalysis {
   }
 
   /** an array of all the types we want analysis on */
-  private static final AttributeType[] types = {AttributeType.ATTACK_ON_AUTHOR, AttributeType.ATTACK_ON_COMMENTER,
-       AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK, AttributeType.INCOHERENT, 
-       AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT, AttributeType.OBSCENE, AttributeType.PROFANITY,
-       AttributeType.SEVERE_TOXICITY, AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM,
-       AttributeType.THREAT, AttributeType.UNSUBSTANTIAL};
+  private static final AttributeType[] types = {AttributeType.ATTACK_ON_AUTHOR,
+      AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
+      AttributeType.INCOHERENT, AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT,
+      AttributeType.OBSCENE, AttributeType.PROFANITY, AttributeType.SEVERE_TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM, AttributeType.THREAT,
+      AttributeType.UNSUBSTANTIAL};
 
   /** the text that generated these scores */
   private final String text;
@@ -59,11 +59,11 @@ public class PerspectiveAnalysis {
   public PerspectiveAnalysis(PerspectiveAPI perspective, String text) throws NullPointerException {
     this.text = text;
 
-    AnalyzeCommentRequest.Builder builder = new AnalyzeCommentRequest.Builder()
-        .comment(new Entry.Builder().type(ContentType.PLAIN_TEXT).text(text).build());
+    AnalyzeCommentRequest.Builder builder = new AnalyzeCommentRequest.Builder().comment(
+        new Entry.Builder().type(ContentType.PLAIN_TEXT).text(text).build());
 
     // add all the types we want to this builder
-    for(AttributeType type: types) {
+    for (AttributeType type : types) {
       builder.addRequestedAttribute(type, null);
     }
 
@@ -72,13 +72,13 @@ public class PerspectiveAnalysis {
 
     analyses = new AttributeAnalysis[types.length];
 
-    for(int i = 0; i < types.length; i++) {
+    for (int i = 0; i < types.length; i++) {
       analyses[i] = new AttributeAnalysis(fetchScore(response, types[i]), types[i]);
     }
   }
-  
+
   /**
-   * @return text that was analyzed 
+   * @return text that was analyzed
    */
   public String getText() {
     return text;
