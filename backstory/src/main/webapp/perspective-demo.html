@@ -14,12 +14,12 @@
     <div class="content vertical-flex-container" id="perspective-content">
       <h1 class="header blue-header">Perspective Demo</h1>
 
-      <form class="vertical-flex-container" id="perspective-form" onsubmit="displayScores()">
+      <div class="vertical-flex-container" id="perspective-div">
         <textarea id="text-for-analysis" name="text"></textarea>
-        <button type="submit">Submit</button>
+        <button type="button" onclick="displayScores()">Display Scores</button>
       </form>
 
-      <div id="attribute-percentages"><p>Percentage goes here</p></div>
+      <div id="attributes"></div>
     </div>
   </body>
 </html>

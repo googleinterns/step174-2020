@@ -21,37 +21,48 @@
 
 /** displays the Perspective scores for the given text  */
 async function displayScores() {
-  alert("working!");
-  const text = document.getElementById("text-for-analysis").value;
-  alert(text);
-  const display = document.getElementById('attribute-percentages');
-  alert('got display');
+  console.log('working!');
+
+  const text = document.getElementById('text-for-analysis').value;
+  
+  if(text === '' || text === null) {
+    alert('You need to enter a value');
+    return;
+  }
+
+  const display = document.getElementById('attributes');
+  console.log('got display');
 
   const data = await fetch('/perspective?text=' + text);
-  alert("got data");
+  console.log('got data');
 
   const json = await data.text();
-  alert("got text")
+  console.log(json);
 
   const obj = JSON.parse(json);
-  alert('converted JSON');
+  console.log('converted JSON');
 
+  console.log(formatAttributeArray(obj.analyses));
   display.innerHTML = formatAttributeArray(obj.analyses);
-  alert('success');
+  console.log('success');
 }
 
 /** 
  * @return {String} HTML formatting for attributes array
  */
 function formatAttributeArray(attributes) {
-  let html = '<div id="attributes">';
+  let html = '<table id="attribute-table">' +
+      '<tr><th>Attribute Type</th><th class="score">Score</th></tr>';
 
   for(let i = 0; i < attributes.length; i++) {
     html += 
-    `<p class="attribute">${formatType(attributes[i].type())}: ${attributes[i]}.score * 100}%</p><br /><br />`;
+    `<tr>` +
+    `<td>${formatType(attributes[i].type)}</td>` +
+    `<td class="score" id="score-header">${(attributes[i].score * 100).toFixed(3)}%</td>` +
+    `</tr>`;
   }
 
-  html += "</div>";
+  html += "</table>";
 
   return html;
 }
@@ -69,7 +80,7 @@ function formatType(type) {
   for(let i = 0; i < words.length; i++) {
     let word = words[i];
 
-    word = word.toSubstring(0, 1) + word.toSubstring(1).toUppercase();
+    word = word.substring(0, 1) + word.substring(1).toLowerCase();
 
     format += word + ' ';
   }

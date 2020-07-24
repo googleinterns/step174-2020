@@ -37,6 +37,15 @@ textarea {
 }
 
 /* Index Page */
+#demo-page {
+  justify-content: center;
+  text-align: center;
+}
+
+#demo-content {
+  align-items: center;
+}
+
 #demo-divs a,
 #demo-divs a:visited {
   color: white;
@@ -65,21 +74,16 @@ textarea {
 }
 
 /* Perspective Demo Page */
-#perspective-page {
-  justify-content: center;
-  text-align: center;
-}
-
 #perspective-content {
   align-items: center;
 }
 
-#perspective-form {
+#perspective-div {
   align-items: center;
   width: 50%;
 }
 
-#perspective-form textarea {
+#perspective-div textarea {
   border-radius: 5px;
   border-style: solid;
   border-width: medium;
@@ -89,7 +93,7 @@ textarea {
   width: 80%;
 }
 
-#perspective-form button {
+#perspective-div button {
   background-color: #4285F4; /* Google blue */
   border: solid thick #4285F4; /* Google blue */
   border-radius: 5px;
@@ -98,9 +102,26 @@ textarea {
   font-weight: bold;
   height: 40px;
   margin: 10px;
-  width: 80px;
+  width: 150px;
 }
 
-#toxicity-percentage {
-  padding: 40px; /* leave enough space for percentage to pop up */
+#attributes {
+  padding: 15px; /* leave enough space for percentage to pop up */
+}
+
+#attribute-table,
+#attribute-table th,
+#attribute-table td {
+  border: 1px solid black;
+}
+
+#attribute-table th,
+#attribute-table td {
+  padding: 5px;
+  width: 200px;
+}
+
+#attribute-table .score {
+  text-align: center;
+  width: 100px;
 }
