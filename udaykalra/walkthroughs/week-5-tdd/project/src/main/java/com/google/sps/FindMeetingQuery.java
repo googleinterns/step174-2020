@@ -24,11 +24,11 @@ import java.util.Set;
  * Contains methods for querying availability between attendees.
  */
 public final class FindMeetingQuery {
-  public static final int OVERLAP_WITH_SAME_START = 1;
-  public static final int OVERLAP_WITH_SAME_END = 2;
-  public static final int OVERLAPS_END = 3;
-  public static final int OVERLAPS_START = 4;
-  public static final int OVERLAP_CONTAINS = 5;
+  private static final int OVERLAP_WITH_SAME_START = 1;
+  private static final int OVERLAP_WITH_SAME_END = 2;
+  private static final int OVERLAPS_END = 3;
+  private static final int OVERLAPS_START = 4;
+  private static final int OVERLAP_CONTAINS = 5;
 
   /**
    * Returns a collection of TimeRange objects to indicate available meeting times
@@ -92,40 +92,40 @@ public final class FindMeetingQuery {
     }
 
     // Eliminate invalid time intervals by duration.
-    for (TimeRange toEvaluate : availableRanges) {
-      if (toEvaluate.duration() < requestDuration) {
-        availableRanges.remove(toEvaluate);
+    for (TimeRange timeRange : availableRanges) {
+      if (timeRange.duration() < requestDuration) {
+        availableRanges.remove(timeRange);
       }
     }
 
     // Convert to list and sort.
-    List outList = new ArrayList(availableRanges);
-    Collections.sort(outList, TimeRange.ORDER_BY_START);
-    return outList;
+    List sortedAvailableRanges = new ArrayList(availableRanges);
+    Collections.sort(sortedAvailableRanges, TimeRange.ORDER_BY_START);
+    return sortedAvailableRanges;
   }
 
   /**
    * Mutates timeRanges by removing the time range defined in possiblyOverlappingTimeRange from any
-   * overlapping TimeRange objects it contains.
+   * overlapping TimeRange objects it contains. Removal is carried our through either:
+   *  1. trimming the TimeRange into a shorter one,
+   *  2. splitting the TimeRange and trimming the resulting TimeRanges.
    */
   private void removeOverlapsWithTimeRange(
       TimeRange possiblyOverlappingTimeRange, Collection timeRanges) {
-
     // Make a snapshot of TimeRanges for each busy check
     Collection<TimeRange> rangesSnapshot = new HashSet<>();
     rangesSnapshot.addAll(timeRanges);
 
     for (TimeRange currentTimeRange : rangesSnapshot) {
-
       // Check for overlap and adjust currentTimeRange
-      if ((currentTimeRange.overlaps(possiblyOverlappingTimeRange)) || (possiblyOverlappingTimeRange.overlaps(currentTimeRange))) {
+      if ((currentTimeRange.overlaps(possiblyOverlappingTimeRange))
+          || (possiblyOverlappingTimeRange.overlaps(currentTimeRange))) {
         timeRanges.remove(currentTimeRange);
-        
-        //Get TimeRange(s) to replace currentTimeRange
-        Collection<TimeRange> replacementRanges = getReplacementForOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange);
-        for(TimeRange replacementRange : replacementRanges){
-          timeRanges.add(replacementRange);
-        }
+
+        // Get TimeRange(s) to replace currentTimeRange
+        Collection<TimeRange> replacementRanges =
+            getReplacementForOverlappedTimeRange(possiblyOverlappingTimeRange, currentTimeRange);
+        timeRanges.addAll(replacementRanges);
       }
     }
   }
@@ -135,43 +135,45 @@ public final class FindMeetingQuery {
    * replacement omits the overlap through either:
    *  1. trimming the TimeRange into a shorter one,
    *  2. splitting the TimeRange and trimming the resulting TimeRanges.
-   * If events do not overlap, no changes will occur.
+   * If events do not overlap, the returned collection will only inclued
+   * overlappedTimeRange.
    */
   private Collection<TimeRange> getReplacementForOverlappedTimeRange(
-      TimeRange overlappingTimeRange, TimeRange toReplace) {
-
+      TimeRange overlappingTimeRange, TimeRange overlappedTimeRange) {
     Collection<TimeRange> replacementRanges = new HashSet<>();
     // Obtain timeRange and overlappingTimeRange start/end data..
-    int toReplaceStartMinute = toReplace.start();
-    int toReplaceEndMinute = toReplace.end();
+    int overlappedTimeRangeStartMinute = overlappedTimeRange.start();
+    int overlappedTimeRangeEndMinute = overlappedTimeRange.end();
 
     int overlappingStartMinute = overlappingTimeRange.start();
     int overlappingEndMinute = overlappingTimeRange.end();
 
-    int overlapType = classifyOverlap(overlappingTimeRange, toReplace);
+    int overlapType = classifyOverlap(overlappingTimeRange, overlappedTimeRange);
 
-    // Case 1&4: Trim front of toReplace.
+    // Case 1&4: Trim front of overlappedTimeRange.
     if ((overlapType == OVERLAP_WITH_SAME_START) || (overlapType == OVERLAPS_START)) {
       TimeRange replaceTime = TimeRange.fromStartDuration(
-          overlappingEndMinute, toReplaceEndMinute - overlappingEndMinute);
+          overlappingEndMinute, overlappedTimeRangeEndMinute - overlappingEndMinute);
       replacementRanges.add(replaceTime);
     }
 
-    // Case 2&3: Trim end of toReplace.
+    // Case 2&3: Trim end of overlappedTimeRange.
     else if ((overlapType == OVERLAP_WITH_SAME_END) || (overlapType == OVERLAPS_END)) {
       TimeRange replaceTime = TimeRange.fromStartDuration(
-          toReplaceStartMinute, overlappingStartMinute - toReplaceStartMinute);
+          overlappedTimeRangeStartMinute, overlappingStartMinute - overlappedTimeRangeStartMinute);
       replacementRanges.add(replaceTime);
     }
-    
-    // Case 5: Chop overlappingTimeRange out of toReplace.
+
+    // Case 5: Chop overlappingTimeRange out of overlappedTimeRange.
     else if (overlapType == OVERLAP_CONTAINS) {
       TimeRange replaceTimeA = TimeRange.fromStartDuration(
-          toReplaceStartMinute, overlappingStartMinute - toReplaceStartMinute);
+          overlappedTimeRangeStartMinute, overlappingStartMinute - overlappedTimeRangeStartMinute);
       TimeRange replaceTimeB = TimeRange.fromStartDuration(
-          overlappingEndMinute, toReplaceEndMinute - overlappingEndMinute);
+          overlappingEndMinute, overlappedTimeRangeEndMinute - overlappingEndMinute);
       replacementRanges.add(replaceTimeA);
       replacementRanges.add(replaceTimeB);
+    } else {
+      replacementRanges.add(overlappedTimeRange);
     }
     return replacementRanges;
   }
@@ -198,31 +200,28 @@ public final class FindMeetingQuery {
     int overlappingEndMinute = overlappingTimeRange.end();
 
     // Define Overlap Cases
-    boolean overlapWithSameStart = (timeRangeStartMinute == overlappingStartMinute)
-        && (timeRangeEndMinute > overlappingEndMinute);
-
-    boolean overlapWithSameEnd = (timeRangeEndMinute == overlappingEndMinute)
-        && (timeRangeStartMinute < overlappingStartMinute);
-
-    boolean overlapsEnd = (timeRangeStartMinute < overlappingStartMinute)
-        && (timeRangeEndMinute < overlappingEndMinute);
-
-    boolean overlapsStart = (timeRangeStartMinute > overlappingStartMinute)
-        && (timeRangeEndMinute > overlappingEndMinute);
-
-    boolean containedInCurrent = (timeRangeStartMinute < overlappingStartMinute)
-        && (timeRangeEndMinute > overlappingEndMinute);
-
-    // Return appropriate overlap type
-    if (overlapWithSameStart) {
+    if ((timeRangeStartMinute == overlappingStartMinute)
+        && (timeRangeEndMinute > overlappingEndMinute)) {
       return OVERLAP_WITH_SAME_START;
-    } else if (overlapWithSameEnd) {
+    }
+
+    else if ((timeRangeEndMinute == overlappingEndMinute)
+        && (timeRangeStartMinute < overlappingStartMinute)) {
       return OVERLAP_WITH_SAME_END;
-    } else if (overlapsEnd) {
+    }
+
+    else if ((timeRangeStartMinute < overlappingStartMinute)
+        && (timeRangeEndMinute < overlappingEndMinute)) {
       return OVERLAPS_END;
-    } else if (overlapsStart) {
+    }
+
+    else if ((timeRangeStartMinute > overlappingStartMinute)
+        && (timeRangeEndMinute > overlappingEndMinute)) {
       return OVERLAPS_START;
-    } else if (containedInCurrent) {
+    }
+
+    else if ((timeRangeStartMinute < overlappingStartMinute)
+        && (timeRangeEndMinute > overlappingEndMinute)) {
       return OVERLAP_CONTAINS;
     } else {
       return 0;
