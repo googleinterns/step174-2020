@@ -15,29 +15,38 @@
 package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
-import com.google.sps.data.PerspectiveText;
+import com.google.gson.Gson;
+import com.google.sps.data.PerspectiveAPIKey;
+import com.google.sps.data.PerspectiveAnalysis;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Servlet that filters text using the Perspective API. */
-@WebServlet("/perspective-filter")
-public final class PerspectiveFilterServlet extends HttpServlet {
-
-  /** the API key for the Perspective API */
-  private final String API_KEY = "AIzaSyBGanMblCA8ZRtZj757eppSbVH0V9vCxgI";
+@WebServlet("/perspective")
+public final class PerspectiveServlet extends HttpServlet {
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(API_KEY);
+    PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(PerspectiveAPIKey.getKey());
+
     String text = getParameter(request, "text", "");
 
-    PerspectiveText textAnalysis = new PerspectiveText(perspectiveAPI, text);
+    PerspectiveAnalysis textAnalysis = new PerspectiveAnalysis(perspectiveAPI, text);
 
-    response.setContentType("application/html;");
-    response.getWriter().println("<p>" + textAnalysis.getToxicity() +"% Toxicity</p>");
+    response.setContentType("application/json;");
+
+    // write textanalysis as a new JSON file
+    Gson gson = new Gson();
+    String json = gson.toJson(textAnalysis);
+
+    response.getWriter().println(json);
   }
 
   /**
