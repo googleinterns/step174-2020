@@ -1,3 +1,13 @@
+/* Color Scheme */
+:root {
+  --blue-yonder: hsla(225, 30%, 49%, 1);
+  --dark-cornflower-blue: hsla(225, 40%, 36%, 1);
+  --saffron: hsla(46, 83%, 52%, 1);
+  --bittersweet: hsla(5, 91%, 67%, 1);
+  --congo-pink: hsla(4, 98%, 77%, 1);
+  --alice-blue: hsla(206, 100%, 96%, 1);
+}
+
 /* General */
 
 html,
@@ -6,6 +16,10 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+.content {
+  padding-top: 40px;
 }
 
 .horizontal-flex-container {
@@ -28,15 +42,75 @@ textarea {
 }
 
 /* Headers */
+
 .header {
   font-family: 'Montserrat', sans-serif;
+  font-weight: bolder;
+}
+
+.dark-blue-header {
+  color: var(--dark-cornflower-blue);
 }
 
 .blue-header {
-  color: #4285f4; /* Google blue */
+  color: var(--blue-yonder);
 }
 
-/* Index Page */
+.red-header {
+  color: var(--bittersweet);
+}
+
+.pink-header {
+  color: var(--congo-pink);
+}
+
+.yellow-header {
+  color: var(--saffron);
+}
+
+/* Navigation Bar */
+
+.nav-ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#nav-list {
+  background-color: var(--blue-yonder);
+  height: 50px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.nav-li {
+  float: left;
+  text-align: center;
+}
+
+.nav-li a {
+  border-right: 1px solid white;
+  color: white;
+  display: block;
+  font-weight: bold;
+  padding: 14px 16px;
+  text-decoration: none;  
+}
+
+.nav-li a:hover {
+  background-color: var(--alice-blue);
+  color: var(--blue-yonder);
+}
+
+#last-elem {
+  color: white;
+  float: right;
+  padding: 14px 16px;
+}
+
+/* Demos Page */
+
 #demo-page {
   justify-content: center;
   text-align: center;
@@ -44,6 +118,10 @@ textarea {
 
 #demo-content {
   align-items: center;
+}
+
+#demos-header {
+  font-size: 36px;
 }
 
 #demo-divs a,
@@ -62,18 +140,19 @@ textarea {
 }
 
 #vision-demo-div {
-  background-color: #db4437; /* Google red */
+  background-color: var(--bittersweet);
 }
 
 #gpt2-demo-div {
-  background-color: #f4b400; /* Google yellow */
+  background-color: var(--saffron);
 }
 
 #perspective-demo-div {
-  background-color: #0f9d58; /* Google green */
+  background-color: var(--blue-yonder);
 }
 
 /* Perspective Demo Page */
+
 #perspective-content {
   align-items: center;
 }
@@ -94,13 +173,13 @@ textarea {
 }
 
 #perspective-div button {
-  background-color: #4285f4; /* Google blue */
-  border: solid thick #4285f4; /* Google blue */
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
   border-radius: 5px;
   color: white;
   font-size: 16px;
   font-weight: bold;
-  height: 40px;
+  height: 50px;
   margin: 10px;
   width: 150px;
 }
