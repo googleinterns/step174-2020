@@ -25,9 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 public final class PerspectiveFilterServlet extends HttpServlet {
 
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-  }
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {}
 
   /**
    * @return the request parameter, or the default value if the parameter
