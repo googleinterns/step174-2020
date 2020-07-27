@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Vision API Demo</title>
+    <link rel="stylesheet" href="visionDemo.css" />
+    <script src="visionDemo.js"></script>
+  </head>
+
+  <body onload="fetchBlobstoreUrl(); getAnalyzedImages();">
+
+    <div>
+      <h1>Vision API Demo Page!</h1>
+    </div>
+
+    <form id="image-upload" method="post" enctype="multipart/form-data">
+      <label for="image">Select Image:</label>
+      <input type="file" id="image" name="image"><br><br>
+      <input type="submit">
+    </form>
+
+    <div>
+    <ul id="image-list"></ul>
+    </div>
+
+  </body>
+</html>
