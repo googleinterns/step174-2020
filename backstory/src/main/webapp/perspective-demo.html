@@ -8,10 +8,22 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
     <script src="perspective.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.js"
+      integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(function () {
+        $("#nav-bar").load("nav-bar.html")
+      })
+    </script>
   </head>
 
   <body class="vertical-flex-container" id="perspective-page">
     <div class="content vertical-flex-container" id="perspective-content">
+      <div id="nav-bar"></div>
+
       <h1 class="header blue-header">Perspective Demo</h1>
 
       <div class="vertical-flex-container" id="perspective-div">
