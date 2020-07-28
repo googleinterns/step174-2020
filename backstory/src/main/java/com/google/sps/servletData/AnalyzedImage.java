@@ -29,7 +29,10 @@ public final class AnalyzedImage {
     return imageUrl;
   }
 
-  /** Get the array of JSON objects representing a the list of labels returned from Vision API for the labels */
+  /**
+   * Get the array of JSON objects representing a the list of labels returned from Vision API for
+   * the labels
+   */
   public String getLabelsJsonArray() {
     return labelsJsonArray;
   }

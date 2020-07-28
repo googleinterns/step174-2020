@@ -22,26 +22,28 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** 
+/**
  * Writes a Blobstore Upload URL to the response:
  *
  * blobstoreService.createUploadUrl("/image-analysis") creates an intermediate URL (uploadUrl) which
- * encodes the file upload, then forwards the encoded file, as a blob object, in the request to the parameter url
- * ("/image-analysis" in this case). To see the intermediate blobstore URL, try: System.out.println(uploadUrl)
+ * encodes the file upload, then forwards the encoded file, as a blob object, in the request to the
+ * parameter url
+ * ("/image-analysis" in this case). To see the intermediate blobstore URL, try:
+ * System.out.println(uploadUrl)
  *
- * From the response sent, to access the explicit url of the encoded file, from the blob object in the request, try:
- * Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
+ * From the response sent, to access the explicit url of the encoded file, from the blob object in
+ * the request, try: Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
  * List<BlobKey> blobKeys = blobs.get(formInputElementName);
  *
  * Where formInputElementName is the name attribute for the file input in the original HTML form.
- * From blobKeys, you can access the keys for any of the files uploaded. Then with ImagesService, you can build
- * the image from the blobkey, and get the url for it.
+ * From blobKeys, you can access the keys for any of the files uploaded. Then with ImagesService,
+ * you can build the image from the blobkey, and get the url for it.
  *
  * ImagesService imagesService = ImagesServiceFactory.getImagesService();
  * ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
  * URL url = new URL(imagesService.getServingUrl(options));
  * return url.getPath();
-*/
+ */
 @WebServlet("/blobstore-upload-url")
 public class BlobstoreUploadUrlServlet extends HttpServlet {
   @Override

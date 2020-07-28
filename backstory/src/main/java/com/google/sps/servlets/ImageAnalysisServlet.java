@@ -21,16 +21,15 @@ import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ServingUrlOptions;
-import com.google.gson.Gson;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -39,7 +38,9 @@ import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageSource;
+import com.google.gson.Gson;
 import com.google.protobuf.ByteString;
+import com.google.sps.servletData.AnalyzedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -47,14 +48,13 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.sps.servletData.AnalyzedImage;
 
 /** Servlet for managing image analysis with Vision API and blobstore for uploads */
 @WebServlet("/image-analysis")
@@ -83,12 +83,11 @@ public class ImageAnalysisServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Expecting a post request from Blobstore containing the data fields from the image-upload form.
-    // After having gone through Blobstore, the request will include the images uploaded.
-    // The form in the HTML will connect to the Blobstore URL, which encodes the images and then redirects the
-    // request to this Url.
-    // In this doPost, the images are analyzed with Vision API, and the analysis along with the image URL
-    // will be sent to datastore for permanent storage.
+    // Expecting a post request from Blobstore containing the data fields from the image-upload
+    // form. After having gone through Blobstore, the request will include the images uploaded. The
+    // form in the HTML will connect to the Blobstore URL, which encodes the images and then
+    // redirects the request to this Url. In this doPost, the images are analyzed with Vision API,
+    // and the analysis along with the image URL will be sent to datastore for permanent storage.
 
     // Get the input from the form.
     // Get the URL of the image that the user uploaded to Blobstore.
@@ -126,13 +125,14 @@ public class ImageAnalysisServlet extends HttpServlet {
     requests.add(request);
 
     // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of the requests the client
-    // will be automatically closed, as it is called within the try.
+    // once, and can be reused for multiple requests. After completing all of the requests the
+    // client will be automatically closed, as it is called within the try.
     try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
       BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
       List<AnnotateImageResponse> responses = response.getResponsesList();
 
-      // There is only one image in the batch response (only supports uploading one image at a time right now)
+      // There is only one image in the batch response (only supports uploading one image at a time
+      // right now)
       AnnotateImageResponse res = responses.get(0);
 
       if (res.hasError()) {
@@ -183,7 +183,8 @@ public class ImageAnalysisServlet extends HttpServlet {
   }
 
   /* Returns image byte data from BlobKey of image stored with Blobstore. */
-  private byte[] getBlobBytes(HttpServletRequest request, String formInputElementName) throws IOException {
+  private byte[] getBlobBytes(HttpServletRequest request, String formInputElementName)
+      throws IOException {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(formInputElementName);
