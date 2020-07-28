@@ -56,12 +56,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.sps.servletData.AnalyzedImage;
 
-/** Servlet for managing image analysis with Vision API */
+/** Servlet for managing image analysis with Vision API and blobstore for uploads */
 @WebServlet("/image-analysis")
 public class ImageAnalysisServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    System.out.println("Image Analysis GET");
     // Query to find all analyzed image entities.
     Query query = new Query("analyzed-image");
 
@@ -77,16 +76,13 @@ public class ImageAnalysisServlet extends HttpServlet {
     }
 
     response.setContentType("application/json;");
-    // String jsonAnalyzedImages = analyzedImagesToJson(analyzedImages);
     Gson gson = new Gson();
     String analyzedImagesJsonArray = gson.toJson(analyzedImages);
-    // System.out.println(analyzedImagesJsonArray);
     response.getWriter().println(analyzedImagesJsonArray);
   }
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    System.out.println("Image Analysis POST");
     // Expecting a post request from Blobstore containing the data fields from the image-upload form.
     // After having gone through Blobstore, the request will include the images uploaded.
     // The form in the HTML will connect to the Blobstore URL, which encodes the images and then redirects the
@@ -97,13 +93,14 @@ public class ImageAnalysisServlet extends HttpServlet {
     // Get the input from the form.
     // Get the URL of the image that the user uploaded to Blobstore.
     final String imageUrl = getUploadedFileUrl(request, "image");
+
+    // Get the raw byte array representing the image from Blobstore
     final byte[] bytes = getBlobBytes(request, "image");
+
+    // Gets the full label information from the image byte array by calling Vision API.
     List<EntityAnnotation> labels = detectLabelsBytes(bytes);
     Gson gson = new Gson();
     Text labelsJsonArray = new Text(gson.toJson(labels));
-
-    // System.out.println(imageUrl);
-    // System.out.println(labelsJsonArray);
 
     // Add the input to datastore
     Entity analyzedImageEntity = new Entity("analyzed-image");
@@ -117,7 +114,7 @@ public class ImageAnalysisServlet extends HttpServlet {
     response.sendRedirect("/visionUploadPrototype/visionDemo.html#image-upload");
   }
 
-  // Detects labels in the image specified by the image byte data bytes
+  // Detects labels in the image specified by the image byte data by calling the Vision API.
   private List<EntityAnnotation> detectLabelsBytes(byte[] bytes) throws IOException {
     List<AnnotateImageRequest> requests = new ArrayList<>();
     List<EntityAnnotation> labels;
@@ -129,14 +126,13 @@ public class ImageAnalysisServlet extends HttpServlet {
     requests.add(request);
 
     // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of your requests, call
-    // the "close" method on the client to safely clean up any remaining background resources.
-    // The try automatically calls close on the clinet
+    // once, and can be reused for multiple requests. After completing all of the requests the client
+    // will be automatically closed, as it is called within the try.
     try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
       BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
       List<AnnotateImageResponse> responses = response.getResponsesList();
 
-      // There was only one image in the batch response
+      // There is only one image in the batch response (only supports uploading one image at a time right now)
       AnnotateImageResponse res = responses.get(0);
 
       if (res.hasError()) {
@@ -227,14 +223,5 @@ public class ImageAnalysisServlet extends HttpServlet {
     }
 
     return outputBytes.toByteArray();
-  }
-
-  /** Turns list of AnalyzedImages to json */
-  private String analyzedImagesToJson(List<AnalyzedImage> analyzedImages) {
-    Gson gson = new Gson();
-    Map<String, List<AnalyzedImage>> map = new HashMap<>();
-    map.put("analyzed-images", analyzedImages);
-
-    return gson.toJson(map);
   }
 }

@@ -32,7 +32,6 @@ function getAnalyzedImages() {
       .then((analyzedImagesObject) => {
         const imageListElement = document.getElementById('image-list');
         imageListElement.innerHTML = '';
-        console.log(analyzedImagesObject);
 
         for (let i = 0; i < analyzedImagesObject.length; i++) {
           const imageUrl = analyzedImagesObject[i].imageUrl;
@@ -46,16 +45,25 @@ function getAnalyzedImages() {
 
 /** @return {Element} containing the analyzed image with its labels */
 function createListElement(imageUrl, labelsJsonArray) {
-  const listElement = document.createElement('div');
+  const listElementRow = document.createElement('div');
+  listElementRow.classList.add("row");
 
+  const listElement = document.createElement('div');
+  listElement.classList.add("col", "flex-column", "d-flex", "justify-content-center");
+
+  const imageElementDiv = document.createElement('div')
   const imageElement = document.createElement('img')
   imageElement.src = imageUrl;
-  listElement.appendChild(imageElement);
+  imageElement.classList.add("img-fluid");
+  imageElementDiv.appendChild(imageElement);
+  imageElementDiv.classList.add("d-flex", "justify-content-center");
+  listElement.appendChild(imageElementDiv);
 
   const labelsElement = document.createElement('div');
   const labels = document.createTextNode(labelsJsonArray);
   labelsElement.appendChild(labels);
   listElement.appendChild(labelsElement);
 
-  return listElement;
+  listElementRow.appendChild(listElement)
+  return listElementRow;
 }

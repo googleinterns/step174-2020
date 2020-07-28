@@ -17,28 +17,26 @@
 
   <body onload="fetchBlobstoreUrl(); getAnalyzedImages();">
 
-    <div class="container-fluid d-flex flex-column justify-content-center">
+    <div class="container-fluid d-flex flex-column justify-content-center my-3">
 
-      <div class="row header blue-header align-items-center m-y-2">
+      <div class="row header blue-header align-items-center">
         <div class="col d-flex justify-content-center">
           <h1>Blobstore and Vision API Demos</h1>
         </div>
       </div>
 
-      <div class="row align-items-center m-y-2">
+      <div class="row align-items-center mt-2">
         <form class="col d-flex justify-content-center" id="image-upload" method="post" enctype="multipart/form-data">
           <label for="image">Select Image:</label>
           <input type="file" id="image" name="image"><br><br>
           <input type="submit">
         </form>
       </div>
-
-      <div class="row align-items-center m-y-2">
-        <div class="col d-flex flex-column justify-content-center" id="image-list">
-        </div>
-      </div>
-
+    
     </div>
+
+    <div class="container-fluid d-flex flex-column justify-content-center mt-2" id="image-list"></div>
+
   <!-- Bootstrap Javascript -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
