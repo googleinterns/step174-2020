@@ -44,7 +44,7 @@ public final class PerspectiveServlet extends HttpServlet {
 
     response.setContentType("application/json;");
 
-    // write textanalysis as a new JSON file
+    // write textAnalysis & the decision as JSON
     Gson gson = new Gson();
     String analysisJson = gson.toJson(textAnalysis);
     String decisionJson = gson.toJson(decision);
