@@ -17,13 +17,20 @@ package com.google.sps.servletData;
 /** Represents an image analyzed with the Vison API */
 public final class AnalyzedImage {
   private final String imageUrl;
+  private final String labelsJsonArray;
 
-  public AnalyzedImage(String imageUrl) {
+  public AnalyzedImage(String imageUrl, String labelsJsonArray) {
     this.imageUrl = imageUrl;
+    this.labelsJsonArray = labelsJsonArray;
   }
 
   /** Get the ImageUrl */
   public String getImageUrl() {
     return imageUrl;
+  }
+
+  /** Get the array of JSON objects representing a the list of labels returned from Vision API for the labels */
+  public String getLabelsJsonArray() {
+    return labelsJsonArray;
   }
 }

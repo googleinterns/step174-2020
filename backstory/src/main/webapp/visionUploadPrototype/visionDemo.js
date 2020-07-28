@@ -21,7 +21,7 @@ function fetchBlobstoreUrl() {
       .then((imageUploadUrl) => {
         const imageUploadForm = document.getElementById('image-upload');
         imageUploadForm.action = imageUploadUrl;
-        console.log(`Blobstore Upload: ${imageUploadUrl}`);
+        // console.log(`Blobstore Upload: ${imageUploadUrl}`);
       });
 }
 
@@ -32,22 +32,30 @@ function getAnalyzedImages() {
       .then((analyzedImagesObject) => {
         const imageListElement = document.getElementById('image-list');
         imageListElement.innerHTML = '';
-        const analyzedImages = Object.values(analyzedImagesObject)[0];
+        console.log(analyzedImagesObject);
 
-        for (let i = 0; i < analyzedImages.length; i++) {
-          const imageUrl = analyzedImages[i].imageUrl;
+        for (let i = 0; i < analyzedImagesObject.length; i++) {
+          const imageUrl = analyzedImagesObject[i].imageUrl;
+          const labelsJsonArray = analyzedImagesObject[i].labelsJsonArray;
 
           imageListElement.appendChild(
-              createListElement(imageUrl));
+              createListElement(imageUrl, labelsJsonArray));
         }
       });
 }
 
-/** @return {Element} <li> containing the analyzed image with its labels */
-function createListElement(imageUrl) {
-  const listElement = document.createElement('li');
+/** @return {Element} containing the analyzed image with its labels */
+function createListElement(imageUrl, labelsJsonArray) {
+  const listElement = document.createElement('div');
+
   const imageElement = document.createElement('img')
   imageElement.src = imageUrl;
   listElement.appendChild(imageElement);
+
+  const labelsElement = document.createElement('div');
+  const labels = document.createTextNode(labelsJsonArray);
+  labelsElement.appendChild(labels);
+  listElement.appendChild(labelsElement);
+
   return listElement;
 }

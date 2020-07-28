@@ -21,6 +21,7 @@ import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -69,14 +70,18 @@ public class ImageAnalysisServlet extends HttpServlet {
 
     List<AnalyzedImage> analyzedImages = new ArrayList<>();
     for (Entity entity : results.asIterable()) {
-      String imageUrl = (String) entity.getProperty("image-url");
+      String imageUrl = (String) entity.getProperty("imageUrl");
+      String labelsJsonArray = (String) ((Text) entity.getProperty("labelsJsonArray")).getValue();
 
-      analyzedImages.add(new AnalyzedImage(imageUrl));
+      analyzedImages.add(new AnalyzedImage(imageUrl, labelsJsonArray));
     }
 
     response.setContentType("application/json;");
-    String jsonAnalyzedImages = analyzedImagesToJson(analyzedImages);
-    response.getWriter().println(jsonAnalyzedImages);
+    // String jsonAnalyzedImages = analyzedImagesToJson(analyzedImages);
+    Gson gson = new Gson();
+    String analyzedImagesJsonArray = gson.toJson(analyzedImages);
+    // System.out.println(analyzedImagesJsonArray);
+    response.getWriter().println(analyzedImagesJsonArray);
   }
 
   @Override
@@ -93,12 +98,17 @@ public class ImageAnalysisServlet extends HttpServlet {
     // Get the URL of the image that the user uploaded to Blobstore.
     final String imageUrl = getUploadedFileUrl(request, "image");
     final byte[] bytes = getBlobBytes(request, "image");
+    List<EntityAnnotation> labels = detectLabelsBytes(bytes);
+    Gson gson = new Gson();
+    Text labelsJsonArray = new Text(gson.toJson(labels));
 
-    detectLabelsBytes(bytes);
+    // System.out.println(imageUrl);
+    // System.out.println(labelsJsonArray);
 
     // Add the input to datastore
     Entity analyzedImageEntity = new Entity("analyzed-image");
-    analyzedImageEntity.setProperty("image-url", imageUrl);
+    analyzedImageEntity.setProperty("imageUrl", imageUrl);
+    analyzedImageEntity.setProperty("labelsJsonArray", labelsJsonArray);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(analyzedImageEntity);
@@ -108,8 +118,9 @@ public class ImageAnalysisServlet extends HttpServlet {
   }
 
   // Detects labels in the image specified by the image byte data bytes
-  public static void detectLabelsBytes(byte[] bytes) throws IOException {
+  private List<EntityAnnotation> detectLabelsBytes(byte[] bytes) throws IOException {
     List<AnnotateImageRequest> requests = new ArrayList<>();
+    List<EntityAnnotation> labels;
 
     Image img = Image.newBuilder().setContent(ByteString.copyFrom(bytes)).build();
     Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
@@ -120,93 +131,24 @@ public class ImageAnalysisServlet extends HttpServlet {
     // Initialize client that will be used to send requests. This client only needs to be created
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
+    // The try automatically calls close on the clinet
     try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
       BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
       List<AnnotateImageResponse> responses = response.getResponsesList();
 
-      for (AnnotateImageResponse res : responses) {
-        if (res.hasError()) {
-          System.out.format("Error: %s%n", res.getError().getMessage());
-          return;
-        }
+      // There was only one image in the batch response
+      AnnotateImageResponse res = responses.get(0);
 
-        // For full list of available annotations, see http://g.co/cloud/vision/docs
-        for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
-          annotation
-              .getAllFields()
-              .forEach((k, v) -> System.out.format("%s : %s%n", k, v.toString()));
-        }
+      if (res.hasError()) {
+        System.out.format("Error: %s%n", res.getError().getMessage());
+        return new ArrayList<EntityAnnotation>();
       }
+
+      // For full list of available annotations, see http://g.co/cloud/vision/docs
+      labels = res.getLabelAnnotationsList();
     }
-  }
 
-  // Detects labels in the specified remote image on Google Cloud Storage.
-  public static void detectLabelsGcs(String gcsPath) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-
-    ImageSource imgSource = ImageSource.newBuilder().setImageUri(gcsPath).build();
-    Image img = Image.newBuilder().setSource(imgSource).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of your requests, call
-    // the "close" method on the client to safely clean up any remaining background resources.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
-
-      for (AnnotateImageResponse res : responses) {
-        if (res.hasError()) {
-          System.out.format("Error: %s%n", res.getError().getMessage());
-          return;
-        }
-
-        // For full list of available annotations, see http://g.co/cloud/vision/docs
-        for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
-          annotation
-              .getAllFields()
-              .forEach((k, v) -> System.out.format("%s : %s%n", k, v.toString()));
-        }
-      }
-    }
-  }
-
-  // Detects labels in the specified local image.
-  public static void detectLabels(String filePath) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-
-    ByteString imgBytes = ByteString.readFrom(new FileInputStream(filePath));
-
-    Image img = Image.newBuilder().setContent(imgBytes).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of your requests, call
-    // the "close" method on the client to safely clean up any remaining background resources.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
-
-      for (AnnotateImageResponse res : responses) {
-        if (res.hasError()) {
-          System.out.format("Error: %s%n", res.getError().getMessage());
-          return;
-        }
-
-        // For full list of available annotations, see http://g.co/cloud/vision/docs
-        for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
-          annotation
-              .getAllFields()
-              .forEach((k, v) -> System.out.format("%s : %s%n", k, v.toString()));
-        }
-      }
-    }
+    return labels;
   }
 
   /** Returns a URL that points to the uploaded file, or null if the user didn't upload a file. */
