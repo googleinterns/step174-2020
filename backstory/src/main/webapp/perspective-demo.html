@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Perspective</title>
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
@@ -20,18 +21,19 @@
     </script>
   </head>
 
-  <body class="vertical-flex-container" id="perspective-page">
+  <body>
+    <div id="nav-bar"></div>
+
     <div class="content vertical-flex-container" id="perspective-content">
-      <div id="nav-bar"></div>
 
       <h1 class="header blue-header">Perspective Demo</h1>
 
       <div class="vertical-flex-container" id="perspective-div">
         <textarea id="text-for-analysis" name="text"></textarea>
         <button type="button" onclick="displayScores()">Display Scores</button>
-      </div>
 
-      <div id="attributes"></div>
+        <div id="attributes"></div>
+      </div>
     </div>
   </body>
 </html>

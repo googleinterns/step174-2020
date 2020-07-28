@@ -1,11 +1,16 @@
 /* Color Scheme */
 :root {
-  --blue-yonder: hsla(225, 30%, 49%, 1);
-  --dark-cornflower-blue: hsla(225, 40%, 36%, 1);
-  --saffron: hsla(46, 83%, 52%, 1);
-  --bittersweet: hsla(5, 91%, 67%, 1);
-  --congo-pink: hsla(4, 98%, 77%, 1);
+  /* Main Color Palette: Bittersweet, Congo Pink, Blue Yonder
+   * Dark Cornflower Blue & Saffron 
+   * Light/Dark Highlights: Oxford Blue & Alice Blue
+   */
   --alice-blue: hsla(206, 100%, 96%, 1);
+  --bittersweet: hsla(5, 91%, 67%, 1);
+  --blue-yonder: hsla(225, 30%, 49%, 1);
+  --congo-pink: hsla(4, 98%, 77%, 1);
+  --dark-cornflower-blue: hsla(225, 40%, 32%, 1);
+  --oxford-blue: hsla(226, 41%, 16%, 1);
+  --saffron: hsla(46, 83%, 52%, 1);
 }
 
 /* General */
@@ -44,8 +49,8 @@ textarea {
 /* Headers */
 
 .header {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bolder;
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: 0.04em;
 }
 
 .dark-blue-header {
@@ -78,7 +83,7 @@ textarea {
 
 #nav-list {
   background-color: var(--blue-yonder);
-  height: 50px;
+  height: 40px;
   position: fixed;
   top: 0;
   width: 100%;
@@ -94,7 +99,7 @@ textarea {
   color: white;
   display: block;
   font-weight: bold;
-  padding: 14px 16px;
+  padding: 10px 16px;
   text-decoration: none;  
 }
 
@@ -106,15 +111,35 @@ textarea {
 #last-elem {
   color: white;
   float: right;
-  padding: 14px 16px;
+  padding: 10px 16px;
+}
+
+/* Home Page */
+
+.logo {
+  font-size: 45px;
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+#photo-upload button {
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  height: 50px;
+  margin: 0 10px 25px;
+  width: 200px;
+}
+
+#story-display {
+  color: var(--oxford-blue);
+  width: 50%;
 }
 
 /* Demos Page */
-
-#demo-page {
-  justify-content: center;
-  text-align: center;
-}
 
 #demo-content {
   align-items: center;
@@ -133,6 +158,7 @@ textarea {
 .demo-div {
   border-radius: 10px;
   margin: 5px;
+  text-align: center;
 }
 
 .demo-div h3 {
@@ -141,6 +167,10 @@ textarea {
 
 #vision-demo-div {
   background-color: var(--bittersweet);
+}
+
+#vision-demo-div h3 {
+  margin-block-start: 0;
 }
 
 #gpt2-demo-div {
@@ -155,6 +185,7 @@ textarea {
 
 #perspective-content {
   align-items: center;
+  justify-content: center;
 }
 
 #perspective-div {
@@ -186,6 +217,12 @@ textarea {
 
 #attributes {
   padding: 15px; /* leave enough space for percentage to pop up */
+}
+
+#approval-status {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
 }
 
 #attribute-table,
