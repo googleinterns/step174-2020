@@ -16,8 +16,8 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.data.PerspectiveAPIKey;
 import com.google.sps.data.PerspectiveAnalysis;
+import com.google.sps.data.PerspectiveAPIKey;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,16 +33,26 @@ import javax.servlet.http.HttpServletResponse;
 public final class PerspectiveServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(PerspectiveAPIKey.getKey());
+    // prepare response to return JSON and set up a GSON object
+    response.setContentType("application/json;");
+    Gson gson = new Gson();
+    
+    String apiKey = PerspectiveAPIKey.getKey();
+
+    if (apiKey.equals("foo")) {
+      // custom response if key couldn't be retrieved
+      String errorMessage = "Could not retrieve the Perspective API.";
+      response.getWriter().println(gson.toJson(errorMessage));
+      return; 
+    }
+      
+    PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(apiKey);
 
     String text = getParameter(request, "text", "");
 
     PerspectiveAnalysis textAnalysis = new PerspectiveAnalysis(perspectiveAPI, text);
 
-    response.setContentType("application/json;");
-
-    // write textanalysis as a new JSON file
-    Gson gson = new Gson();
+    // write textAnalysis as JSON to response
     String json = gson.toJson(textAnalysis);
 
     response.getWriter().println(json);
