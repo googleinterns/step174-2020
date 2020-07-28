@@ -23,11 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that filters text using the Perspective API. */
 @WebServlet("/perspective-filter")
 public final class PerspectiveFilterServlet extends HttpServlet {
-
   @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-  }
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {}
 
   /**
    * @return the request parameter, or the default value if the parameter
