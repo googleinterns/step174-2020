@@ -24,6 +24,7 @@ import com.google.auth.oauth2.IdTokenCredentials;
 import com.google.auth.oauth2.IdTokenProvider;
 import java.io.IOException;
 import org.json.JSONObject;
+import java.util.Scanner;
 
 
 public final class GPTSuite {
@@ -31,23 +32,23 @@ public final class GPTSuite {
    * Makes a post request with a JSON including GPT2 Parameters
    */
   private static HttpResponse makePostRequestGPT2(
-      String serviceUrl, String prompt, int textLength, int temperature) throws IOException {
+      String serviceUrl, String prompt, int textLength, Double temperature) throws IOException {
 
-    //Obtain Credentials
+    // Obtain Credentials
     GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
     
-    //Validate Credentials
+    // Validate Credentials
     if (!(credentials instanceof IdTokenProvider)) {
       throw new IllegalArgumentException("Credentials are not an instance of IdTokenProvider.");
     }
 
-    //Generate Authentication Token
+    // Generate Authentication Token
     IdTokenCredentials tokenCredential = IdTokenCredentials.newBuilder()
                                              .setIdTokenProvider((IdTokenProvider) credentials)
                                              .setTargetAudience(serviceUrl)
                                              .build();
 
-    //Formate Request Assets
+    // Formate Request Assets
     GenericUrl genericUrl = new GenericUrl(serviceUrl);
     HttpCredentialsAdapter adapter = new HttpCredentialsAdapter(tokenCredential);
     HttpTransport transport = new NetHttpTransport();
@@ -57,7 +58,7 @@ public final class GPTSuite {
     HttpRequest request = transport.createRequestFactory(adapter).buildPostRequest(
         genericUrl, ByteArrayContent.fromString("application/json", requestBody));
     
-    //Wait until response received
+    // Wait until response received
     request.getHeaders().setContentType("application/json");
     request.setConnectTimeout(0);
     request.setReadTimeout(0);
@@ -67,7 +68,7 @@ public final class GPTSuite {
   /**
    * Returns generated text output for a given prompt, length, and temperature.
    */
-  public static String generateText(String prompt, int textLength, int temperature) {
+  public static String generateText(String prompt, int textLength, Double temperature) {
     try {
       HttpResponse outputResponse = makePostRequestGPT2(
           "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app", prompt, textLength, temperature);
@@ -81,5 +82,24 @@ public final class GPTSuite {
     } catch (IOException serverException) {
       throw new RuntimeException("Error with server", serverException);
     }
+  }
+
+  /**
+   * An executable demonstration of GPT-2 interface.
+   */
+  public static void main(String[] args){
+      Scanner input = new Scanner(System.in);
+
+      System.out.println("Please enter a prompt: ");
+      String prompt = input.nextLine();
+
+      System.out.println("Please enter a text length: ");
+      int size = input.nextInt();
+
+      System.out.println("Please enter a temperature: ");
+      Double temp = input.nextDouble();
+
+      System.out.println(generateText(prompt, size, temp));
+
   }
 }
