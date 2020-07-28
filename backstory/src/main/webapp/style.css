@@ -2,7 +2,126 @@
 
 html,
 body {
+  font-family: 'Roboto', sans-serif;
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+.horizontal-flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.vertical-flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: 'Lato', sans-serif; /* override Arial for buttons */
+  letter-spacing: 0.08em; /* give more space between Roboto letters */
+}
+
+textarea {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Headers */
+.header {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.blue-header {
+  color: #4285f4; /* Google blue */
+}
+
+/* Index Page */
+#demo-page {
+  justify-content: center;
+  text-align: center;
+}
+
+#demo-content {
+  align-items: center;
+}
+
+#demo-divs a,
+#demo-divs a:visited {
+  color: white;
+  text-decoration: none;
+}
+
+.demo-div {
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.demo-div h3 {
+  padding: 15px 25px;
+}
+
+#vision-demo-div {
+  background-color: #db4437; /* Google red */
+}
+
+#gpt2-demo-div {
+  background-color: #f4b400; /* Google yellow */
+}
+
+#perspective-demo-div {
+  background-color: #0f9d58; /* Google green */
+}
+
+/* Perspective Demo Page */
+#perspective-content {
+  align-items: center;
+}
+
+#perspective-div {
+  align-items: center;
+  width: 50%;
+}
+
+#perspective-div textarea {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: medium;
+  height: 150px;
+  margin: 0 10px 10px;
+  padding: 10px;
+  width: 80%;
+}
+
+#perspective-div button {
+  background-color: #4285f4; /* Google blue */
+  border: solid thick #4285f4; /* Google blue */
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  height: 40px;
+  margin: 10px;
+  width: 150px;
+}
+
+#attributes {
+  padding: 15px; /* leave enough space for percentage to pop up */
+}
+
+#attribute-table,
+#attribute-table th,
+#attribute-table td {
+  border: 1px solid black;
+}
+
+#attribute-table th,
+#attribute-table td {
+  padding: 5px;
+  width: 200px;
+}
+
+#attribute-table .score {
+  text-align: center;
+  width: 100px;
 }

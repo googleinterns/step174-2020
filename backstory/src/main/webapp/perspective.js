@@ -37,37 +37,47 @@ async function displayScores() {
   const data = await fetch('/perspective?text=' + text);
   const json = await data.text();
 
-  // parse the JSON into an object
-  const array = JSON.parse(json);
-  console.log(array);
-  const objOfAnalysis = array[0];
-  console.log(objOfAnalysis)
-  const decision = array[1];
-  console.log(decision);
+  // parse the JSON into an array of results
+  const jsonResults = JSON.parse(json);
+  // gets the object JSON as textAnalysis
+  const textAnalysis = jsonResults[0];
+  console.log(typeof(textAnalysis));
+  // get boolean json as decision
+  const decision = jsonResults[1];
+  console.log(typeof(decision));
   
   // properly format and display HTML
-  display.innerHTML = formatAttributeMap(objOfAnalysis.analyses, decision);
+  display.innerHTML = formatAttributeMap(textAnalysis.analyses, decision);
 }
 
 /**
- * @return {String} HTML formatting for attributes map
+ * Adds HTML formatting to JSON response to display properly on page
+ * Constructs a table to display the attributes & displayed the 
+ * decision from the JSON as "Approved" or "Disapproved" above table.
+ *
+ * @param {}
+ * @param {}
+ * @return {string} HTML formatting for attributes map
  */
 function formatAttributeMap(attributes, decision) {
-  let html = '';
+  let html = '<p id="approval-status">';
 
   if(decision)
-    html += '<p id="approval-status">Approved</p>';
+    html += 'Approved';
   else
-    html += '<p id="approval-status">Not approved</p>';
+    html += 'Not approved';
 
+  html += '</p>';
+
+  // add table to display the attribute types
   html += '<table id="attribute-table">' +
       '<tr><th>Attribute Type</th><th class="score">Score</th></tr>';
 
   for (let [key, value] of Object.entries(attributes)) {
     html += `<tr>` +
         `<td>${formatType(key)}</td>` +
-        `<td class="score" id="score-header">
-          ${(value * 100).toFixed(3)}%</td>` +
+        `<td class="score" id="score-header">' +
+        '${(value * 100).toFixed(3)}%</td>` +
         `</tr>`;
   }
 
@@ -76,11 +86,12 @@ function formatAttributeMap(attributes, decision) {
   return html;
 }
 
-/*
- * Converts a String from this format ("ATTACK_ON_AUTHOR")
+/** 
+ * Converts a String from this format (of an AttributeType enum) ("ATTACK_ON_AUTHOR")
  * to this format ("Attack On Author") by replacing underscores with spaces
- *
- * @return {String} a formatted type String
+ * 
+ * @param {string} type a String that holds the enum of an AttributeType (e.g. "TOXICITY" or "ATTACK_ON_COMMENTER")
+ * @return {string} a formatted type String (e.g. "Toxicity" or "Attack on Commenter")
  */
 function formatType(type) {
   const words = type.split('_');

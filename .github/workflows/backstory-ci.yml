@@ -1,0 +1,45 @@
+name: backstory-ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Maven compile
+      run: mvn package -f backstory/pom.xml
+    - name: install node dependencies
+      if: always()
+      run: make node_modules
+    - name: Validate HTML
+      if: always()
+      run: find backstory/src/main -iname *.html | xargs node_modules/html-validate/bin/html-validate.js
+    - name: Validate CSS
+      if: always()
+      run: find backstory/src/main -iname *.css | xargs node_modules/css-validator/bin/css-validator
+    - name: Validate JavaScript
+      if: always()
+      run: find backstory/src/main -iname *.js | xargs node_modules/eslint/bin/eslint.js
+    - name: Check HTML Formatting
+      if: always()
+      run: find backstory/src/main -iname *.html | xargs node_modules/prettier/bin-prettier.js -c
+    - name: Check CSS Formatting
+      if: always()
+      run: find backstory/src/main -iname *.css | xargs node_modules/stylelint/bin/stylelint.js
+    - name: Check JavaScript Formatting
+      if: always()
+      run: find backstory/src/main -type f -iname "*.js" -exec bash -c 'diff -u <(cat "$1") <(node_modules/clang-format/bin/linux_x64/clang-format --style=Google "$1")' bash {} ';'
+    - name: Check Java Formatting
+      if: always()
+      run: find backstory/src/main -type f -iname "*.java" -exec bash -c 'diff -u <(cat "$1") <(node_modules/clang-format/bin/linux_x64/clang-format \--style=Google "$1")' bash {} ';'
+    - name: Notify on failure
+      if: failure()
+      run: echo 'run "make validate" and "make pretty" to see/fix errors locally'

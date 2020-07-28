@@ -59,13 +59,16 @@ public class PerspectiveAnalysis {
     AnalyzeCommentResponse response = perspective.analyze(request);
 
     analyses = new HashMap<AttributeType, Float>();
-
+    
+    // put all the analyses for the types desired (those in types array) in the map
     for (int i = 0; i < types.length; i++) {
       analyses.put(types[i], fetchScore(response, types[i]));
     }
   }
 
   /**
+   * Returns text that was analyzed by Perspective in this class
+   *
    * @return text that was analyzed
    */
   public String getText() {
@@ -73,6 +76,8 @@ public class PerspectiveAnalysis {
   }
 
   /**
+   * Returns the Map of all AttributeTypes and the corresponding scores.
+   *
    * @return analysis scores of text
    */
   public Map<AttributeType, Float> getAnalyses() {
@@ -82,6 +87,8 @@ public class PerspectiveAnalysis {
   /**
    * private helper method to fetch the score for a given response & type
    *
+   * @param {AnalyzeCommentResponse} the response which holds the analyses
+   * @param {AttributeType} the type of attribute to fetch the score for 
    * @return the score for the response for a given type
    */
   private float fetchScore(AnalyzeCommentResponse response, AttributeType type) {

@@ -16,7 +16,6 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.data.ContentDecision;
 import com.google.sps.data.PerspectiveAPIKey;
 import com.google.sps.data.PerspectiveAnalysis;
 import java.io.IOException;
@@ -40,16 +39,13 @@ public final class PerspectiveServlet extends HttpServlet {
 
     PerspectiveAnalysis textAnalysis = new PerspectiveAnalysis(perspectiveAPI, text);
 
-    boolean decision = !ContentDecision.isToxic(textAnalysis);
-
     response.setContentType("application/json;");
 
     // write textanalysis as a new JSON file
     Gson gson = new Gson();
-    String analysisJson = gson.toJson(textAnalysis);
-    String decisionJson = gson.toJson(decision);
+    String json = gson.toJson(textAnalysis);
 
-    response.getWriter().println("["+analysisJson+","+decisionJson+"]");
+    response.getWriter().println(json);
   }
 
   /**
