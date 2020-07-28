@@ -41,7 +41,7 @@ async function displayScores() {
   const jsonResult = JSON.parse(json);
 
   // properly format and display either the error message or the attribute array
-  if(typeof(jsonResult) === "string") {
+  if (typeof (jsonResult) === 'string') {
     display.innerHTML = formatErrorMessage(jsonResult);
   } else {
     display.innerHTML = formatAttributeArray(jsonResult.analyses);
@@ -75,7 +75,7 @@ function formatAttributeArray(attributes) {
   return html;
 }
 
-/** 
+/**
  * Converts a String from this format ("ATTACK_ON_AUTHOR")
  * to this format ("Attack On Author") by replacing underscores with spaces
  *

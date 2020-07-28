@@ -15,11 +15,10 @@
 package com.google.sps.data;
 
 public class PerspectiveAPIKey {
-  
-  /** 
+  /**
    * Returns the constant representing API key (or "foo" to hide the key)
    */
   public static String getKey() {
-    return "foo"
+    return "foo";
   }
 }
