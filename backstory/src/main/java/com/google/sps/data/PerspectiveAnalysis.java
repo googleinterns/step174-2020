@@ -14,6 +14,7 @@
 
 package com.google.sps.data;
 
+import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest;
 import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest.Builder;
 import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentResponse;
@@ -23,13 +24,11 @@ import au.com.origma.perspectiveapi.v1alpha1.models.ContentType;
 import au.com.origma.perspectiveapi.v1alpha1.models.Entry;
 import au.com.origma.perspectiveapi.v1alpha1.models.RequestedAttribute;
 import au.com.origma.perspectiveapi.v1alpha1.models.Score;
-import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PerspectiveAnalysis {
-
   /** an array of all the types we want analysis on */
   private static final AttributeType[] types = {AttributeType.ATTACK_ON_AUTHOR,
       AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
@@ -59,7 +58,7 @@ public class PerspectiveAnalysis {
     AnalyzeCommentResponse response = perspective.analyze(request);
 
     analyses = new HashMap<AttributeType, Float>();
-    
+
     // put all the analyses for the types desired (those in types array) in the map
     for (int i = 0; i < types.length; i++) {
       analyses.put(types[i], fetchScore(response, types[i]));
@@ -88,7 +87,7 @@ public class PerspectiveAnalysis {
    * private helper method to fetch the score for a given response & type
    *
    * @param {AnalyzeCommentResponse} the response which holds the analyses
-   * @param {AttributeType} the type of attribute to fetch the score for 
+   * @param {AttributeType} the type of attribute to fetch the score for
    * @return the score for the response for a given type
    */
   private float fetchScore(AnalyzeCommentResponse response, AttributeType type) {

@@ -41,18 +41,18 @@ async function displayScores() {
   const jsonResults = JSON.parse(json);
   // gets the object JSON as textAnalysis
   const textAnalysis = jsonResults[0];
-  console.log(typeof(textAnalysis));
+  console.log(typeof (textAnalysis));
   // get boolean json as decision
   const decision = jsonResults[1];
-  console.log(typeof(decision));
-  
+  console.log(typeof (decision));
+
   // properly format and display HTML
   display.innerHTML = formatAttributeMap(textAnalysis.analyses, decision);
 }
 
 /**
  * Adds HTML formatting to JSON response to display properly on page
- * Constructs a table to display the attributes & displayed the 
+ * Constructs a table to display the attributes & displayed the
  * decision from the JSON as "Approved" or "Disapproved" above table.
  *
  * @param {}
@@ -62,10 +62,11 @@ async function displayScores() {
 function formatAttributeMap(attributes, decision) {
   let html = '<p id="approval-status">';
 
-  if(decision)
+  if (decision) {
     html += 'Approved';
-  else
+  } else {
     html += 'Not approved';
+  }
 
   html += '</p>';
 
@@ -73,7 +74,7 @@ function formatAttributeMap(attributes, decision) {
   html += '<table id="attribute-table">' +
       '<tr><th>Attribute Type</th><th class="score">Score</th></tr>';
 
-  for (let [key, value] of Object.entries(attributes)) {
+  for (const [key, value] of Object.entries(attributes)) {
     html += `<tr>` +
         `<td>${formatType(key)}</td>` +
         `<td class="score" id="score-header">` +
@@ -86,12 +87,15 @@ function formatAttributeMap(attributes, decision) {
   return html;
 }
 
-/** 
- * Converts a String from this format (of an AttributeType enum) ("ATTACK_ON_AUTHOR")
- * to this format ("Attack On Author") by replacing underscores with spaces
- * 
- * @param {string} type a String that holds the enum of an AttributeType (e.g. "TOXICITY" or "ATTACK_ON_COMMENTER")
- * @return {string} a formatted type String (e.g. "Toxicity" or "Attack on Commenter")
+/**
+ * Converts a String from this format (of an AttributeType enum)
+ * ("ATTACK_ON_AUTHOR") to this format ("Attack On Author") by replacing
+ * underscores with spaces
+ *
+ * @param {string} type a String that holds the enum of an AttributeType (e.g.
+ *     "TOXICITY" or "ATTACK_ON_COMMENTER")
+ * @return {string} a formatted type String (e.g. "Toxicity" or "Attack on
+ *     Commenter")
  */
 function formatType(type) {
   const words = type.split('_');

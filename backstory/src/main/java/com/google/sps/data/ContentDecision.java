@@ -17,9 +17,8 @@ package com.google.sps.data;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 
 public class ContentDecision {
-  
   /**
-   * Returns if this textAnalysis object is a certain level of toxic. 
+   * Returns if this textAnalysis object is a certain level of toxic.
    * The threshold chosen is above 70% because that was what was used
    * in the demo on the Perspective API website.
    *
@@ -29,5 +28,5 @@ public class ContentDecision {
     float toxicity = textAnalysis.getAnalyses().get(AttributeType.TOXICITY);
 
     return toxicity >= .7;
-  } 
+  }
 }
