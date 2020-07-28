@@ -76,8 +76,8 @@ function formatAttributeMap(attributes, decision) {
   for (let [key, value] of Object.entries(attributes)) {
     html += `<tr>` +
         `<td>${formatType(key)}</td>` +
-        `<td class="score" id="score-header">' +
-        '${(value * 100).toFixed(3)}%</td>` +
+        `<td class="score" id="score-header">` +
+        `${(value * 100).toFixed(3)}%</td>` +
         `</tr>`;
   }
 

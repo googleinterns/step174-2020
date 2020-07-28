@@ -109,6 +109,12 @@ textarea {
   padding: 15px; /* leave enough space for percentage to pop up */
 }
 
+#approval-status {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
 #attribute-table,
 #attribute-table th,
 #attribute-table td {
