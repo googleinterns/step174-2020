@@ -14,9 +14,15 @@
 
 package com.google.sps.data;
 
+<<<<<<< Updated upstream:backstory/src/main/java/com/google/sps/data/ContentDecision.java
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 
 public class ContentDecision {
+=======
+public class PerspectiveAPIKey {
+  private static final String API_KEY = "AIzaSyBGanMblCA8ZRtZj757eppSbVH0V9vCxgI";
+  
+>>>>>>> Stashed changes:backstory/src/main/java/com/google/sps/data/PerspectiveAPIKey.java
   /**
    * Returns if this textAnalysis object is a certain level of toxic.
    * The threshold chosen is above 70% because that was what was used
@@ -24,9 +30,14 @@ public class ContentDecision {
    *
    * @return if the PerspectiveAnalysis Object is above 70% toxic
    */
+<<<<<<< Updated upstream:backstory/src/main/java/com/google/sps/data/ContentDecision.java
   public static boolean isToxic(PerspectiveAnalysis textAnalysis) {
     float toxicity = textAnalysis.getAnalyses().get(AttributeType.TOXICITY);
 
     return toxicity >= .7;
+=======
+  public static String getKey() {
+    return API_KEY;
+>>>>>>> Stashed changes:backstory/src/main/java/com/google/sps/data/PerspectiveAPIKey.java
   }
 }
