@@ -92,10 +92,10 @@ public class ImageAnalysisServlet extends HttpServlet {
 
     // Get the input from the form.
     // Get the URL of the image that the user uploaded to Blobstore.
-    final String imageUrl = getUploadedFileUrl(request, "image");
+    final String imageUrl = getUploadedFileUrl(request, "image-upload");
 
     // Get the raw byte array representing the image from Blobstore
-    final byte[] bytes = getBlobBytes(request, "image");
+    final byte[] bytes = getBlobBytes(request, "image-upload");
 
     // Gets the full label information from the image byte array by calling Vision API.
     List<EntityAnnotation> labels = detectLabelsBytes(bytes);

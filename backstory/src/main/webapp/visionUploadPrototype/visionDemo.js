@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* exported getAnalyzedImages fetchBlobstoreUrl */
+
+
 /**
  * Fetches the URL for uploading to Blobstore and adds it to the image upload
  * form
