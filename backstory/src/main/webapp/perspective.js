@@ -38,10 +38,21 @@ async function displayScores() {
   const json = await data.text();
 
   // parse the JSON into an object
-  const objOfAnalysis = JSON.parse(json);
+  const jsonResult = JSON.parse(json);
 
-  // properly format and display HTML
-  display.innerHTML = formatAttributeArray(objOfAnalysis.analyses);
+  // properly format and display either the error message or the attribute array
+  if (typeof (jsonResult) === 'string') {
+    display.innerHTML = formatErrorMessage(jsonResult);
+  } else {
+    display.innerHTML = formatAttributeArray(jsonResult.analyses);
+  }
+}
+
+/**
+ * @return {String} HTML formatting for error message
+ */
+function formatErrorMessage(message) {
+  return `<p>${message}</p>`;
 }
 
 /**
@@ -64,7 +75,7 @@ function formatAttributeArray(attributes) {
   return html;
 }
 
-/*
+/**
  * Converts a String from this format ("ATTACK_ON_AUTHOR")
  * to this format ("Attack On Author") by replacing underscores with spaces
  *
