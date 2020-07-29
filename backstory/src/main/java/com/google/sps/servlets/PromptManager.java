@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package com.google.sps.servlets;
 
 import java.util.Scanner;
 import java.util.List;
@@ -36,6 +37,10 @@ public final class PromptManager {
    */
   public String generatePrompt() {
     String prompt = "";
+    if(keywords.size() == 0){
+        return "";
+    }
+
 
     for(int incrementer = 0; incrementer < keywords.size() - 1; incrementer++){
         prompt = prompt + keywords.get(incrementer) + " ";
