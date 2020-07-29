@@ -39,6 +39,7 @@ import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.cloud.vision.v1.ImageSource;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.protobuf.ByteString;
 import com.google.sps.servletData.AnalyzedImage;
 import java.io.ByteArrayOutputStream;
@@ -76,7 +77,7 @@ public class ImageAnalysisServlet extends HttpServlet {
     }
 
     response.setContentType("application/json;");
-    Gson gson = new Gson();
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
     String analyzedImagesJsonArray = gson.toJson(analyzedImages);
     response.getWriter().println(analyzedImagesJsonArray);
   }
