@@ -25,39 +25,48 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** */
+/**
+ * Test the Prompt Creation Suite
+ */
 @RunWith(JUnit4.class)
 public final class PromptManagerTest {
     private static final String FIRST_KEYWORD = "First_Keyword";
     private static final String SECOND_KEYWORD = "Second_Keyword";
     private static final String THIRD_KEYWORD = "Third_Keyword";
 
+    private List<String> inputList;
   @Before
   public void setUp() {
+      inputList = new ArrayList<String>();
   }
 
   @Test
   public void verifyContains() {
+    //Ensure the output prompt contains all keywords.
 
-    List<String> inputList = new ArrayList<String>();
     inputList.add(FIRST_KEYWORD);
     inputList.add(SECOND_KEYWORD);
     inputList.add(THIRD_KEYWORD);
+    
     PromptManager testPromptManager = new PromptManager(inputList);
     String outputPrompt = testPromptManager.generatePrompt();
+    
     boolean expected = true;
     boolean actual = true;
+    
     for(String keyword : inputList){
         if(!outputPrompt.contains(keyword)){
             actual = false;
         }
     }
+    
     Assert.assertEquals(expected, actual);
   }
 
   @Test
   public void noKeywordInput() {
-    List<String> inputList = new ArrayList<String>();
+    //Ensure empty prompt return for empty input.
+
     PromptManager testPromptManager = new PromptManager(inputList);
     String expected = "";
     String actual = testPromptManager.generatePrompt();
