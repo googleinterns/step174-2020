@@ -1,8 +1,7 @@
 /* Color Scheme */
 :root {
-  /* Main Color Palette: Bittersweet, Congo Pink, Blue Yonder
-   * Dark Cornflower Blue & Saffron 
-   * Light/Dark Highlights: Oxford Blue & Alice Blue
+  /* Main Color Palette: Bittersweet, Congo Pink, Blue Yonder, Dark Cornflower Blue & Saffron
+     Light/Dark Highlights: Oxford Blue & Alice Blue
    */
   --alice-blue: hsla(206, 100%, 96%, 1);
   --bittersweet: hsla(5, 91%, 67%, 1);
@@ -100,7 +99,7 @@ textarea {
   display: block;
   font-weight: bold;
   padding: 10px 16px;
-  text-decoration: none;  
+  text-decoration: none;
 }
 
 .nav-li a:hover {
@@ -117,21 +116,36 @@ textarea {
 /* Home Page */
 
 .logo {
-  font-size: 45px;
   font-family: 'Open Sans', sans-serif;
+  font-size: 45px;
   letter-spacing: 0.04em;
 }
 
+#photo-upload {
+  text-align: center;
+}
+
 #photo-upload button {
-  background-color: var(--saffron);
-  border: solid thick var(--saffron);
   border-radius: 5px;
   color: white;
   font-size: 16px;
   font-weight: bold;
-  height: 50px;
   margin: 0 10px 25px;
+}
+
+#image-upload {
+  background-color: white;
+  border: solid thick var(--saffron);
+  color: var(--oxford-blue) !important;
+  height: 50px;
   width: 200px;
+}
+
+#submit-button {
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
+  height: 40px;
+  width: 100px;
 }
 
 #story-display {
