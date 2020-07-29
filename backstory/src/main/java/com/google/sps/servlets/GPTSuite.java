@@ -23,9 +23,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdTokenCredentials;
 import com.google.auth.oauth2.IdTokenProvider;
 import java.io.IOException;
-import org.json.JSONObject;
 import java.util.Scanner;
-
+import org.json.JSONObject;
 
 public final class GPTSuite {
   /**
@@ -33,10 +32,9 @@ public final class GPTSuite {
    */
   private static HttpResponse makePostRequestGPT2(
       String serviceUrl, String prompt, int textLength, Double temperature) throws IOException {
-
     // Obtain Credentials
     GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-    
+
     // Validate Credentials
     if (!(credentials instanceof IdTokenProvider)) {
       throw new IllegalArgumentException("Credentials are not an instance of IdTokenProvider.");
@@ -48,37 +46,44 @@ public final class GPTSuite {
                                              .setTargetAudience(serviceUrl)
                                              .build();
 
-    // Formate Request Assets
+    // Configure URL
     GenericUrl genericUrl = new GenericUrl(serviceUrl);
+
+    // Form Adapter with Authentication token
     HttpCredentialsAdapter adapter = new HttpCredentialsAdapter(tokenCredential);
     HttpTransport transport = new NetHttpTransport();
+
+    // Form JSON body using generation parameters
     String requestBody = "{\"length\": " + textLength
         + ",\"truncate\": \"<|endoftext|>\", \"prefix\": \"" + prompt
         + "\", \"temperature\": " + temperature + "}";
+
+    // Build Request with Adapter and JSON Input
     HttpRequest request = transport.createRequestFactory(adapter).buildPostRequest(
         genericUrl, ByteArrayContent.fromString("application/json", requestBody));
-    
-    // Wait until response received
     request.getHeaders().setContentType("application/json");
+
+    // Wait until response received
     request.setConnectTimeout(0);
     request.setReadTimeout(0);
-
     return request.execute();
   }
   /**
    * Returns generated text output for a given prompt, length, and temperature.
    */
   public static String generateText(String prompt, int textLength, Double temperature) {
+    // Obtain response from Server POST Request
     try {
       HttpResponse outputResponse = makePostRequestGPT2(
           "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app", prompt, textLength, temperature);
+
+      // Parse response as JSON
       try {
         JSONObject jsonObject = new JSONObject(outputResponse.parseAsString());
         return jsonObject.getString("text");
       } catch (Exception jsonException) {
         throw new RuntimeException("Failed to convert repsonse into JSON", jsonException);
       }
-
     } catch (IOException serverException) {
       throw new RuntimeException("Error with server", serverException);
     }
@@ -87,19 +92,18 @@ public final class GPTSuite {
   /**
    * An executable demonstration of GPT-2 interface.
    */
-  public static void main(String[] args){
-      Scanner input = new Scanner(System.in);
+  public static void main(String[] args) {
+    Scanner input = new Scanner(System.in);
 
-      System.out.println("Please enter a prompt: ");
-      String prompt = input.nextLine();
+    System.out.println("Please enter a prompt: ");
+    String prompt = input.nextLine();
 
-      System.out.println("Please enter a text length: ");
-      int size = input.nextInt();
+    System.out.println("Please enter a text length: ");
+    int size = input.nextInt();
 
-      System.out.println("Please enter a temperature: ");
-      Double temp = input.nextDouble();
+    System.out.println("Please enter a temperature: ");
+    Double temp = input.nextDouble();
 
-      System.out.println(generateText(prompt, size, temp));
-
+    System.out.println(generateText(prompt, size, temp));
   }
 }
