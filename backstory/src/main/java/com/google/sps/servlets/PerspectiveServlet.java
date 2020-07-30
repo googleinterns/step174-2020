@@ -52,7 +52,8 @@ public final class PerspectiveServlet extends HttpServlet {
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
       // if any errors were thrown for looking for api key, send this error message back to JS servlet
       String errorMessage = "Could not retrieve the Perspective API.";
-      System.out.println(errorMessage);
+      String messageJson = gson.toJson(errorMessage);
+      response.getWriter().println(messageJson);
       return;
     }
 
