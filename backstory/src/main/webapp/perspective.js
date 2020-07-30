@@ -16,13 +16,13 @@
 
 /**
  * JS for Perspective Page
- * features: display scores
+ * features: display Perspective analysis
  */
 
-// DISPLAY SCORES
+// DISPLAY PERSPECTIVE ANALYSIS
 
-/** displays the Perspective scores for the given text  */
-async function displayScores() {
+/** displays the Perspective scores & decision for the given text  */
+async function displayPerspectiveAnalysis() {
   const text = document.getElementById('text-for-analysis').value;
 
   if (text === '' || text === null) {
@@ -30,61 +30,99 @@ async function displayScores() {
     return;
   }
 
-  // get display
-  const display = document.getElementById('attributes');
-
   // grab data and get its text version (it is sent as JSON)
   const data = await fetch('/perspective?text=' + text);
   const json = await data.text();
+  
+  // parse the JSON into an object
+  const jsonResult = JSON.parse(json);
 
-  // parse the JSON into an array of results
-  const jsonResults = JSON.parse(json);
-  // gets the object JSON as textAnalysis
-  const textAnalysis = jsonResults[0];
-  console.log(typeof (textAnalysis));
-  // get boolean json as decision
-  const decision = jsonResults[1];
-  console.log(typeof (decision));
+  // get display
+  const display = document.getElementById('attributes');
 
-  // properly format and display HTML
-  display.innerHTML = formatAttributeMap(textAnalysis.analyses, decision);
+  // properly format and display either the error message or the Perspective analysis
+  if (typeof (jsonResult) === 'string') {
+    display.innerHTML = formatErrorMessage(jsonResult);
+  }
+
+  // gets the object JSON as analysis
+  const analysis = jsonResult;
+  
+  // if display has a child (e.g. if a table has already been appended, remove it
+  if (display.firstChild)
+    display.firstChild.remove();
+
+  display.appendChild(formatResponse(analysis.analyses, analysis.decision));
+}
+
+/**
+ * @return {string} HTML formatting for error message
+ */
+function formatErrorMessage(message) {
+  return `<p>${message}</p>`;
 }
 
 /**
  * Adds HTML formatting to JSON response to display properly on page
- * Constructs a table to display the attributes & displayed the
+ * Constructs a table to display the attributes & display the
  * decision from the JSON as "Approved" or "Disapproved" above table.
+ * Returns an element which is a div containing all this formatting.
  *
- * @param {}
- * @param {}
- * @return {string} HTML formatting for attributes map
+ * @param {object} attributes a map of attribute scores and types
+ * @param {boolean} decision the decision on whether it's appropriate
+ * @return {object} Element that displays attribute scores & decision
  */
-function formatAttributeMap(attributes, decision) {
-  let html = '<p id="approval-status">';
+function formatResponse(attributes, decision) {
+  const container = document.createElement("div");
+
+  const approval = document.createElement('p');
+  approval.id = 'approval-status';
 
   if (decision) {
-    html += 'Approved';
+    approval.innerText = 'Approved';
   } else {
-    html += 'Not approved';
+    approval.innerText = 'Not approved';
   }
 
-  html += '</p>';
+  // add the approval to the larger container
+  container.appendChild(approval);
 
-  // add table to display the attribute types
-  html += '<table id="attribute-table">' +
-      '<tr><th>Attribute Type</th><th class="score">Score</th></tr>';
+  const table = document.createElement('table');
+  table.id = 'attribute-table';
 
+  let index = 0;
+
+  // create a header & add appropriate titles
+  const header = table.insertRow(index);
+  const typeHeader = document.createElement('th');
+  typeHeader.innerText = 'Attribute Type';
+  const scoreHeader = document.createElement('th');
+  scoreHeader.innerText = 'Attribute Score';
+
+  header.appendChild(typeHeader);
+  header.appendChild(scoreHeader);
+
+  index++;
+
+  // construct the rows of the table using the data from attributes
   for (const [key, value] of Object.entries(attributes)) {
-    html += `<tr>` +
-        `<td>${formatType(key)}</td>` +
-        `<td class="score" id="score-header">` +
-        `${(value * 100).toFixed(3)}%</td>` +
-        `</tr>`;
+    const row = table.insertRow(index);
+    
+    // create data element for type and set its text
+    const typeData = row.insertCell(0);
+    typeData.innerText = formatType(key);
+
+    // create data element for score, set its text, and add a class type for it
+    const scoreData = row.insertCell(1);
+    scoreData.classList.add('score');
+    scoreData.innerText = (value * 100).toFixed(3);
+
+    index++;
   }
+  
+  container.append(table);
 
-  html += '</table>';
-
-  return html;
+  return container;
 }
 
 /**
