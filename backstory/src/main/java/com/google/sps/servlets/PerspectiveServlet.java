@@ -62,7 +62,16 @@ public final class PerspectiveServlet extends HttpServlet {
 
     String text = getParameter(request, "text", "");
 
-    PerspectiveManager manager = new PerspectiveManager(perspectiveAPI, text);
+    PerspectiveManager manager;
+
+    try {
+      manager = new PerspectiveManager(perspectiveAPI, text);
+    } catch(IllegalArgumentException e) {
+      String errorMessage = "Your input is invalid.";
+      String messageJson = gson.toJson(errorMessage);
+      response.getWriter().println(messageJson);
+      return;
+    };
 
     // write PerspectiveManager object as JSON 
     String json = gson.toJson(manager);

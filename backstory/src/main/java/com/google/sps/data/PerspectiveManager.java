@@ -52,7 +52,19 @@ public class PerspectiveManager {
   /** a boolean that holds the decision on if the text is appropriate or not */
   private final boolean decision;
 
-  public PerspectiveManager(PerspectiveAPI perspective, String text) throws NullPointerException {
+  /**
+   * Constructs a PerspectiveManager object with an instance of the PerspectiveAPI and
+   * a text to analyze using Perspective.
+   *
+   * @param perspective an instance of the Perspective API to analyze text with
+   * @param text the text to analyze (should NOT be null or empty)
+   * @throws IllegalArgumentException if text is empty or null
+   */
+  public PerspectiveManager(PerspectiveAPI perspective, String text) throws IllegalArgumentException {
+    if(text == null || "".equals(text)) {
+      throw new IllegalArgumentException("Cannot create a PerspectiveManager with empty or null text");
+    }
+
     this.text = text;
 
     AnalyzeCommentRequest.Builder builder = new AnalyzeCommentRequest.Builder().comment(
