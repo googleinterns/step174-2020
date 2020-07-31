@@ -42,11 +42,17 @@ import org.mockito.stubbing.Answer;
 @RunWith(JUnit4.class)
 public final class PerspectiveManagerTest {
 
+  /** will hold the current requested attributes */
   private AttributeType[] types;
+  /** will hold the current instance of the PerspectiveAPI */
+  private PerspectiveAPI api;
+  /** will hold the input map needed to set up the mock API */
+  Map<AttributeType, Float> input;
 
   @Before 
   public void setUp() {
     types = PerspectiveManager.REQUESTED_ATTRIBUTES;
+    input = new HashMap<AttributeType, Float>();
   }
 
   @Test (expected = IllegalArgumentException.class)
@@ -54,7 +60,6 @@ public final class PerspectiveManagerTest {
     // Call the PerspectiveManager constructor with null input for text
     // Should throw an IllegalArgumentException
 
-    Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
     PerspectiveAPI api = setUpMockAPI(input);
     
     PerspectiveManager manager = PerspectiveServiceClient.analyze(api, types, null);
@@ -65,8 +70,7 @@ public final class PerspectiveManagerTest {
     // Call the PerspectiveManager constructor with an empty String for text
     // Should throw an IllegalArgumentException
 
-    Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
-    PerspectiveAPI api = setUpMockAPI(input);
+    api = setUpMockAPI(input);
     
     PerspectiveManager manager = PerspectiveServiceClient.analyze(api, types, "");
   }
@@ -77,8 +81,7 @@ public final class PerspectiveManagerTest {
     // you get all the correct outputs: a map of -1 values, the correct text ("foo")
     // & the correct decision (true, which means it is appropriate).
     
-    Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
-    PerspectiveAPI api = setUpMockAPI(input);
+    api = setUpMockAPI(input);
 
     PerspectiveManager manager = PerspectiveServiceClient.analyze(api, types, "foo");
     
@@ -96,8 +99,8 @@ public final class PerspectiveManagerTest {
   @Test 
   public void checkSizeOfMap() {
     // Check that PerspectiveManager analyzes and returns all 15 of our desired attributes
-    Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
-    PerspectiveAPI api = setUpMockAPI(input);
+    
+    api = setUpMockAPI(input);
 
     PerspectiveManager manager = PerspectiveServiceClient.analyze(api, types, "foo");
     Map<AttributeType, Float> output = manager.getAnalyses();
@@ -111,9 +114,6 @@ public final class PerspectiveManagerTest {
     // inputs with different levels of toxicity). getDecision() should return
     // true if toxicity < .7 and false if toxicity >= .7
     
-    Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
-    PerspectiveAPI api;
-
     // check that if below .7, it returns true
     final float LOW_TOXICITY = .69f;
     input.put(AttributeType.TOXICITY, LOW_TOXICITY);
