@@ -16,7 +16,7 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.data.PerspectiveAnalysis;
+import com.google.sps.data.perspective.PerspectiveAnalysis;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
