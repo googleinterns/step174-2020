@@ -65,7 +65,6 @@
       <version>2.6</version>
     </dependency>
 
-
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client-gson</artifactId>
