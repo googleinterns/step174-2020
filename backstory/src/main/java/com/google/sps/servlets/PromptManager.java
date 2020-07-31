@@ -44,7 +44,7 @@ public final class PromptManager {
 
     //Check if valid.
     if(keywords.size() == 0){
-        return "";
+        return "";  
     }
 
     //Append strings.
