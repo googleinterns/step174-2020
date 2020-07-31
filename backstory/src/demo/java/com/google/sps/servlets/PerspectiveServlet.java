@@ -17,6 +17,7 @@ package com.google.sps.servlets;
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
 import com.google.sps.data.perspective.PerspectiveAnalysis;
+import com.google.sps.data.perspective.PerspectiveServiceClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -61,7 +62,7 @@ public final class PerspectiveServlet extends HttpServlet {
 
     String text = getParameter(request, "text", "");
 
-    PerspectiveAnalysis textAnalysis = new PerspectiveAnalysis(perspectiveAPI, text);
+    PerspectiveAnalysis textAnalysis = PerspectiveServiceClient.analyze(perspectiveAPI, PerspectiveAnalysis.ANALYSIS_TYPES, text);
 
     // write textAnalysis as JSON to response
     String json = gson.toJson(textAnalysis);
