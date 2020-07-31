@@ -33,13 +33,12 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that filters text using the Perspective API. */
 @WebServlet("/perspective")
 public final class PerspectiveServlet extends HttpServlet {
-
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // prepare response to return JSON and set up a GSON object
     response.setContentType("application/json;");
     Gson gson = new Gson();
-    
+
     String apiKey = "foo";
 
     try {
@@ -47,11 +46,13 @@ public final class PerspectiveServlet extends HttpServlet {
       Class<?> keyClass = Class.forName("com.google.sps.data.PerspectiveAPIKey");
       // create a method getKey that takes no parameters
       Method getKey = keyClass.getMethod("getKey", null);
-      // invoke this static method (first null means it's static 
+      // invoke this static method (first null means it's static
       // & second null means it does not need arguments) & stores result
       apiKey = (String) getKey.invoke(null, null);
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-      // if any errors were thrown for looking for api key, send this error message back to JS servlet
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+        | InvocationTargetException e) {
+      // if any errors were thrown for looking for api key, send this error message back to JS
+      // servlet
       String errorMessage = "Could not retrieve the Perspective API.";
       String messageJson = gson.toJson(errorMessage);
       response.getWriter().println(messageJson);
@@ -66,14 +67,14 @@ public final class PerspectiveServlet extends HttpServlet {
 
     try {
       manager = new PerspectiveManager(perspectiveAPI, text);
-    } catch(IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       String errorMessage = "Your input is invalid.";
       String messageJson = gson.toJson(errorMessage);
       response.getWriter().println(messageJson);
       return;
     };
 
-    // write PerspectiveManager object as JSON 
+    // write PerspectiveManager object as JSON
     String json = gson.toJson(manager);
 
     response.getWriter().println(json);

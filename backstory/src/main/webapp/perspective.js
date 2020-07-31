@@ -33,24 +33,25 @@ async function displayPerspectiveAnalysis() {
   // grab data and get its text version (it is sent as JSON)
   const data = await fetch('/perspective?text=' + text);
   const json = await data.text();
-  
+
   // parse the JSON into an object
   const jsonResult = JSON.parse(json);
 
   // get display
   const display = document.getElementById('attributes');
 
-  // properly format and display either the error message or the Perspective analysis
+  // properly format and display either the error message or the Perspective
+  // analysis
   if (typeof (jsonResult) === 'string') {
     display.innerHTML = formatErrorMessage(jsonResult);
   }
 
   // gets the object JSON as analysis
   const analysis = jsonResult;
-  
-  // if display has a child (e.g. if a table has already been appended, remove it
-  if (display.firstChild)
-    display.firstChild.remove();
+
+  // if display has a child (e.g. if a table has already been appended, remove
+  // it
+  if (display.firstChild) display.firstChild.remove();
 
   display.appendChild(formatResponse(analysis.analyses, analysis.decision));
 }
@@ -73,7 +74,7 @@ function formatErrorMessage(message) {
  * @return {object} Element that displays attribute scores & decision
  */
 function formatResponse(attributes, decision) {
-  const container = document.createElement("div");
+  const container = document.createElement('div');
 
   const approval = document.createElement('p');
   approval.id = 'approval-status';
@@ -107,7 +108,7 @@ function formatResponse(attributes, decision) {
   // construct the rows of the table using the data from attributes
   for (const [key, value] of Object.entries(attributes)) {
     const row = table.insertRow(index);
-    
+
     // create data element for type and set its text
     const typeData = row.insertCell(0);
     typeData.innerText = formatType(key);
@@ -119,7 +120,7 @@ function formatResponse(attributes, decision) {
 
     index++;
   }
-  
+
   container.append(table);
 
   return container;

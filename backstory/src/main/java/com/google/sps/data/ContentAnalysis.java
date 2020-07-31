@@ -26,7 +26,7 @@ public class ContentAnalysis {
    * Returns if the text the analyses are for is a certain level of toxic.
    * The threshold chosen is above 70% because that was what was used
    * in the demo on the Perspective API website.
-   * 
+   *
    * @param analyses a map which stores the scores from the Perspective API
    * @return true, if the  Object is above (or equal to) 70% toxic; false if not
    */

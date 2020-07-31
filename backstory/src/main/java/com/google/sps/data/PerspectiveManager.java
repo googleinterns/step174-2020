@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-/** 
+/**
  * An Object that holds a text and all of the desired attribute scores from the Perspective
  * API for that text. The main functionality for this class is for it to use the scores
  * from the Perspective API stored in its final variables to make a decision on the
@@ -60,9 +60,11 @@ public class PerspectiveManager {
    * @param text the text to analyze (should NOT be null or empty)
    * @throws IllegalArgumentException if text is empty or null
    */
-  public PerspectiveManager(PerspectiveAPI perspective, String text) throws IllegalArgumentException {
-    if(text == null || "".equals(text)) {
-      throw new IllegalArgumentException("Cannot create a PerspectiveManager with empty or null text");
+  public PerspectiveManager(PerspectiveAPI perspective, String text)
+      throws IllegalArgumentException {
+    if (text == null || "".equals(text)) {
+      throw new IllegalArgumentException(
+          "Cannot create a PerspectiveManager with empty or null text");
     }
 
     this.text = text;
@@ -105,16 +107,15 @@ public class PerspectiveManager {
   public Map<AttributeType, Float> getAnalyses() {
     return analyses;
   }
-  
-  /** 
+
+  /**
    * Returns the decision on the appropriateness of the text
-   * 
+   *
    * @return true, if content considered appropriate; false, otherwise
    */
   public boolean getDecision() {
     return decision;
   }
-
 
   /**
    * private helper method to fetch the score for a given response & type
@@ -128,14 +129,15 @@ public class PerspectiveManager {
     Score score = attributeScore.getSummaryScore();
     return score.getValue();
   }
-  
-  /** 
+
+  /**
    * internal method called in constructor to make decision on appropriateness
    *
    * @return true, if it considers text appropriate, false otherwise
    */
   private boolean makeDecision() {
-    // currently decision is just based on if text is considered toxic (if it is, it's not appropriate)
+    // currently decision is just based on if text is considered toxic (if it is, it's not
+    // appropriate)
     return !ContentAnalysis.isToxic(analyses);
   }
 }
