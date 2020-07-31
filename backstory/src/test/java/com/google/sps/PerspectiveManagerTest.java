@@ -22,7 +22,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentResponse;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeScore;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import au.com.origma.perspectiveapi.v1alpha1.models.Score;
-import com.google.sps.data.PerspectiveManager;
+import com.google.sps.data.perspective.PerspectiveManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +39,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 
 /** Quality tests for PerspectiveManager */
 @RunWith(JUnit4.class)
