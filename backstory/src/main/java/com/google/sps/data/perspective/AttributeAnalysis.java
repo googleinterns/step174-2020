@@ -12,13 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.data;
+package com.google.sps.data.perspective;
 
-public class PerspectiveAPIKey {
-  /**
-   * Returns the constant representing API key (or "foo" to hide the key)
-   */
-  public static String getKey() {
-    return "foo";
+import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
+
+/**
+ * Container to hold a AttributeType and corresponding score.
+ */
+public class AttributeAnalysis {
+    /** the attribute score given by analysis */
+    private final float score;
+    /** the type that the analysis score is for */
+    private final AttributeType type;
+
+    public AttributeAnalysis(float score, AttributeType type) {
+      this.score = score;
+      this.type = type;
+    }
   }
-}
