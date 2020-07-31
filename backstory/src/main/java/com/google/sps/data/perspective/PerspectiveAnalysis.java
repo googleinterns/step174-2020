@@ -28,6 +28,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/** 
+ * A class to hold all of the attribute scores from Perspective for a specified
+ * piece of text.
+ */
 public class PerspectiveAnalysis {
   /** a private class that keeps the analysis and type for each AttributeType we want analyzed */
   private class AttributeAnalysis {
