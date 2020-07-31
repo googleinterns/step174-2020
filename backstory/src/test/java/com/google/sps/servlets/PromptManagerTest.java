@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public final class PromptManagerTest {
     inputList.add(THIRD_KEYWORD);
     
     PromptManager testPromptManager = new PromptManager(inputList);
-    String outputPrompt = testPromptManager.generatePrompt();
+    String outputPrompt = testPromptManager.generatePrompt(" ");
     
     boolean expected = true;
     boolean actual = true;
@@ -69,7 +69,21 @@ public final class PromptManagerTest {
 
     PromptManager testPromptManager = new PromptManager(inputList);
     String expected = "";
-    String actual = testPromptManager.generatePrompt();
+    String actual = testPromptManager.generatePrompt(" ");
+    
+    Assert.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void endsInPeriod() {
+    //Ensures period at end of output.
+    inputList.add(FIRST_KEYWORD);
+    inputList.add(SECOND_KEYWORD);
+    inputList.add(THIRD_KEYWORD);
+    PromptManager testPromptManager = new PromptManager(inputList);
+    String expected = ".";
+    String generated = testPromptManager.generatePrompt(" ");
+    String actual = generated.substring(generated.length() - 1);
     
     Assert.assertEquals(expected, actual);
   }

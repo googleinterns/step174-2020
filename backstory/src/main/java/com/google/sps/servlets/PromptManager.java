@@ -17,12 +17,15 @@ import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Creates prompt string for text generation using input keyword strings.
+ */
 public final class PromptManager {
 
   private List<String> keywords;
   
   /**
-   * Initialize labels parameter
+   * Initialize labels parameter.
    * 
    * @param labels A list of Strings containing keywords for prompts.
    */
@@ -33,45 +36,25 @@ public final class PromptManager {
   /**
    * Generates prompt using labels.
    * 
+   * @param delimiter String for delimiter between appended strings.
    * @return A String containing the output prompt.
    */
-  public String generatePrompt() {
+  public String generatePrompt(String delimiter) {
     String prompt = "";
+
+    //Check if valid.
     if(keywords.size() == 0){
         return "";
     }
 
-
+    //Append strings.
     for(int incrementer = 0; incrementer < keywords.size() - 1; incrementer++){
-        prompt = prompt + keywords.get(incrementer) + " ";
+        prompt = prompt + keywords.get(incrementer) + delimiter;
     }
-    prompt+=keywords.get(keywords.size()-1);
+    prompt += keywords.get(keywords.size()-1);
     prompt += ".";
 
     return prompt;
   }
 
-
-  /**
-   * An executable demonstration of prompt generation.
-   */
-  public static void main(String[] args) {
-    Scanner input = new Scanner(System.in);
-
-    List<String> inputKeywords = new ArrayList<String>();
-    System.out.println("Please enter the first label");
-    String inputKeyword = input.nextLine();
-    inputKeywords.add(inputKeyword);
-
-    System.out.println("Please enter the second label");
-    inputKeyword = input.nextLine();
-    inputKeywords.add(inputKeyword);
-
-    System.out.println("Please enter the third label");
-    inputKeyword = input.nextLine();
-    inputKeywords.add(inputKeyword);
-
-    PromptManager testPromptGeneration = new PromptManager(inputKeywords);
-    System.out.println(testPromptGeneration.generatePrompt());
-  }
 }
