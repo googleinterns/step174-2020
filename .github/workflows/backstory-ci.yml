@@ -24,7 +24,7 @@ jobs:
       run: find backstory/src/main -iname *.html | xargs node_modules/html-validate/bin/html-validate.js
     - name: Validate CSS
       if: always()
-      run: find backstory/src/main -iname *.css | xargs node_modules/css-validator/bin/css-validator
+      run: find backstory/src/main -iname *.css | xargs node_modules/csstree-validator/bin/validate
     - name: Validate JavaScript
       if: always()
       run: find backstory/src/main -iname *.js | xargs node_modules/eslint/bin/eslint.js
