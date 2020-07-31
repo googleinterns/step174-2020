@@ -57,7 +57,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet for managing image analysis with Vision API and blobstore for uploads */
+/**
+ * Prototype Servlet for managing the image analysis demo with Vision API and blobstore for uploads
+ */
 @WebServlet("/image-analysis")
 public class ImageAnalysisServlet extends HttpServlet {
   @Override
@@ -97,25 +99,31 @@ public class ImageAnalysisServlet extends HttpServlet {
     // Get the raw byte array representing the image from Blobstore
     final byte[] bytes = getBlobBytes(request, "image-upload");
 
-    // Gets the full label information from the image byte array by calling Vision API.
-    List<EntityAnnotation> labels = detectLabelsBytes(bytes);
-    Gson gson = new Gson();
-    Text labelsJsonArray = new Text(gson.toJson(labels));
+    if (bytes == null || imageUrl == null) {
+      // Redirect back to the HTML page.
+      response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
 
-    // Add the input to datastore
-    Entity analyzedImageEntity = new Entity("analyzed-image");
-    analyzedImageEntity.setProperty("imageUrl", imageUrl);
-    analyzedImageEntity.setProperty("labelsJsonArray", labelsJsonArray);
+    } else {
+      // Gets the full label information from the image byte array by calling Vision API.
+      List<EntityAnnotation> labels = detectLabelsFromImageBytes(bytes);
+      Gson gson = new Gson();
+      Text labelsJsonArray = new Text(gson.toJson(labels));
 
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    datastore.put(analyzedImageEntity);
+      // Add the input to datastore
+      Entity analyzedImageEntity = new Entity("analyzed-image");
+      analyzedImageEntity.setProperty("imageUrl", imageUrl);
+      analyzedImageEntity.setProperty("labelsJsonArray", labelsJsonArray);
 
-    // Redirect back to the HTML page.
-    response.sendRedirect("/visionUploadPrototype/visionDemo.html#image-upload");
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      datastore.put(analyzedImageEntity);
+
+      // Redirect back to the HTML page.
+      response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
+    }
   }
 
-  // Detects labels in the image specified by the image byte data by calling the Vision API.
-  private List<EntityAnnotation> detectLabelsBytes(byte[] bytes) throws IOException {
+  /** Detects labels in the image specified by the image byte data by calling the Vision API. */
+  private List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
     List<AnnotateImageRequest> requests = new ArrayList<>();
     List<EntityAnnotation> labels;
 
@@ -183,7 +191,7 @@ public class ImageAnalysisServlet extends HttpServlet {
     }
   }
 
-  /* Returns image byte data from BlobKey of image stored with Blobstore. */
+  /** Returns image byte data from BlobKey of image stored with Blobstore. */
   private byte[] getBlobBytes(HttpServletRequest request, String formInputElementName)
       throws IOException {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
