@@ -21,6 +21,13 @@ import java.util.Map;
  * An interface for Perspective API integration with project
  */
 public interface PerspectiveManager {
+  /** an array of all the types we want analysis on */
+  static final AttributeType[] REQUESTED_ATTRIBUTES = {AttributeType.ATTACK_ON_AUTHOR,
+      AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
+      AttributeType.INCOHERENT, AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT,
+      AttributeType.OBSCENE, AttributeType.PROFANITY, AttributeType.SEVERE_TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM, AttributeType.THREAT,
+      AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL};
 
   /**
    * Returns text that was analyzed by Perspective in this class

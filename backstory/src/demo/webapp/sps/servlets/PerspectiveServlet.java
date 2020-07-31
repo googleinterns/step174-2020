@@ -16,8 +16,9 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.data.ContentAnalysis;
-import com.google.sps.data.PerspectiveManager;
+import com.google.sps.data.perspective.ContentAnalysis;
+import com.google.sps.data.perspective.PerspectiveManager;
+import com.google.sps.data.perspective.PerspectiveServiceClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,7 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/perspective")
 public final class PerspectiveServlet extends HttpServlet {
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // prepare response to return JSON and set up a GSON object
     response.setContentType("application/json;");
     Gson gson = new Gson();
@@ -43,19 +44,19 @@ public final class PerspectiveServlet extends HttpServlet {
 
     try {
       // fetch the PerspectiveAPIKey class if it's there
-      Class<?> keyClass = Class.forName("com.google.sps.data.PerspectiveAPIKey");
+      Class<?> keyClass = Class.forName("com.google.sps.data.perspective.PerspectiveAPIKey");
       // create a method getKey that takes no parameters
       Method getKey = keyClass.getMethod("getKey", null);
+      
       // invoke this static method (first null means it's static
       // & second null means it does not need arguments) & stores result
       apiKey = (String) getKey.invoke(null, null);
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-        | InvocationTargetException e) {
-      // if any errors were thrown for looking for api key, send this error message back to JS
-      // servlet
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {      
+      // if any errors were thrown for looking for api key, send this error message back to JS servlet
       String errorMessage = "Could not retrieve the Perspective API.";
       String messageJson = gson.toJson(errorMessage);
       response.getWriter().println(messageJson);
+
       return;
     }
 
@@ -66,7 +67,7 @@ public final class PerspectiveServlet extends HttpServlet {
     PerspectiveManager manager;
 
     try {
-      manager = new PerspectiveManager(perspectiveAPI, text);
+      manager = PerspectiveServiceClient.analyze(perspectiveAPI, PerspectiveManager.REQUESTED_ATTRIBUTES, text);
     } catch (IllegalArgumentException e) {
       String errorMessage = "Your input is invalid.";
       String messageJson = gson.toJson(errorMessage);

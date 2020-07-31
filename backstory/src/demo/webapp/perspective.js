@@ -31,7 +31,7 @@ async function displayPerspectiveAnalysis() {
   }
 
   // grab data and get its text version (it is sent as JSON)
-  const data = await fetch('/perspective?text=' + text);
+  const data = await fetch('/perspective?text=' + text, {method: 'post'});
   const json = await data.text();
 
   // parse the JSON into an object

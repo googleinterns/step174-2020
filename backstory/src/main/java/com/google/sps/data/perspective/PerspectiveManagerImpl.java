@@ -36,13 +36,6 @@ import java.util.Map;
  * appropriateness of the passed-in text.
  */
 public class PerspectiveManagerImpl implements PerspectiveManager{
-  /** an array of all the types we want analysis on */
-  private static final AttributeType[] types = {AttributeType.ATTACK_ON_AUTHOR,
-      AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
-      AttributeType.INCOHERENT, AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT,
-      AttributeType.OBSCENE, AttributeType.PROFANITY, AttributeType.SEVERE_TOXICITY,
-      AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM, AttributeType.THREAT,
-      AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL};
 
   /** the text that generated these scores */
   private final String text;
@@ -61,32 +54,9 @@ public class PerspectiveManagerImpl implements PerspectiveManager{
    * @param text the text to analyze (should NOT be null or empty)
    * @throws IllegalArgumentException if text is empty or null
    */
-  public PerspectiveManagerImpl(PerspectiveAPI perspective, String text)
-      throws IllegalArgumentException {
-    if (text == null || "".equals(text)) {
-      throw new IllegalArgumentException(
-          "Cannot create a PerspectiveManager with empty or null text");
-    }
-
+  public PerspectiveManagerImpl(String text, Map<AttributeType, Float> analyses) {
     this.text = text;
-
-    AnalyzeCommentRequest.Builder builder = new AnalyzeCommentRequest.Builder().comment(
-        new Entry.Builder().type(ContentType.PLAIN_TEXT).text(text).build());
-
-    // add all the types we want to this builder
-    for (AttributeType type : types) {
-      builder.addRequestedAttribute(type, null);
-    }
-
-    AnalyzeCommentRequest request = builder.build();
-    AnalyzeCommentResponse response = perspective.analyze(request);
-
-    analyses = new HashMap<AttributeType, Float>();
-
-    // put all the analyses for the types desired (those in types array) in the map
-    for (int i = 0; i < types.length; i++) {
-      analyses.put(types[i], fetchScore(response, types[i]));
-    }
+    this.analyses = analyses;
 
     decision = makeDecision();
   }
@@ -116,19 +86,6 @@ public class PerspectiveManagerImpl implements PerspectiveManager{
    */
   public boolean getDecision() {
     return decision;
-  }
-
-  /**
-   * private helper method to fetch the score for a given response & type
-   *
-   * @param response the response which holds the analyses
-   * @param type the type of attribute to fetch the score for
-   * @return the score for the response for a given type
-   */
-  private float fetchScore(AnalyzeCommentResponse response, AttributeType type) {
-    AttributeScore attributeScore = response.getAttributeScore(type);
-    Score score = attributeScore.getSummaryScore();
-    return score.getValue();
   }
 
   /**
