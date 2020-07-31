@@ -23,10 +23,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeScore;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import au.com.origma.perspectiveapi.v1alpha1.models.Score;
 import com.google.sps.data.perspective.PerspectiveManager;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import com.google.sps.data.perspective.PerspectiveManagerImpl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +49,7 @@ public final class PerspectiveManagerTest {
     Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
     PerspectiveAPI api = setUpMockAPI(input);
     
-    PerspectiveManager manager = new PerspectiveManager(api, null);
+    PerspectiveManager manager = new PerspectiveManagerImpl(api, null);
   }
 
   @Test (expected = IllegalArgumentException.class)
@@ -63,7 +60,7 @@ public final class PerspectiveManagerTest {
     Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
     PerspectiveAPI api = setUpMockAPI(input);
     
-    PerspectiveManager manager = new PerspectiveManager(api, "");
+    PerspectiveManager manager = new PerspectiveManagerImpl(api, "");
   }
 
   @Test
@@ -75,7 +72,7 @@ public final class PerspectiveManagerTest {
     Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
     PerspectiveAPI api = setUpMockAPI(input);
 
-    PerspectiveManager manager = new PerspectiveManager(api, "foo");
+    PerspectiveManager manager = new PerspectiveManagerImpl(api, "foo");
     
     Assert.assertEquals("foo", manager.getText());
 
@@ -94,7 +91,7 @@ public final class PerspectiveManagerTest {
     Map<AttributeType, Float> input = new HashMap<AttributeType, Float>();
     PerspectiveAPI api = setUpMockAPI(input);
 
-    PerspectiveManager manager = new PerspectiveManager(api, "foo");
+    PerspectiveManager manager = new PerspectiveManagerImpl(api, "foo");
     Map<AttributeType, Float> output = manager.getAnalyses();
 
     Assert.assertEquals(15, output.size());
@@ -114,7 +111,7 @@ public final class PerspectiveManagerTest {
     input.put(AttributeType.TOXICITY, LOW_TOXICITY);
     api = setUpMockAPI(input);
 
-    PerspectiveManager lowToxicity = new PerspectiveManager(api, "foo");
+    PerspectiveManager lowToxicity = new PerspectiveManagerImpl(api, "foo");
     
     Assert.assertEquals(LOW_TOXICITY, lowToxicity.getAnalyses().get(AttributeType.TOXICITY), 0);
     Assert.assertEquals(true, lowToxicity.getDecision());
@@ -124,7 +121,7 @@ public final class PerspectiveManagerTest {
     input.put(AttributeType.TOXICITY, EQUAL_TOXICITY);
     api = setUpMockAPI(input);
 
-    PerspectiveManager equalToxicity = new PerspectiveManager(api, "foo");
+    PerspectiveManager equalToxicity = new PerspectiveManagerImpl(api, "foo");
     
     Assert.assertEquals(EQUAL_TOXICITY, equalToxicity.getAnalyses().get(AttributeType.TOXICITY), 0);
     Assert.assertEquals(false, equalToxicity.getDecision());
@@ -134,7 +131,7 @@ public final class PerspectiveManagerTest {
     input.put(AttributeType.TOXICITY, HIGH_TOXICITY);
     api = setUpMockAPI(input);
 
-    PerspectiveManager highToxicity = new PerspectiveManager(api, "foo");
+    PerspectiveManager highToxicity = new PerspectiveManagerImpl(api, "foo");
     
     Assert.assertEquals(HIGH_TOXICITY, highToxicity.getAnalyses().get(AttributeType.TOXICITY), 0);
     Assert.assertEquals(false, highToxicity.getDecision());
