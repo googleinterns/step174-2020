@@ -18,10 +18,9 @@ import java.io.IOException;
 /**
  * Interface for story generation class.
  */
-
 public interface StoryManager {
   /**
-   * Returns generation prefix.
+   * Returns the String utilized as a basis for text generation.
    *
    * @return String The generation prefix.
    */
@@ -35,7 +34,7 @@ public interface StoryManager {
   public int getMaxLength();
 
   /**
-   * Returns temperature(volatility of generation).
+   * Returns temperature (volatility of generation).
    *
    * @return Double Numerical quantity representing temperature.
    */
@@ -48,6 +47,7 @@ public interface StoryManager {
 
   /**
    * Allow public setting of RequestFactory for alternative posting.
+   * Throws IOException in case of a server or network error.
    *
    * @param factory StoryManagerRequestFactory to use for HttpRequests.
    */

@@ -38,7 +38,8 @@ public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactor
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest buildPostRequest(String requestBody) throws IOException {
+  public HttpRequest buildPostRequest(String requestBody)
+      throws IllegalArgumentException, IOException {
     try {
       String serviceUrl = "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app";
 
@@ -66,7 +67,7 @@ public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactor
       return transport.createRequestFactory(adapter).buildPostRequest(
           genericUrl, ByteArrayContent.fromString("application/json", requestBody));
     } catch (IOException serverException) {
-      throw new RuntimeException("Error with server", serverException);
+      throw new IOException("Error with server", serverException);
     }
   }
 

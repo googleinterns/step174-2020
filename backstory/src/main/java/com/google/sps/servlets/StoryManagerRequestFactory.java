@@ -31,7 +31,8 @@ import java.io.IOException;
 
 public interface StoryManagerRequestFactory {
   /**
-   * Builds a PostRequest given parameters.
+   * Builds a PostRequest given parameters. Uses String JSON body
+   * to generate headers for Post request.
    *
    * @return HttpRequest Post Request
    */

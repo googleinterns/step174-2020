@@ -29,17 +29,20 @@ import java.util.Scanner;
 import org.json.JSONObject;
 
 /**
- * Generates text through interface with Cloud Contained
- * GPT-2 Model.
+ * Object which generates text through interface with Cloud Contained
+ * GPT-2 Model and indication of associated parameters.
  */
 public final class StoryManagerImpl implements StoryManager {
   /**
-   * Prefix, Maximum Length, and Temperature(Volatility) fields
+   * prefix - String to indicate basis for text generation
+   * maxTextLength - Maximum character length of generation
+   * temperature - The volatility of topics and style in generation.
    */
   private String prefix;
   private int maxTextLength;
   private Double temperature;
 
+  // requestFactory - Builds and facilitates authenticated post requests.
   private StoryManagerRequestFactory requestFactory;
 
   /**
@@ -100,7 +103,8 @@ public final class StoryManagerImpl implements StoryManager {
   /**
    * Makes a post request with a JSON including GPT2 Parameters
    *
-   * @returns HttpResponse The reponse from the Generation server.
+   * @returns HttpResponse The reponse from the Generation server expected to include
+   *          a "text" field with the generated text.
    */
   private HttpResponse makePostRequestGPT2() throws IOException {
     // Form JSON body using generation parameters
@@ -154,7 +158,7 @@ public final class StoryManagerImpl implements StoryManager {
    * @param maxLength Maximum text character length for generation output.
    * @param temperature Double to hold number 0-1 for text generation volatility.
    */
-  public static String makeRequestBody(String prefix, int maxLength, Double temperature) {
+  private String makeRequestBody(String prefix, int maxLength, Double temperature) {
     String requestBody = "{\"length\": " + maxLength
         + ",\"truncate\": \"<|endoftext|>\", \"prefix\": \"" + prefix
         + "\", \"temperature\": " + temperature + "}";
