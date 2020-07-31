@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.servlets;
+package com.google.sps.demos;
 
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
@@ -41,7 +41,7 @@ import com.google.cloud.vision.v1.ImageSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.protobuf.ByteString;
-import com.google.sps.servletData.AnalyzedImage;
+import com.google.sps.servlets.data.AnalyzedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
