@@ -33,59 +33,81 @@ import org.json.JSONObject;
  * GPT-2 Model.
  */
 public final class StoryManagerImpl implements StoryManager {
-
   /**
    * Prefix, Maximum Length, and Temperature(Volatility) fields
    */
   private String prefix;
-  private int maxLength;
+  private int maxTextLength;
   private Double temperature;
 
+  private StoryManagerRequestFactory requestFactory;
+
   /**
-   * Instantiate StoryManager
+   * Instantiate StoryManager. Use "", 100-1000, and 1 as parameter
+   * defaults in case of invalid input
+   *
+   * @param prefix String to serve as generation prompt.
+   * @param maxLength Maximum text character length for generation output.
+   * @param temperature Double to hold number 0-1 for text generation volatility.
    */
-  public StoryManagerImpl(String prefix, int maxLength, Double temperature){
+  public StoryManagerImpl(String prefix, int maxLength, Double temperature) {
     this.prefix = prefix;
-    this.maxLength = maxLength;
+    this.maxTextLength = maxLength;
     this.temperature = temperature;
+    requestFactory = new StoryManagerRequestFactoryImpl();
+
+    if (prefix == null) {
+      this.prefix = "";
+    }
+    if (maxLength < 100) {
+      this.maxTextLength = 100;
+    }
+    if (maxLength > 1000) {
+      this.maxTextLength = 1000;
+    }
+    if (temperature < 0 || temperature > 1) {
+      this.temperature = 1.0;
+    }
   }
+
+  /**
+   * Returns generation prefix.
+   *
+   * @return String The generation prefix.
+   */
+  public String getPrefix() {
+    return prefix;
+  }
+
+  /**
+   * Returns maximum length for generation.
+   *
+   * @return int The maximum length for text generation.
+   */
+  public int getMaxLength() {
+    return maxTextLength;
+  }
+
+  /**
+   * Returns temperature(volatility of generation).
+   *
+   * @return Double Numerical quantity representing temperature.
+   */
+  public Double getTemperature() {
+    return temperature;
+  }
+
   /**
    * Makes a post request with a JSON including GPT2 Parameters
+   *
+   * @returns HttpResponse The reponse from the Generation server.
    */
-  private HttpResponse makePostRequestGPT2(
-      String prefix, int textLength, Double temperature) throws IOException {
-    
-    String serviceUrl = "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app";
-        
-    // Obtain Credentials
-    GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
-
-    // Validate Credentials
-    if (!(credentials instanceof IdTokenProvider)) {
-      throw new IllegalArgumentException("Credentials are not an instance of IdTokenProvider.");
-    }
-
-    // Generate Authentication Token
-    IdTokenCredentials tokenCredential = IdTokenCredentials.newBuilder()
-                                             .setIdTokenProvider((IdTokenProvider) credentials)
-                                             .setTargetAudience(serviceUrl)
-                                             .build();
-
-    // Configure URL
-    GenericUrl genericUrl = new GenericUrl(serviceUrl);
-
-    // Form Adapter with Authentication token
-    HttpCredentialsAdapter adapter = new HttpCredentialsAdapter(tokenCredential);
-    HttpTransport transport = new NetHttpTransport();
-
+  private HttpResponse makePostRequestGPT2() throws IOException {
     // Form JSON body using generation parameters
-    String requestBody = "{\"length\": " + textLength
-        + ",\"truncate\": \"<|endoftext|>\", \"prefix\": \"" + prefix
-        + "\", \"temperature\": " + temperature + "}";
+    String requestBody = makeRequestBody(prefix, maxTextLength, temperature);
 
     // Build Request with Adapter and JSON Input
-    HttpRequest request = transport.createRequestFactory(adapter).buildPostRequest(
-        genericUrl, ByteArrayContent.fromString("application/json", requestBody));
+    HttpRequest request = requestFactory.buildPostRequest(requestBody);
     request.getHeaders().setContentType("application/json");
 
     // Wait until response received
@@ -93,13 +115,16 @@ public final class StoryManagerImpl implements StoryManager {
     request.setReadTimeout(0);
     return request.execute();
   }
+
   /**
-   * Returns generated text output using fields.
+   * Returns generated text output using given fields.
+   *
+   * @return String Generated output text.
    */
   public String generateText() {
     // Obtain response from Server POST Request
     try {
-      HttpResponse outputResponse = makePostRequestGPT2(prefix, maxLength, temperature);
+      HttpResponse outputResponse = makePostRequestGPT2();
 
       // Parse response as JSON
       try {
@@ -114,21 +139,25 @@ public final class StoryManagerImpl implements StoryManager {
   }
 
   /**
-   * An executable demonstration of GPT-2 interface.
+   * Allow public setting of RequestFactory for alternative posting.
+   *
+   * @param factory StoryManagerRequestFactory to use for HttpRequests.
    */
-  public static void main(String[] args) {
-    Scanner input = new Scanner(System.in);
+  public void setRequestFactory(StoryManagerRequestFactory factory) {
+    requestFactory = factory;
+  }
 
-    System.out.println("Please enter a prompt: ");
-    String prompt = input.nextLine();
-
-    System.out.println("Please enter a text length: ");
-    int size = input.nextInt();
-
-    System.out.println("Please enter a temperature: ");
-    Double temp = input.nextDouble();
-    StoryManager sm = new StoryManagerImpl(prompt, size, temp);
-
-    System.out.println(sm.generateText());
+  /**
+   * Forms request body string from GPT-2 parameters.
+   *
+   * @param prefix String to serve as generation prompt.
+   * @param maxLength Maximum text character length for generation output.
+   * @param temperature Double to hold number 0-1 for text generation volatility.
+   */
+  public static String makeRequestBody(String prefix, int maxLength, Double temperature) {
+    String requestBody = "{\"length\": " + maxLength
+        + ",\"truncate\": \"<|endoftext|>\", \"prefix\": \"" + prefix
+        + "\", \"temperature\": " + temperature + "}";
+    return requestBody;
   }
 }

@@ -13,30 +13,43 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
-
-import com.google.api.client.http.ByteArrayContent;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.IdTokenCredentials;
-import com.google.auth.oauth2.IdTokenProvider;
 import java.io.IOException;
-import java.util.Scanner;
-import org.json.JSONObject;
 
 /**
  * Interface for story generation class.
  */
+
 public interface StoryManager {
+  /**
+   * Returns generation prefix.
+   *
+   * @return String The generation prefix.
+   */
+  public String getPrefix();
+
+  /**
+   * Returns maximum length for generation.
+   *
+   * @return int The maximum length for text generation.
+   */
+  public int getMaxLength();
+
+  /**
+   * Returns temperature(volatility of generation).
+   *
+   * @return Double Numerical quantity representing temperature.
+   */
+  public Double getTemperature();
 
   /**
    * Returns generated text output for a given prompt, length, and temperature.
    */
   public String generateText();
+
+  /**
+   * Allow public setting of RequestFactory for alternative posting.
+   *
+   * @param factory StoryManagerRequestFactory to use for HttpRequests.
+   */
+  public void setRequestFactory(StoryManagerRequestFactory factory);
 }
-
-
