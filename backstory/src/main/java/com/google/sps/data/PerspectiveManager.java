@@ -135,7 +135,7 @@ public class PerspectiveManager {
    * @return true, if it considers text appropriate, false otherwise
    */
   private boolean makeDecision() {
-    // currently decision is just if text is considered toxic
+    // currently decision is just based on if text is considered toxic (if it is, it's not appropriate)
     return !ContentAnalysis.isToxic(analyses);
   }
 }

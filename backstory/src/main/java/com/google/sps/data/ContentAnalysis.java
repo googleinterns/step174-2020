@@ -33,6 +33,6 @@ public class ContentAnalysis {
   public static boolean isToxic(Map<AttributeType, Float> analyses) {
     float toxicity = analyses.get(AttributeType.TOXICITY);
 
-    return toxicity >= .7;
+    return toxicity >= .7f;
   }
 }
