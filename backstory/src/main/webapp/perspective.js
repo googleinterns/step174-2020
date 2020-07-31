@@ -37,8 +37,12 @@ async function displayScores() {
   const data = await fetch('/perspective?text=' + text, {method: 'post'});
   const json = await data.text();
 
+  console.log(json);
+
   // parse the JSON into an object
   const jsonResult = JSON.parse(json);
+
+  console.log(typeof(jsonResult));
 
   // properly format and display either the error message or the attribute array
   if (typeof (jsonResult) === 'string') {

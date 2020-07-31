@@ -43,13 +43,13 @@ public final class PerspectiveServlet extends HttpServlet {
 
     try {
       // fetch the PerspectiveAPIKey class if it's there
-      Class<?> keyClass = Class.forName("com.google.sps.data.PerspectiveAPIKey");
+      Class<?> keyClass = Class.forName("com.google.sps.data.perspective.PerspectiveAPIKey");
       // create a method getKey that takes no parameters
       Method getKey = keyClass.getMethod("getKey", null);
       // invoke this static method (first null means it's static 
       // & second null means it does not need arguments) & stores result
       apiKey = (String) getKey.invoke(null, null);
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {      
       // if any errors were thrown for looking for api key, send this error message back to JS servlet
       String errorMessage = "Could not retrieve the Perspective API.";
       String messageJson = gson.toJson(errorMessage);
