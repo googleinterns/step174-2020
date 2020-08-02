@@ -18,17 +18,17 @@ import java.io.IOException;
 import java.util.List;
 
 /**
-* Interface for the Image Analytics Manager.
-*
-* VisionManager Manages the gathering and packaging of Vision API image analytics.
-* A VisionManager object represents an image annotated with analytics from Vision API.
-*
-* The image is represented as the byte data in the rawImageData byte array, and the annotated analytics are represented as
-* labelAnnotations, a list of Vision EntityAnnotation objects, which each represent individual labels.
-*/
+ * Interface for the Image Analytics Manager.
+ *
+ * VisionManager Manages the gathering and packaging of Vision API image analytics.
+ * A VisionManager object represents an image annotated with analytics from Vision API.
+ *
+ * The image is represented as the byte data in the rawImageData byte array, and the annotated
+ * analytics are represented as labelAnnotations, a list of Vision EntityAnnotation objects, which
+ * each represent individual labels.
+ */
 
 public interface VisionManager {
-
   /**
    * Returns the full image label annotations as a Json-formatted string of text.
    *
@@ -39,8 +39,8 @@ public interface VisionManager {
   /**
    * Returns the image label description fields for all labels.
    *
-   * @return list of "description" field for all labels returned by Vision API's getLabelAnnotationsList method.
+   * @return list of "description" field for all labels returned by Vision API's
+   *     getLabelAnnotationsList method.
    */
   public List<String> getLabelDescriptions();
-  
 }
