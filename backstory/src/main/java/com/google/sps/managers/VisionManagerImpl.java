@@ -65,8 +65,7 @@ public final class VisionManagerImpl implements VisionManager {
    * Instantiates the VisionManager object parameterized with a byte array of raw image data.
    *
    * @param rawImageData The raw image data for the image being represented in this VisionManager
-   *     object.
-   * Must be non-empty and non-null.
+   *     object. Must be non-empty and non-null.
    */
   public VisionManagerImpl(byte[] rawImageData) throws IllegalArgumentException, IOException {
     this.rawImageData = rawImageData;
@@ -86,8 +85,7 @@ public final class VisionManagerImpl implements VisionManager {
    *
    * @param rawImageData The raw image data for the image being represented in this VisionManager
    *     object. Must be non-empty and non-null.
-   * @param labelAnnotations the preset labels to annotate the image with. Must be non-empty and
-   *     non-null.
+   * @param labelAnnotations the preset labels to annotate the image with. Must be non-null.
    */
   public VisionManagerImpl(byte[] rawImageData, List<EntityAnnotation> labelAnnotations)
       throws IllegalArgumentException {
@@ -142,8 +140,7 @@ public final class VisionManagerImpl implements VisionManager {
    *
    * @param bytes The raw image byte data for the image from which labels will be annotated.
    * @return The list of label annotations related to the image, with each individual label being
-   *     represented as an
-   * EntityAnnotation object.
+   *     represented as an EntityAnnotation object.
    */
   private List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
     List<AnnotateImageRequest> requests = new ArrayList<>();
