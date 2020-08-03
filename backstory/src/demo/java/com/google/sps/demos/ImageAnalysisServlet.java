@@ -41,7 +41,7 @@ import com.google.cloud.vision.v1.ImageSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.protobuf.ByteString;
-import com.google.sps.servlets.data.AnalyzedImage;
+import com.google.sps.demos.data.AnalyzedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;

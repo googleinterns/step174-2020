@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.managers;
+package com.google.sps.vision;
 
 import java.io.IOException;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
@@ -34,7 +34,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.lang.IllegalArgumentException;
-import com.google.sps.managers.VisionManagerImpl;
+import com.google.sps.vision.VisionManagerImpl;
 
 /**
  * Tests for VisionManagerImpl.
@@ -56,7 +56,7 @@ public final class VisionManagerImplTest {
   private static final byte[] nullRawImageData = null;
   private static final byte[] emptyRawImageData = new byte[0];
   private static final byte[] rawImageData = getBytesFromImageReference(
-      "src/test/java/com/google/sps/managers/data/dogRunningOnBeach.jpg", "jpg");
+      "src/test/java/com/google/sps/vision/data/dogRunningOnBeach.jpg", "jpg");
   private static final List<EntityAnnotation> emptyLabelAnnotations = new ArrayList<>();
 
   /**
