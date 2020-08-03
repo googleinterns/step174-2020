@@ -25,10 +25,10 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdTokenCredentials;
 import com.google.auth.oauth2.IdTokenProvider;
 import java.io.IOException;
+
 /**
  * Interface for story generation network requests.
  */
-
 public interface StoryManagerRequestFactory {
   /**
    * Builds a PostRequest given parameters. Uses String JSON body
@@ -36,12 +36,6 @@ public interface StoryManagerRequestFactory {
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest buildPostRequest(String requestBody) throws IOException;
+  public HttpRequest newInstance(String requestBody) throws IOException;
 
-  /**
-   * Gets the requestBody used to make Post Requests.
-   *
-   * @return String The post request header request body.
-   */
-  public String getRequestBody();
 }

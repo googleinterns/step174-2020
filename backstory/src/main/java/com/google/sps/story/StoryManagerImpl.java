@@ -24,7 +24,9 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdTokenCredentials;
 import com.google.auth.oauth2.IdTokenProvider;
+import com.google.gson.Gson;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Scanner;
 import org.json.JSONObject;
 
@@ -46,11 +48,10 @@ public final class StoryManagerImpl implements StoryManager {
   private StoryManagerRequestFactory requestFactory;
 
   /**
-   * Instantiate StoryManager. Use "", 100-1000, and 1 as parameter
-   * defaults in case of invalid input
+   * Instantiate StoryManager.
    *
    * @param prefix String to serve as generation prompt.
-   * @param maxLength Maximum text character length for generation output.
+   * @param maxLength Maximum text character length for generation output. 100-1000 characters.
    * @param temperature Double to hold number 0-1 for text generation volatility.
    */
   public StoryManagerImpl(String prefix, int maxLength, Double temperature)
@@ -75,44 +76,17 @@ public final class StoryManagerImpl implements StoryManager {
   }
 
   /**
-   * Returns generation prefix.
-   *
-   * @return String The generation prefix.
-   */
-  public String getPrefix() {
-    return prefix;
-  }
-
-  /**
-   * Returns maximum length for generation.
-   *
-   * @return int The maximum length for text generation.
-   */
-  public int getMaxLength() {
-    return maxTextLength;
-  }
-
-  /**
-   * Returns temperature(volatility of generation).
-   *
-   * @return Double Numerical quantity representing temperature.
-   */
-  public Double getTemperature() {
-    return temperature;
-  }
-
-  /**
    * Makes a post request with a JSON including GPT2 Parameters
    *
    * @returns HttpResponse The reponse from the Generation server expected to include
    *          a "text" field with the generated text.
    */
-  private HttpResponse makePostRequestGPT2() throws IOException {
+  private HttpResponse requestGeneratedText() throws IOException {
     // Form JSON body using generation parameters
     String requestBody = makeRequestBody(prefix, maxTextLength, temperature);
 
     // Build Request with Adapter and JSON Input
-    HttpRequest request = requestFactory.buildPostRequest(requestBody);
+    HttpRequest request = requestFactory.newInstance(requestBody);
     request.getHeaders().setContentType("application/json");
 
     // Wait until response received
@@ -126,20 +100,20 @@ public final class StoryManagerImpl implements StoryManager {
    *
    * @return String Generated output text.
    */
-  public String generateText() {
+  public String generateText() throws RuntimeException {
     // Obtain response from Server POST Request
+    HttpResponse outputResponse;
     try {
-      HttpResponse outputResponse = makePostRequestGPT2();
-
-      // Parse response as JSON
-      try {
-        JSONObject jsonObject = new JSONObject(outputResponse.parseAsString());
-        return jsonObject.getString("text");
-      } catch (Exception jsonException) {
-        throw new RuntimeException("Failed to convert repsonse into JSON", jsonException);
-      }
+      outputResponse = requestGeneratedText();
     } catch (IOException serverException) {
       throw new RuntimeException("Error with server", serverException);
+    }
+    // Parse response as JSON
+    try {
+      JSONObject jsonObject = new JSONObject(outputResponse.parseAsString());
+      return jsonObject.getString("text");
+    } catch (Exception jsonException) {
+      throw new RuntimeException("Failed to convert repsonse into JSON", jsonException);
     }
   }
 
@@ -160,9 +134,16 @@ public final class StoryManagerImpl implements StoryManager {
    * @param temperature Double to hold number 0-1 for text generation volatility.
    */
   private String makeRequestBody(String prefix, int maxLength, Double temperature) {
-    String requestBody = "{\"length\": " + maxLength
-        + ",\"truncate\": \"<|endoftext|>\", \"prefix\": \"" + prefix
-        + "\", \"temperature\": " + temperature + "}";
-    return requestBody;
+    Gson gson = new Gson();
+
+    HashMap<String, Object> requestMap = new HashMap<>();
+
+    requestMap.put("length", new Integer(maxLength));
+    requestMap.put("truncate", "<|endoftext|>");
+    requestMap.put("prefix", prefix);
+    requestMap.put("temperature", temperature);
+
+    String convertedMap = gson.toJson(requestMap);
+    return convertedMap;
   }
 }

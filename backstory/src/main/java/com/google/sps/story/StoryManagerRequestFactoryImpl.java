@@ -31,15 +31,14 @@ import java.io.IOException;
  */
 
 public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactory {
-  private String requestBody;
 
   /**
    * Builds a PostRequest given parameters.
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest buildPostRequest(String requestBody)
-      throws IllegalArgumentException, IOException {
+  public HttpRequest newInstance(String requestBody)
+      throws IllegalStateException, IOException {
     try {
       String serviceUrl = "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app";
 
@@ -48,7 +47,7 @@ public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactor
 
       // Validate Credentials
       if (!(credentials instanceof IdTokenProvider)) {
-        throw new IllegalArgumentException("Credentials are not an instance of IdTokenProvider.");
+        throw new IllegalStateException("Credentials are not an instance of IdTokenProvider.");
       }
 
       // Generate Authentication Token
@@ -63,20 +62,10 @@ public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactor
       // Form Adapter with Authentication token
       HttpCredentialsAdapter adapter = new HttpCredentialsAdapter(tokenCredential);
       HttpTransport transport = new NetHttpTransport();
-      this.requestBody = requestBody;
       return transport.createRequestFactory(adapter).buildPostRequest(
           genericUrl, ByteArrayContent.fromString("application/json", requestBody));
     } catch (IOException serverException) {
       throw new IOException("Error with server", serverException);
     }
-  }
-
-  /**
-   * Gets the requestBody used to make Post Requests.
-   *
-   * @return String The post request header request body.
-   */
-  public String getRequestBody() {
-    return requestBody;
   }
 }

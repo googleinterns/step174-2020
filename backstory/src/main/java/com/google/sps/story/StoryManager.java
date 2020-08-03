@@ -19,26 +19,6 @@ import java.io.IOException;
  * Interface for story generation class.
  */
 public interface StoryManager {
-  /**
-   * Returns the String utilized as a basis for text generation.
-   *
-   * @return String The generation prefix.
-   */
-  public String getPrefix();
-
-  /**
-   * Returns maximum length for generation.
-   *
-   * @return int The maximum length for text generation.
-   */
-  public int getMaxLength();
-
-  /**
-   * Returns temperature (volatility of generation).
-   *
-   * @return Double Numerical quantity representing temperature.
-   */
-  public Double getTemperature();
 
   /**
    * Returns generated text output for a given prompt, length, and temperature.

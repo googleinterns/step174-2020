@@ -22,6 +22,7 @@ import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpTransport;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -41,7 +43,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Test the Prompt Creation Suite
+ * Tests for the StoryManagerImpl class.
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class StoryManagerTest {
@@ -103,13 +105,24 @@ public final class StoryManagerTest {
     when(mockRequest.getHeaders()).thenReturn(mockHeaders);
 
     // Define expected input JSON for post request.
-    String expectedRequestString = "{\"length\": " + SIZE_SAMPLE
-        + ",\"truncate\": \"<|endoftext|>\", \"prefix\": \"" + PREFIX_SAMPLE
-        + "\", \"temperature\": " + TEMPERATURE_SAMPLE + "}";
+    Gson gson = new Gson();
+
+    HashMap<String, Object> requestMap = new HashMap<>();
+
+    requestMap.put("length", new Integer(SIZE_SAMPLE));
+    requestMap.put("truncate", "<|endoftext|>");
+    requestMap.put("prefix", PREFIX_SAMPLE);
+    requestMap.put("temperature", TEMPERATURE_SAMPLE);
+
+    String expectedRequestString = gson.toJson(requestMap);
 
     // Define expected output text for generateText()
     String expectedOutput = "foo";
-    String sampleJSONOutput = "{\"text\": \"" + expectedOutput + "\"}";
+    HashMap<String, Object> sampleJSONMap = new HashMap<>();
+
+    sampleJSONMap.put("text", expectedOutput);
+
+    String sampleJSONOutput = gson.toJson(sampleJSONMap);
 
     // Stub the mockResponse to return specified text output.
     HttpResponse mockResponse = mock(HttpResponse.class);
@@ -122,7 +135,7 @@ public final class StoryManagerTest {
 
     // Obtain actual output text, input body, and verify request configurations.
     String actualOutput = storyManager.generateText();
-    String actualRequestString = factoryFake.getRequestBody();
+    String actualRequestString = factoryFake.getLastRequestBody();
     verify(mockHeaders).setContentType("application/json");
     verify(mockRequest).setConnectTimeout(0);
     verify(mockRequest).setReadTimeout(0);

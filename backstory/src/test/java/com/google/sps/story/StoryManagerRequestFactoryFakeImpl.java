@@ -29,8 +29,8 @@ import com.google.auth.oauth2.IdTokenProvider;
  * Object for building mock POST Requests for testing purposes..
  */
 public class StoryManagerRequestFactoryFakeImpl implements StoryManagerRequestFactory {
-  HttpRequest outputRequest;
-
+  
+  HttpRequest request;
   private String requestBody;
 
   /**
@@ -38,8 +38,8 @@ public class StoryManagerRequestFactoryFakeImpl implements StoryManagerRequestFa
    *
    * @param inputRequest HttpRequest to be sent from factory.
    */
-  public void setRequest(HttpRequest inputRequest) {
-    outputRequest = inputRequest;
+  public void setRequest(HttpRequest request) {
+    this.request = request;
   }
 
   /**
@@ -47,9 +47,9 @@ public class StoryManagerRequestFactoryFakeImpl implements StoryManagerRequestFa
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest buildPostRequest(String requestBody) {
+  public HttpRequest newInstance(String requestBody) {
     this.requestBody = requestBody;
-    return outputRequest;
+    return request;
   }
 
   /**
@@ -57,7 +57,7 @@ public class StoryManagerRequestFactoryFakeImpl implements StoryManagerRequestFa
    *
    * @return String The post request header request body.
    */
-  public String getRequestBody() {
+  public String getLastRequestBody() {
     return requestBody;
   }
 }
