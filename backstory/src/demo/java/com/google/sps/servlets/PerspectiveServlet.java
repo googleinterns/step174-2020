@@ -40,27 +40,35 @@ public final class PerspectiveServlet extends HttpServlet {
     response.setContentType("application/json;");
     Gson gson = new Gson();
     
-    String apiKey = "foo";
-
+    // declare instance of perspective api
+    PerspectiveAPI perspectiveAPI;
+    
     try {
-      // fetch the PerspectiveAPIKey class if it's there
-      Class<?> keyClass = Class.forName("com.google.sps.data.perspective.PerspectiveAPIKey");
-      // create a method getKey that takes no parameters
-      Method getKey = keyClass.getMethod("getKey", null);
-      // invoke this static method (first null means it's static 
-      // & second null means it does not need arguments) & stores result
-      apiKey = (String) getKey.invoke(null, null);
+      perspectiveAPI = PerspectiveServiceClient.generateAPI();
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {      
       // if any errors were thrown for looking for api key, send this error message back to JS servlet
-      String errorMessage = "Could not retrieve the Perspective API.";
+      String errorMessage = "Could not retrieve the Perspective API key.";
+      
+      // set the status of this request to an internal service error
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+      // send the appropriate error message back with the status
       String messageJson = gson.toJson(errorMessage);
+      response.getWriter().println(messageJson);
+    }
+
+    // get the text and if it's null or empty return a service error & error message
+    String text = request.getParameter("text");
+    
+    if(text === null || text === "") {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+      String errorMessage = "Text input was null or empty";
+      String messageJson = gson.toJson(errorMessage);
+
       response.getWriter().println(messageJson);
       return;
     }
-
-    PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(apiKey);
-
-    String text = getParameter(request, "text", "");
 
     PerspectiveAnalysis textAnalysis = PerspectiveServiceClient.analyze(perspectiveAPI, PerspectiveAnalysis.ANALYSIS_TYPES, text);
 
@@ -68,17 +76,5 @@ public final class PerspectiveServlet extends HttpServlet {
     String json = gson.toJson(textAnalysis);
 
     response.getWriter().println(json);
-  }
-
-  /**
-   * @return the request parameter, or the default value if the parameter
-   *         was not specified by the client
-   */
-  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
-    String value = request.getParameter(name);
-    if (value == null) {
-      return defaultValue;
-    }
-    return value;
   }
 }

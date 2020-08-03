@@ -11,9 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-/* eslint-disable no-unused-vars */
-
 /**
  * JS for Perspective Page
  * features: display scores
@@ -21,11 +18,12 @@
 
 // DISPLAY SCORES
 
-/** displays the Perspective scores for the given text  */
+/** displays the Perspective scores for the text in the "text-for-analysis" element  */
+/* eslint-disable no-unused-vars */
 async function displayScores() {
-  const text = document.getElementById('text-for-analysis').value;
+  const input = document.getElementById('text-for-analysis').value;
 
-  if (text === '' || text === null) {
+  if (input === '' || input === null) {
     alert('You need to enter a value');
     return;
   }
@@ -34,33 +32,36 @@ async function displayScores() {
   const display = document.getElementById('attributes');
 
   // grab data and get its text version (it is sent as JSON)
-  const data = await fetch('/perspective?text=' + text, {method: 'post'});
+  const data = await fetch('/perspective', {method: 'post', text: input});
+  const ok = data.ok; // checks if status of response is an error
   const json = await data.text();
 
-  console.log(json);
-
   // parse the JSON into an object
-  const jsonResult = JSON.parse(json);
-
-  console.log(typeof(jsonResult));
+  const jsonObject = JSON.parse(json);
 
   // properly format and display either the error message or the attribute array
-  if (typeof (jsonResult) === 'string') {
-    display.innerHTML = formatErrorMessage(jsonResult);
+  if (!ok) {
+    display.innerHTML = formatErrorMessage(jsonObject);
   } else {
-    display.innerHTML = formatAttributeArray(jsonResult.analyses);
+    display.innerHTML = formatAttributeArray(jsonObject.analyses);
   }
 }
 
 /**
- * @return {String} HTML formatting for error message
+ * Returns HTML formatting (simple paragraph tags) for error message 
+ *
+ * @param {string} message - the error message to be shown 
+ * @return {string} - HTML formatting for error message
  */
 function formatErrorMessage(message) {
   return `<p>${message}</p>`;
 }
 
 /**
- * @return {String} HTML formatting for attributes array
+ * Formats an array of attributes into a HTML table.
+ *
+ * @param {object} attributes - an array of the values returned from the Perspective API
+ * @return {string} - HTML table representing attributes array.
  */
 function formatAttributeArray(attributes) {
   let html = '<table id="attribute-table">' +
@@ -68,7 +69,7 @@ function formatAttributeArray(attributes) {
 
   for (let i = 0; i < attributes.length; i++) {
     html += `<tr>` +
-        `<td>${formatType(attributes[i].type)}</td>` +
+        `<td>${uppercaseSnakeCaseToTitleCase(attributes[i].type)}</td>` +
         `<td class="score" id="score-header">
           ${(attributes[i].score * 100).toFixed(3)}%</td>` +
         `</tr>`;
@@ -80,13 +81,15 @@ function formatAttributeArray(attributes) {
 }
 
 /**
- * Converts a String from this format ("ATTACK_ON_AUTHOR")
- * to this format ("Attack On Author") by replacing underscores with spaces
+ * Converts a String from this format ("ATTACK_ON_AUTHOR") [aka all caps snakecase]
+ * to this format ("Attack On Author") (title case except all words not just major words capitalized) 
+ * by replacing underscores with spaces and changing the capitalization.
  *
- * @return {String} a formatted type String
+ * @param {string} uppercaseSnakeCaseText - the type as an all caps snake case string
+ * @return {string} - a formatted type String (in modified title case)
  */
-function formatType(type) {
-  const words = type.split('_');
+function uppercaseSnakeCaseToTitleCase (uppercaseSnakeCaseText) {
+  const words = uppercaseSnakeCaseText.split('_');
   let format = '';
 
   for (let i = 0; i < words.length; i++) {

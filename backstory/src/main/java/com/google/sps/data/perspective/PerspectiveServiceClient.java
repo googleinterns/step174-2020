@@ -29,22 +29,64 @@ import au.com.origma.perspectiveapi.v1alpha1.models.Score;
  * A service client to access the Perspective API 
  */
 public class PerspectiveServiceClient {
-  public static PerspectiveAnalysis analyze(PerspectiveAPI perspective, AttributeType[] types, String text) {
+  
+  /** 
+   * Generates an instance of the PerspectiveAPI using a Java file PerspectiveAPIKey 
+   * that may not be present (due to security concerns)
+   *
+   * @return a funcioning instance of PerspectiveAPI
+   * @throws ClassNotFoundException if it cannot found "PerspectiveAPIKey.java"
+   * @throws NoSuchMethodException if PerspectiveAPIKey doesn't have a getKey() method
+   * @throws IllegalAccessException if class called from doesn't have proper access to getKey()
+   * @throws InvocationTargetException if getKey() itself throws an exception
+   */
+  public PerspectiveAPI generateAPI() throws ClassNotFoundException, NoSuchMethodException,
+      IllegalAccessException, InvocationTargetException  {
+    
+    // creates a string apiKey and lets it be null 
+    String apiKey = null;
+    
+    // fetch the PerspectiveAPIKey class if it's there
+    Class<?> keyClass = Class.forName("com.google.sps.data.perspective.PerspectiveAPIKey");
+    
+    // create a method getKey that takes no parameters 
+    // (which is what null param of getMethod signifies)
+    Method getKey = keyClass.getMethod("getKey", null);
+
+    // invoke this static method (first null means it's static 
+    // & second null means it does not need arguments) & stores result
+    apiKey = (String) getKey.invoke(null, null);
+
+    return PerspectiveAPI.create(apiKey);
+  }
+
+  /**
+   * Return a PerspectiveAnalysis object with all requested attribute types for a specified piece of text
+   * using a specified instance of the PerspectiveAPI
+   *
+   * @param perspective an instance of the PerspectiveAPI to use to analyze the text for the requested attributeTypes
+   * @param attributeTypes the requested attribute types to analyze the text for
+   * @param text the text to be analyzed by Perspective API
+   * @return an object containing all of the scores from the PerspectiveAPI
+   */
+  public static PerspectiveAnalysis analyze(PerspectiveAPI perspective, AttributeType[] attributeTypes, String text) {
     AnalyzeCommentRequest.Builder builder = new AnalyzeCommentRequest.Builder().comment(
         new Entry.Builder().type(ContentType.PLAIN_TEXT).text(text).build());
 
-    // add all the types we want to this builder
-    for (AttributeType type : types) {
-      builder.addRequestedAttribute(type, null);
+    // add all the attribute types we want to this builder
+    for (AttributeType attributeType : attributeTypes) {
+      builder.addRequestedAttribute(attributeType, null);
     }
 
     AnalyzeCommentRequest request = builder.build();
     AnalyzeCommentResponse response = perspective.analyze(request);
     
-    AttributeAnalysis[] analyses = new AttributeAnalysis[types.length];
+    AttributeAnalysis[] analyses = new AttributeAnalysis[attributeTypes.length];
 
-    for (int i = 0; i < types.length; i++) {
-      analyses[i] = new AttributeAnalysis(fetchScore(response, types[i]), types[i]);
+    for (int i = 0; i < attributeTypes.length; i++) {
+      AttributeType attributeType = attributeTypes[i];
+
+      analyses[i] = new AttributeAnalysis(extractScore(response, attributeType), attributeType);
     }
 
     // Convert response to PerspectiveAnalysis.
@@ -54,11 +96,11 @@ public class PerspectiveServiceClient {
   }
 
   /**
-   * private helper method to fetch the score for a given response & type
+   * private helper method to extract the score for a given response & type
    *
    * @return the score for the response for a given type
    */
-  private static float fetchScore(AnalyzeCommentResponse response, AttributeType type) {
+  private static float extractScore(AnalyzeCommentResponse response, AttributeType type) {
     AttributeScore attributeScore = response.getAttributeScore(type);
     Score score = attributeScore.getSummaryScore();
     return score.getValue();

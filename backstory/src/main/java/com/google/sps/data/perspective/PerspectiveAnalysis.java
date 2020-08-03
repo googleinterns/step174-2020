@@ -35,12 +35,22 @@ import java.util.Map;
 public class PerspectiveAnalysis {
 
   /** an array of all the types we want analysis on */
-  public static final AttributeType[] ANALYSIS_TYPES = {AttributeType.ATTACK_ON_AUTHOR,
-      AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
-      AttributeType.INCOHERENT, AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT,
-      AttributeType.OBSCENE, AttributeType.PROFANITY, AttributeType.SEVERE_TOXICITY,
-      AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM, AttributeType.THREAT,
-      AttributeType.UNSUBSTANTIAL};
+  public static final AttributeType[] ANALYSIS_TYPES = {
+      AttributeType.ATTACK_ON_AUTHOR,
+      AttributeType.ATTACK_ON_COMMENTER,
+      AttributeType.FLIRTATION,
+      AttributeType.IDENTITY_ATTACK,
+      AttributeType.INCOHERENT,
+      AttributeType.INSULT,
+      AttributeType.LIKELY_TO_REJECT,
+      AttributeType.OBSCENE,
+      AttributeType.PROFANITY,
+      AttributeType.SEVERE_TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT,
+      AttributeType.SPAM,
+      AttributeType.THREAT,
+      AttributeType.UNSUBSTANTIAL
+    };
 
   /** the text that generated these scores */
   private final String text;

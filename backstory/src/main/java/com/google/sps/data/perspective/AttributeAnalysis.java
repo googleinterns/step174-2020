@@ -20,13 +20,13 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
  * Container to hold a AttributeType and corresponding score.
  */
 public class AttributeAnalysis {
-    /** the attribute score given by analysis */
-    private final float score;
-    /** the type that the analysis score is for */
-    private final AttributeType type;
+  /** the attribute score given by analysis */
+  private final float score;
+  /** the type that the analysis score is for */
+  private final AttributeType type;
 
-    public AttributeAnalysis(float score, AttributeType type) {
-      this.score = score;
-      this.type = type;
-    }
+  public AttributeAnalysis(float score, AttributeType type) {
+    this.score = score;
+    this.type = type;
   }
+}
