@@ -12,28 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.data.perspective;
+package com.google.sps.perspective;
 
 /**
  * An implementation of PerspectiveManager using PerspectiveAPI for analysis.
  */
-public interface PerspectiveManagerImpl {
-  /** The story managed by this instance. */
-  private final String story;
+public interface PerspectiveManagerImpl implements PerspectiveManager {
+    
+  /** The perspective API used by this instance. */
+  private final PerspectiveAPI perspectiveAPI;
 
   /**
-   * @param story The story managed by the constructed instance.
+   * Constructs an object which implements the PerspectiveManager
+   * class 
    */
-  public PerspectiveManagerImpl(String story) {
-    this.story = story;
+  public PerspectiveManagerImpl() {
+    // instantiate the PerspectiveAPI for this instance
   }
 
   /**
-   * Analyzes the stories managed by this instance.
+   * Constructs an object with a specified instance of the PerspectiveAPI.
+   * Constructor is to be used for testing.
+   *
+   * @param perspectiveAPI the instance of the PerspectiveAPI to use 
+   *     to analyze stories with.
+   */
+  public PerspectiveManagerImpl(PerspectiveAPI perspectiveAPI) {
+    this.perspectiveAPI = perspectiveAPI;
+  }
+
+  /**
+   * Analyzes the passed-in story using the perspective API and returns the decision
+   * as a PerspectiveDeccision object.
+   *
+   * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
    */
-  PerspectiveDecision analyze() {
-    // TODO(agcaballero): Replace this fake behavior with a real API call, etc.
+  public PerspectiveDecision getDecision(String story) {
+    // TODO: Replace this fake behavior with a real API call, etc.
+
+    // returns default instance of PerspectiveDecision
     return new PerspectiveDecision(story);
   }
 }

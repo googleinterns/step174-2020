@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.data.perspective;
+package com.google.sps.perspective;
 
 /**
  * Handles analysis of stories for content and provides a recommendation on
- * the "best" story. Each instance is responsible for analyzing a fixed set of
- * stories.
+ * the "best" appropriate story (if multiple).
  */
 interface PerspectiveManager {
   /**
-   * Analyzes the stories managed by this instance.
+   * Analyzes the stories passed in to this instance.
+   * 
+   * @param story the story to get the decision for
    * @return An object describing the recommendation resulting from the analysis.
    */
-  PerspectiveDecision analyze(String story);
+  public PerspectiveDecision getDecision(String story);
 }
