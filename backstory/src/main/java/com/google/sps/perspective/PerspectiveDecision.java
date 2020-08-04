@@ -23,7 +23,7 @@ public class PerspectiveDecision {
 
   /**
    * Constructs a PerspectiveDecision object from a String story. If story is null,
-   * then there was no appropriate story
+   * then there was no appropriate story.
    *
    * @param story A story deemed appropriate by the analysis engine.
    */
