@@ -21,17 +21,43 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Returns a collection of TimeRange objects to indicate available meeting times
- * for indicated people and duration given through a request object.
+ * Contains methods for querying availability between attendees.
  */
 public final class FindMeetingQuery {
-  private static final int OVERLAP_WITH_SAME_START = 1;
-  private static final int OVERLAP_WITH_SAME_END = 2;
-  private static final int OVERLAPS_END = 3;
-  private static final int OVERLAPS_START = 4;
-  private static final int OVERLAP_CONTAINS = 5;
+  private enum Overlap {
+    OVERLAP_WITH_SAME_START,
+    OVERLAP_WITH_SAME_END,
+    OVERLAPS_END,
+    OVERLAPS_START,
+    OVERLAP_CONTAINS,
+    NO_OVERLAP
+  }
 
+  /**
+   * Returns a collection of TimeRange objects to indicate available meeting times
+   * for indicated people and duration given through a request object. Determines
+   * whether or not to include optional attendees.
+   */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+    // Perform queries with and without optional attendees.
+    Collection<TimeRange> queryWithoutOptionalAttendees = query(events, request, false);
+    Collection<TimeRange> queryIncludingOptionalAttendees = query(events, request, true);
+
+    // Return optional attendee checks if valid.
+    if ((queryIncludingOptionalAttendees.size() != 0) || (request.getAttendees().size() == 0)) {
+      return queryIncludingOptionalAttendees;
+    } else {
+      return queryWithoutOptionalAttendees;
+    }
+  }
+
+  /**
+   * Returns a collection of TimeRange objects to indicate available meeting times
+   * for indicated people and duration given through a request object, given
+   * whether or not to include optional attendees.
+   */
+  public Collection<TimeRange> query(
+      Collection<Event> events, MeetingRequest request, boolean includesOptionalAttendees) {
     /* Create an output collection with a full day to cut(shorten or split)
      * into the available ranges.
      */
@@ -40,10 +66,18 @@ public final class FindMeetingQuery {
     availableRanges.add(fullDay);
 
     // Obtain data from the request.
-    Collection<String> attendees = request.getAttendees();
-    long requestDuration = request.getDuration();
+    Collection<String> attendees = new HashSet<>();
+    attendees.addAll(request.getAttendees());
+    
+    // Include Optional Attendees if indicated.
+    if (includesOptionalAttendees) {
+      attendees.addAll(request.getOptionalAttendees());
+    }
 
+    long requestDuration = request.getDuration();
     Collection<TimeRange> busyRanges = new HashSet<>();
+
+    
 
     // Detect relevant busy time ranges based on attendees.
     for (Event event : events) {
@@ -104,8 +138,7 @@ public final class FindMeetingQuery {
    * replacement omits the overlap through either:
    *  1. trimming the TimeRange into a shorter one,
    *  2. splitting the TimeRange and trimming the resulting TimeRanges.
-   * If events do not overlap, the returned collection will only inclued
-   * overlappedTimeRange.
+   * If events do not overlap, the returned collection will be empty.
    */
   private Collection<TimeRange> getReplacementForOverlappedTimeRange(
       TimeRange overlappingTimeRange, TimeRange overlappedTimeRange) {
@@ -117,32 +150,30 @@ public final class FindMeetingQuery {
     int overlappingStartMinute = overlappingTimeRange.start();
     int overlappingEndMinute = overlappingTimeRange.end();
 
-    int overlapType = classifyOverlap(overlappingTimeRange, overlappedTimeRange);
+    Overlap overlapType = classifyOverlap(overlappingTimeRange, overlappedTimeRange);
 
     // Case 1&4: Trim front of overlappedTimeRange.
-    if ((overlapType == OVERLAP_WITH_SAME_START) || (overlapType == OVERLAPS_START)) {
+    if ((overlapType == Overlap.OVERLAP_WITH_SAME_START) || (overlapType == Overlap.OVERLAPS_START)) {
       TimeRange replaceTime = TimeRange.fromStartDuration(
           overlappingEndMinute, overlappedTimeRangeEndMinute - overlappingEndMinute);
       replacementRanges.add(replaceTime);
     }
 
     // Case 2&3: Trim end of overlappedTimeRange.
-    else if ((overlapType == OVERLAP_WITH_SAME_END) || (overlapType == OVERLAPS_END)) {
+    else if ((overlapType == Overlap.OVERLAP_WITH_SAME_END) || (overlapType == Overlap.OVERLAPS_END)) {
       TimeRange replaceTime = TimeRange.fromStartDuration(
           overlappedTimeRangeStartMinute, overlappingStartMinute - overlappedTimeRangeStartMinute);
       replacementRanges.add(replaceTime);
     }
 
     // Case 5: Chop overlappingTimeRange out of overlappedTimeRange.
-    else if (overlapType == OVERLAP_CONTAINS) {
+    else if (overlapType == Overlap.OVERLAP_CONTAINS) {
       TimeRange replaceTimeA = TimeRange.fromStartDuration(
           overlappedTimeRangeStartMinute, overlappingStartMinute - overlappedTimeRangeStartMinute);
       TimeRange replaceTimeB = TimeRange.fromStartDuration(
           overlappingEndMinute, overlappedTimeRangeEndMinute - overlappingEndMinute);
       replacementRanges.add(replaceTimeA);
       replacementRanges.add(replaceTimeB);
-    } else {
-      replacementRanges.add(overlappedTimeRange);
     }
     return replacementRanges;
   }
@@ -160,7 +191,7 @@ public final class FindMeetingQuery {
    *     timeRange.
    *  0. Does not overlap
    */
-  private int classifyOverlap(TimeRange overlappingTimeRange, TimeRange timeRange) {
+  private Overlap classifyOverlap(TimeRange overlappingTimeRange, TimeRange timeRange) {
     // Obtain timeRange and overlappingTimeRange start/end data..
     int timeRangeStartMinute = timeRange.start();
     int timeRangeEndMinute = timeRange.end();
@@ -171,29 +202,21 @@ public final class FindMeetingQuery {
     // Define Overlap Cases
     if ((timeRangeStartMinute == overlappingStartMinute)
         && (timeRangeEndMinute > overlappingEndMinute)) {
-      return OVERLAP_WITH_SAME_START;
-    }
-
-    else if ((timeRangeEndMinute == overlappingEndMinute)
+      return Overlap.OVERLAP_WITH_SAME_START;
+    } else if ((timeRangeEndMinute == overlappingEndMinute)
         && (timeRangeStartMinute < overlappingStartMinute)) {
-      return OVERLAP_WITH_SAME_END;
-    }
-
-    else if ((timeRangeStartMinute < overlappingStartMinute)
+      return Overlap.OVERLAP_WITH_SAME_END;
+    } else if ((timeRangeStartMinute < overlappingStartMinute)
         && (timeRangeEndMinute < overlappingEndMinute)) {
-      return OVERLAPS_END;
-    }
-
-    else if ((timeRangeStartMinute > overlappingStartMinute)
+      return Overlap.OVERLAPS_END;
+    } else if ((timeRangeStartMinute > overlappingStartMinute)
         && (timeRangeEndMinute > overlappingEndMinute)) {
-      return OVERLAPS_START;
-    }
-
-    else if ((timeRangeStartMinute < overlappingStartMinute)
+      return Overlap.OVERLAPS_START;
+    } else if ((timeRangeStartMinute < overlappingStartMinute)
         && (timeRangeEndMinute > overlappingEndMinute)) {
-      return OVERLAP_CONTAINS;
+      return Overlap.OVERLAP_CONTAINS;
     } else {
-      return 0;
+      return Overlap.NO_OVERLAP;
     }
   }
 }

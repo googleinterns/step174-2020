@@ -39,46 +39,12 @@ public final class PerspectiveServlet extends HttpServlet {
     // prepare response to return JSON and set up a GSON object
     response.setContentType("application/json;");
     Gson gson = new Gson();
-    
-    String apiKey = "foo";
 
-    try {
-      // fetch the PerspectiveAPIKey class if it's there
-      Class<?> keyClass = Class.forName("com.google.sps.data.perspective.PerspectiveAPIKey");
-      // create a method getKey that takes no parameters
-      Method getKey = keyClass.getMethod("getKey", null);
-      // invoke this static method (first null means it's static 
-      // & second null means it does not need arguments) & stores result
-      apiKey = (String) getKey.invoke(null, null);
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {      
-      // if any errors were thrown for looking for api key, send this error message back to JS servlet
-      String errorMessage = "Could not retrieve the Perspective API.";
-      String messageJson = gson.toJson(errorMessage);
-      response.getWriter().println(messageJson);
-      return;
-    }
+    String[] cannedOutput = new String[0];
 
-    PerspectiveAPI perspectiveAPI = PerspectiveAPI.create(apiKey);
-
-    String text = getParameter(request, "text", "");
-
-    PerspectiveAnalysis textAnalysis = PerspectiveServiceClient.analyze(perspectiveAPI, PerspectiveAnalysis.ANALYSIS_TYPES, text);
-
-    // write textAnalysis as JSON to response
-    String json = gson.toJson(textAnalysis);
+    // write canned output to servlet
+    String json = gson.toJson(cannedOutput);
 
     response.getWriter().println(json);
-  }
-
-  /**
-   * @return the request parameter, or the default value if the parameter
-   *         was not specified by the client
-   */
-  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
-    String value = request.getParameter(name);
-    if (value == null) {
-      return defaultValue;
-    }
-    return value;
   }
 }
