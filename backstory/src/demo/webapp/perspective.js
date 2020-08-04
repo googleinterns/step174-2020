@@ -19,8 +19,8 @@
 // DISPLAY SCORES
 
 /** displays the Perspective scores for the text in the "text-for-analysis" element  */
-/* eslint-disable no-unused-vars */
 async function displayScores() {
+  /* eslint-disable no-unused-vars */
   const input = document.getElementById('text-for-analysis').value;
 
   if (input === '' || input === null) {
