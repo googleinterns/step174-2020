@@ -14,11 +14,13 @@
 
 package com.google.sps.perspective;
 
+import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
+
 /**
  * An implementation of PerspectiveManager using PerspectiveAPI for analysis.
  */
-public interface PerspectiveManagerImpl implements PerspectiveManager {
-    
+public class PerspectiveManagerImpl implements PerspectiveManager {
+
   /** The perspective API used by this instance. */
   private final PerspectiveAPI perspectiveAPI;
 
@@ -27,7 +29,8 @@ public interface PerspectiveManagerImpl implements PerspectiveManager {
    * class 
    */
   public PerspectiveManagerImpl() {
-    // instantiate the PerspectiveAPI for this instance
+    // TODO: instantiate the PerspectiveAPI for this instance
+    perspectiveAPI = null;
   }
 
   /**
