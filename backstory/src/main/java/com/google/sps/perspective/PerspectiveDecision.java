@@ -26,8 +26,9 @@ public class PerspectiveDecision {
    * @throws IllegalArgumentException if story is null
    */
   public PerspectiveDecision(String story) throws IllegalArgumentException {
-    if (story == null)
-      throw new IllegalArgumentException("story should never be null");
+    if (story == null) {
+      throw new IllegalArgumentException("Story should never be null");
+    }
 
     this.story = story;
   }
