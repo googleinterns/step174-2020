@@ -1,0 +1,23 @@
+/* General */
+
+html,
+body {
+  font-family: 'Roboto', sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  font-family: 'Lato', sans-serif; /* override Arial for buttons */
+  letter-spacing: 0.08em; /* give more space between Roboto letters */
+}
+
+/* Headers */
+.header {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.blue-header {
+  color: #4285f4; /* Google blue */
+}
