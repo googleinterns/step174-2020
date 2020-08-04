@@ -32,7 +32,7 @@ function fetchBlobstoreUrl() {
 
 /** Adds the  analyzed images to the image-list unordered list element */
 function getAnalyzedImages() {
-  fetch('/image-analysis')
+  fetch('/analyzed-images')
       .then((response) => response.json())
       .then((analyzedImagesObject) => {
         const imageListElement = document.getElementById('image-list');

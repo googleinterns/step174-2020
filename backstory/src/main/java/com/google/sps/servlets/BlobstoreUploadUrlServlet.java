@@ -25,10 +25,10 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Writes a Blobstore Upload URL to the response:
  *
- * blobstoreService.createUploadUrl("/image-analysis") creates an intermediate URL (uploadUrl) which
+ * blobstoreService.createUploadUrl("/analyze-image") creates an intermediate URL (uploadUrl) which
  * encodes the file upload, then forwards the encoded file, as a blob object, in the request to the
  * parameter url
- * ("/image-analysis" in this case). To see the intermediate blobstore URL, try:
+ * ("/analyze-image" in this case). To see the intermediate blobstore URL, try:
  * System.out.println(uploadUrl)
  *
  * From the response sent, to access the explicit url of the encoded file, from the blob object in
@@ -49,7 +49,7 @@ public class BlobstoreUploadUrlServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-    String uploadUrl = blobstoreService.createUploadUrl("/image-analysis");
+    String uploadUrl = blobstoreService.createUploadUrl("/analyze-image");
 
     response.setContentType("text/html");
     response.getWriter().println(uploadUrl);

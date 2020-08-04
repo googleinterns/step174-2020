@@ -22,10 +22,6 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
@@ -41,15 +37,12 @@ import com.google.cloud.vision.v1.ImageSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.protobuf.ByteString;
-import com.google.sps.servletData.AnalyzedImage;
+import com.google.sps.data.AnalyzedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
@@ -58,40 +51,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Prototype Servlet for managing the image analysis demo with Vision API and blobstore for uploads
+ * Prototype Servlet for serving the POST request for the analyze image resource. It uses the Vision
+ * API to analyze the images.
  */
-@WebServlet("/image-analysis")
-public class ImageAnalysisServlet extends HttpServlet {
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Query to find all analyzed image entities.
-    Query query = new Query("analyzed-image");
-
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery results = datastore.prepare(query);
-
-    List<AnalyzedImage> analyzedImages = new ArrayList<>();
-    for (Entity entity : results.asIterable()) {
-      String imageUrl = (String) entity.getProperty("imageUrl");
-      String labelsJsonArray = (String) ((Text) entity.getProperty("labelsJsonArray")).getValue();
-
-      analyzedImages.add(new AnalyzedImage(imageUrl, labelsJsonArray));
-    }
-
-    response.setContentType("application/json;");
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    String analyzedImagesJsonArray = gson.toJson(analyzedImages);
-    response.getWriter().println(analyzedImagesJsonArray);
-  }
-
-  @Override
+@WebServlet("/analyze-image")
+public class AnalyzeImageServlet extends HttpServlet {
+  /**
+   * {@inheritDoc}
+   *
+   * Expecting a post request from Blobstore containing the data fields from the image-upload
+   * form. After having gone through Blobstore, the request will include the image uploaded. The
+   * form in the HTML will connect to the Blobstore URL, which encodes the image and then
+   * redirects the request to this Url. In this doPost, the image is analyzed with Vision API,
+   * and the analysis along with the image URL will be sent to datastore for permanent storage.
+   */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Expecting a post request from Blobstore containing the data fields from the image-upload
-    // form. After having gone through Blobstore, the request will include the images uploaded. The
-    // form in the HTML will connect to the Blobstore URL, which encodes the images and then
-    // redirects the request to this Url. In this doPost, the images are analyzed with Vision API,
-    // and the analysis along with the image URL will be sent to datastore for permanent storage.
-
     // Get the input from the form.
     // Get the URL of the image that the user uploaded to Blobstore.
     final String imageUrl = getUploadedFileUrl(request, "image-upload");
@@ -101,7 +75,7 @@ public class ImageAnalysisServlet extends HttpServlet {
 
     if (bytes == null || imageUrl == null) {
       // Redirect back to the HTML page.
-      response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
+      response.sendError(400, "Please upload a valid image.");
 
     } else {
       // Gets the full label information from the image byte array by calling Vision API.
