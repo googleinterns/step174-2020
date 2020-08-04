@@ -15,20 +15,28 @@
 package com.google.sps.perspective;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
+import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 
 /**
  * An implementation of PerspectiveManager using PerspectiveAPI for analysis.
  */
 public class PerspectiveManagerImpl implements PerspectiveManager {
-
   /** The perspective API used by this instance. */
   private final PerspectiveAPI perspectiveAPI;
 
+  /** an array of all the types we want analysis on */
+  static final AttributeType[] REQUESTED_ATTRIBUTES = {AttributeType.ATTACK_ON_AUTHOR,
+      AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
+      AttributeType.INCOHERENT, AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT,
+      AttributeType.OBSCENE, AttributeType.PROFANITY, AttributeType.SEVERE_TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM, AttributeType.THREAT,
+      AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL};
+
   /**
    * Constructs an object which implements the PerspectiveManager
-   * class 
+   * class
    */
-  public PerspectiveManagerImpl() {
+  public PerspectiveManagerImpl() throws NoAppropriateStoryException {
     // TODO: instantiate the PerspectiveAPI for this instance
     perspectiveAPI = null;
   }
@@ -37,7 +45,7 @@ public class PerspectiveManagerImpl implements PerspectiveManager {
    * Constructs an object with a specified instance of the PerspectiveAPI.
    * Constructor is to be used for testing.
    *
-   * @param perspectiveAPI the instance of the PerspectiveAPI to use 
+   * @param perspectiveAPI the instance of the PerspectiveAPI to use
    *     to analyze stories with.
    */
   public PerspectiveManagerImpl(PerspectiveAPI perspectiveAPI) {
@@ -46,7 +54,7 @@ public class PerspectiveManagerImpl implements PerspectiveManager {
 
   /**
    * Analyzes the passed-in story using the perspective API and returns the decision
-   * as a PerspectiveDeccision object.
+   * as a PerspectiveDecision object.
    *
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
