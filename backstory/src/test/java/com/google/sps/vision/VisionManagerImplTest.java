@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.managers;
+package com.google.sps.vision;
 
 import java.io.IOException;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
@@ -34,12 +34,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.lang.IllegalArgumentException;
-<<<<<<< HEAD:backstory/src/test/java/com/google/sps/managers/VisionManagerImplTest.java
-import com.google.sps.managers.VisionManagerImpl;
-=======
 import com.google.sps.vision.VisionManagerImpl;
 import org.junit.Before;
->>>>>>> d7865c2... addresses comments:backstory/src/test/java/com/google/sps/vision/VisionManagerImplTest.java
 
 /**
  * Tests for VisionManagerImpl.
@@ -58,13 +54,6 @@ public final class VisionManagerImplTest {
    *  Partition on this: labelAnnotations is empty, or non-empty list of EntityAnnotations.
    */
 
-<<<<<<< HEAD:backstory/src/test/java/com/google/sps/managers/VisionManagerImplTest.java
-  private static final byte[] nullRawImageData = null;
-  private static final byte[] emptyRawImageData = new byte[0];
-  private static final byte[] rawImageData = getBytesFromImageReference(
-      "src/test/java/com/google/sps/managers/data/dogRunningOnBeach.jpg", "jpg");
-  private static final List<EntityAnnotation> emptyLabelAnnotations = new ArrayList<>();
-=======
   private byte[] nullRawImageData;
   private byte[] emptyRawImageData;
   private byte[] rawImageData;
@@ -87,7 +76,6 @@ public final class VisionManagerImplTest {
       System.err.println("detectLabelsFromImageBytes failed");
     }
   }
->>>>>>> d7865c2... addresses comments:backstory/src/test/java/com/google/sps/vision/VisionManagerImplTest.java
 
   /**
    * Returns an image as a byte array from the local reference of the image.
