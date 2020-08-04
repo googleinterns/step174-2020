@@ -19,3 +19,4 @@ validate: node_modules
 	find backstory/src/main -iname *.css | xargs $(CSS_VALIDATOR)
 	find backstory/src/main -iname *.js | xargs $(ESLINT)
 	mvn package -f backstory/pom.xml
+	node_modules/jest/bin/jest.js --passWithNoTests
