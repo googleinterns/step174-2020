@@ -35,6 +35,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 import java.lang.IllegalArgumentException;
 import com.google.sps.vision.VisionManagerImpl;
+import org.junit.Before;
 
 /**
  * Tests for VisionManagerImpl.
@@ -53,11 +54,28 @@ public final class VisionManagerImplTest {
    *  Partition on this: labelAnnotations is empty, or non-empty list of EntityAnnotations.
    */
 
-  private static final byte[] nullRawImageData = null;
-  private static final byte[] emptyRawImageData = new byte[0];
-  private static final byte[] rawImageData = getBytesFromImageReference(
+  private byte[] nullRawImageData;
+  private byte[] emptyRawImageData;
+  private byte[] rawImageData;
+  private List<EntityAnnotation> emptyLabelAnnotations;
+  private List<EntityAnnotation> labelAnnotations;
+
+  @Before
+  public void setUp() {
+    nullRawImageData = null;
+    emptyRawImageData = new byte[0];
+    rawImageData = getBytesFromImageReference(
       "src/test/java/com/google/sps/vision/data/dogRunningOnBeach.jpg", "jpg");
-  private static final List<EntityAnnotation> emptyLabelAnnotations = new ArrayList<>();
+    emptyLabelAnnotations = new ArrayList<>();
+
+    labelAnnotations = new ArrayList<>();
+
+    try {
+      labelAnnotations = detectLabelsFromImageBytes(rawImageData);
+    } catch(IOException exception) {
+      System.err.println("detectLabelsFromImageBytes failed");
+    }
+  }
 
   /**
    * Returns an image as a byte array from the local reference of the image.
@@ -139,14 +157,6 @@ public final class VisionManagerImplTest {
   */
   @Test
   public void constructorRawImageData() {
-    List<EntityAnnotation> labelAnnotations = new ArrayList<>();;
-
-    try {
-      labelAnnotations = detectLabelsFromImageBytes(rawImageData);
-    } catch(IOException exception) {
-      System.err.println("detectLabelsFromImageBytes failed");
-    }
-
     VisionManagerImpl actual = new VisionManagerImpl(rawImageData, labelAnnotations);
     assertEquals(rawImageData, actual.getRawImageData());
     assertEquals(labelAnnotations, actual.getLabelAnnotations());
@@ -170,14 +180,6 @@ public final class VisionManagerImplTest {
   */
   @Test
   public void getLabelsAsJsonNonEmptyLabelAnnotations() {
-    List<EntityAnnotation> labelAnnotations = new ArrayList<>();;
-
-    try {
-      labelAnnotations = detectLabelsFromImageBytes(rawImageData);
-    } catch(IOException exception) {
-      System.err.println("detectLabelsFromImageBytes failed");
-    }
-
     VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, labelAnnotations);
     String actual = vmActual.getLabelsAsJson();
     assertFalse(actual.equals(""));
@@ -201,14 +203,6 @@ public final class VisionManagerImplTest {
   */
   @Test
   public void getLabelDescriptionsNonEmptyLabelAnnotations() {
-    List<EntityAnnotation> labelAnnotations = new ArrayList<>();;
-
-    try {
-      labelAnnotations = detectLabelsFromImageBytes(rawImageData);
-    } catch(IOException exception) {
-      System.err.println("detectLabelsFromImageBytes failed");
-    }
-    
     VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, labelAnnotations);
     List<String> actual = vmActual.getLabelDescriptions();
     List<String> expected = new ArrayList<>();
