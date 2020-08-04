@@ -6,7 +6,7 @@ PRETTIER=node_modules/prettier/bin-prettier.js
 STYLELINT=node_modules/stylelint/bin/stylelint.js
 
 node_modules:
-	npm install clang-format prettier csstree-validator html-validate eslint eslint-config-google stylelint stylelint-order stylelint-config-standard
+	npm install clang-format prettier csstree-validator html-validate jest eslint eslint-config-google stylelint stylelint-order stylelint-config-standard
 
 pretty: node_modules
 	find backstory/src/main -iname *.html | xargs $(PRETTIER) --write
