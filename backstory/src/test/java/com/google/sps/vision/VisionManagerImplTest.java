@@ -99,40 +99,6 @@ public final class VisionManagerImplTest {
     return bos.toByteArray();
   }
 
-  /** Detects labels in the image specified by the image byte data by calling the Vision API. */
-  private static List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-    List<EntityAnnotation> labels;
-
-    Image img = Image.newBuilder().setContent(ByteString.copyFrom(bytes)).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of the requests the
-    // client will be automatically closed, as it is called within the try.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
-
-      // There is only one image in the batch response (only supports uploading one image at a time
-      // right now)
-      AnnotateImageResponse res = responses.get(0);
-
-      if (res.hasError()) {
-        System.out.format("Error: %s%n", res.getError().getMessage());
-        return new ArrayList<EntityAnnotation>();
-      }
-
-      // For full list of available annotations, see http://g.co/cloud/vision/docs
-      labels = res.getLabelAnnotationsList();
-    }
-
-    return labels;
-  }
-
   /**
    * Tests paritions on public VisionManagerImpl(byte[] rawImageData);
    *  rawImageData is null.
