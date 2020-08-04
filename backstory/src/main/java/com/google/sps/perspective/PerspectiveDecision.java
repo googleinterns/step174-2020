@@ -18,19 +18,18 @@ package com.google.sps.perspective;
 public class PerspectiveDecision {
   /** a story deemed appropriate by analysis engine */
   private final String story;
-  /** a boolean representing whether there was an appropriate story (if story isn't null) */
-  private final boolean hasStory;
 
   /**
-   * Constructs a PerspectiveDecision object from a String story. If story is null,
-   * then there was no appropriate story.
+   * Constructs a PerspectiveDecision object from a String story.
    *
    * @param story A story deemed appropriate by the analysis engine.
+   * @throws IllegalArgumentException if story is null
    */
-  public PerspectiveDecision(String story) {
-    this.story = story;
+  public PerspectiveDecision(String story) throws IllegalArgumentException {
+    if (story == null)
+      throw new IllegalArgumentException("story should never be null");
 
-    hasStory = (story != null);
+    this.story = story;
   }
 
   /**
@@ -40,14 +39,5 @@ public class PerspectiveDecision {
    */
   public String getStory() {
     return story;
-  }
-
-  /**
-   * Returns whether there is an appropriate story stored in this object.
-   *
-   * @return if there was a story deemed appropriate by analysis engine.
-   */
-  public boolean hasStory() {
-    return hasStory;
   }
 }
