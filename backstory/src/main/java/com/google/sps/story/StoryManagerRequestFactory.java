@@ -29,13 +29,12 @@ import java.io.IOException;
 /**
  * Interface for story generation network requests.
  */
-public interface StoryManagerRequestFactory {
+interface StoryManagerRequestFactory {
   /**
    * Builds a PostRequest given parameters. Uses String JSON body
    * to generate headers for Post request.
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest newInstance(String requestBody) throws IOException;
-
+  public HttpRequest newInstance(String requestBody) throws IllegalStateException, IOException;
 }

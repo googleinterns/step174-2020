@@ -18,16 +18,14 @@ import java.io.IOException;
 /**
  * Interface for story generation class.
  */
-public interface StoryManager {
-
+interface StoryManager {
   /**
-   * Returns generated text output for a given prompt, length, and temperature.
+   * Returns generated text output.
    */
   public String generateText() throws RuntimeException;
 
   /**
    * Allow public setting of RequestFactory for alternative posting.
-   * Throws IOException in case of a server or network error.
    *
    * @param factory StoryManagerRequestFactory to use for HttpRequests.
    */

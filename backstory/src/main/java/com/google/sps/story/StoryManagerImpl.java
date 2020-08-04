@@ -35,16 +35,14 @@ import org.json.JSONObject;
  * GPT-2 Model and indication of associated parameters.
  */
 public final class StoryManagerImpl implements StoryManager {
-  /**
-   * prefix - String to indicate basis for text generation
-   * maxTextLength - Maximum character length of generation
-   * temperature - The volatility of topics and style in generation.
-   */
+  /** String to indicate basis for text generation */
   private String prefix;
+  /** Maximum character length of generation */
   private int maxTextLength;
+  /** The volatility of topics and style in generation. */
   private Double temperature;
 
-  // requestFactory - Builds and facilitates authenticated post requests.
+  /** requestFactory - Builds and facilitates authenticated post requests. */
   private StoryManagerRequestFactory requestFactory;
 
   /**
@@ -78,7 +76,7 @@ public final class StoryManagerImpl implements StoryManager {
   /**
    * Makes a post request with a JSON including GPT2 Parameters
    *
-   * @returns HttpResponse The reponse from the Generation server expected to include
+   * @return HttpResponse The reponse from the Generation server expected to include
    *          a "text" field with the generated text.
    */
   private HttpResponse requestGeneratedText() throws IOException {

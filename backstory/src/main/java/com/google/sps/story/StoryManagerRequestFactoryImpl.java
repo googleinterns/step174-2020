@@ -31,14 +31,12 @@ import java.io.IOException;
  */
 
 public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactory {
-
   /**
    * Builds a PostRequest given parameters.
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest newInstance(String requestBody)
-      throws IllegalStateException, IOException {
+  public HttpRequest newInstance(String requestBody) throws IllegalStateException, IOException {
     try {
       String serviceUrl = "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app";
 
@@ -65,7 +63,7 @@ public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactor
       return transport.createRequestFactory(adapter).buildPostRequest(
           genericUrl, ByteArrayContent.fromString("application/json", requestBody));
     } catch (IOException serverException) {
-      throw new IOException("Error with server", serverException);
+      throw new IOException("Error creating request.", serverException);
     }
   }
 }
