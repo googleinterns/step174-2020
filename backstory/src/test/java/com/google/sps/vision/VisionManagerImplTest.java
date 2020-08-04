@@ -14,6 +14,7 @@
 
 package com.google.sps.vision;
 
+import static org.mockito.Mockito.*;
 import java.io.IOException;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
@@ -48,7 +49,7 @@ public final class VisionManagerImplTest {
    *  Partition on rawImageData: empty, null, non-empty image data.
    * 
    * public String getLabelsAsJson();
-   *  Partition on this: labelAnnotations is empty, or non-empty list of EntityAnnotations.
+   *  Unnecesary to test as it is a wrapper for a Gson call.
    *
    * public List<String> getLabelDescriptions();
    *  Partition on this: labelAnnotations is empty, or non-empty list of EntityAnnotations.
@@ -70,11 +71,12 @@ public final class VisionManagerImplTest {
 
     labelAnnotations = new ArrayList<>();
 
-    try {
-      labelAnnotations = detectLabelsFromImageBytes(rawImageData);
-    } catch(IOException exception) {
-      System.err.println("detectLabelsFromImageBytes failed");
-    }
+    EntityAnnotation entityAnnotationMock = mock(EntityAnnotation.class);
+    // mock the behavior of stock service to return the value of various stocks
+    when(entityAnnotationMock.getDescription()).thenReturn("DescriptionOne");
+
+    labelAnnotations.add(entityAnnotationMock);
+    labelAnnotations.add(entityAnnotationMock);
   }
 
   /**
@@ -163,29 +165,6 @@ public final class VisionManagerImplTest {
   }
 
   /**
-   * Tests paritions on getLabelsAsJson();
-   *  labelAnnotations is empty.
-  */
-  @Test
-  public void getLabelsAsJsonEmptyLabelAnnotations() {
-    VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, emptyLabelAnnotations);
-    String actual = vmActual.getLabelsAsJson();
-    String expected = "[]";
-    assertEquals(expected, actual);
-  }
-
-  /**
-   * Tests paritions on getLabelsAsJson();
-   *  labelAnnotations is non-empty list of EntityAnnotations..
-  */
-  @Test
-  public void getLabelsAsJsonNonEmptyLabelAnnotations() {
-    VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, labelAnnotations);
-    String actual = vmActual.getLabelsAsJson();
-    assertFalse(actual.equals(""));
-  }
-
-  /**
    * Tests paritions on getLabelDescriptions();
    *  labelAnnotations is empty.
   */
@@ -206,7 +185,9 @@ public final class VisionManagerImplTest {
     VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, labelAnnotations);
     List<String> actual = vmActual.getLabelDescriptions();
     List<String> expected = new ArrayList<>();
+    expected.add("DescriptionOne");
+    expected.add("DescriptionOne");
 
-    assertFalse(actual.isEmpty());
+    assertEquals(expected, actual);
   }
 }
