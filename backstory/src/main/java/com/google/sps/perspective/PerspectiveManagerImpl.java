@@ -25,12 +25,23 @@ public class PerspectiveManagerImpl implements PerspectiveManager {
   private final PerspectiveAPI perspectiveAPI;
 
   /** an array of all the types we want analysis on */
-  static final AttributeType[] REQUESTED_ATTRIBUTES = {AttributeType.ATTACK_ON_AUTHOR,
-      AttributeType.ATTACK_ON_COMMENTER, AttributeType.FLIRTATION, AttributeType.IDENTITY_ATTACK,
-      AttributeType.INCOHERENT, AttributeType.INSULT, AttributeType.LIKELY_TO_REJECT,
-      AttributeType.OBSCENE, AttributeType.PROFANITY, AttributeType.SEVERE_TOXICITY,
-      AttributeType.SEXUALLY_EXPLICIT, AttributeType.SPAM, AttributeType.THREAT,
-      AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL};
+  static final AttributeType[] REQUESTED_ATTRIBUTES = {
+      AttributeType.ATTACK_ON_AUTHOR,
+      AttributeType.ATTACK_ON_COMMENTER, 
+      AttributeType.FLIRTATION, 
+      AttributeType.IDENTITY_ATTACK,
+      AttributeType.INCOHERENT, 
+      AttributeType.INSULT, 
+      AttributeType.LIKELY_TO_REJECT,
+      AttributeType.OBSCENE, 
+      AttributeType.PROFANITY, 
+      AttributeType.SEVERE_TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT, 
+      AttributeType.SPAM, 
+      AttributeType.THREAT,
+      AttributeType.TOXICITY, 
+      AttributeType.UNSUBSTANTIAL
+    };
 
   /**
    * Constructs an object which implements the PerspectiveManager
