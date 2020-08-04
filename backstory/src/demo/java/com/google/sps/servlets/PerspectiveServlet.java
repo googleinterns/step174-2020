@@ -39,41 +39,11 @@ public final class PerspectiveServlet extends HttpServlet {
     // prepare response to return JSON and set up a GSON object
     response.setContentType("application/json;");
     Gson gson = new Gson();
-    
-    // declare instance of perspective api
-    PerspectiveAPI perspectiveAPI;
-    
-    try {
-      perspectiveAPI = PerspectiveServiceClient.generateAPI();
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {      
-      // if any errors were thrown for looking for api key, send this error message back to JS servlet
-      String errorMessage = "Could not retrieve the Perspective API key.";
-      
-      // set the status of this request to an internal service error
-      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
-      // send the appropriate error message back with the status
-      String messageJson = gson.toJson(errorMessage);
-      response.getWriter().println(messageJson);
-    }
+    String[] cannedOutput = new String[0];
 
-    // get the text and if it's null or empty return a service error & error message
-    String text = request.getParameter("text");
-    
-    if(text === null || text === "") {
-      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
-      String errorMessage = "Text input was null or empty";
-      String messageJson = gson.toJson(errorMessage);
-
-      response.getWriter().println(messageJson);
-      return;
-    }
-
-    PerspectiveAnalysis textAnalysis = PerspectiveServiceClient.analyze(perspectiveAPI, PerspectiveAnalysis.ANALYSIS_TYPES, text);
-
-    // write textAnalysis as JSON to response
-    String json = gson.toJson(textAnalysis);
+    // write canned output to servlet
+    String json = gson.toJson(cannedOutput);
 
     response.getWriter().println(json);
   }

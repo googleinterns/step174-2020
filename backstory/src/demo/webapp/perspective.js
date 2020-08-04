@@ -43,7 +43,7 @@ async function displayScores() {
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);
   } else {
-    display.innerHTML = formatAttributeArray(jsonObject.analyses);
+    display.innerHTML = formatAttributeArray(jsonObject);
   }
 }
 
