@@ -44,7 +44,7 @@ public class StoryDecision {
 
   @Override
   public boolean equals(Object other) {
-    StoryDecision otherStoryDecision = (StoryDecision) other; 
+    StoryDecision otherStoryDecision = (StoryDecision) other;
     return story.equals(otherStoryDecision.getStory());
   }
 }

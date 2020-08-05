@@ -21,8 +21,8 @@ import com.google.sps.perspective.data.ContentDecisions;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
-import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.PerspectiveServiceClient;
+import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.lang.reflect.InvocationTargetException;
 
@@ -64,11 +64,11 @@ public class PerspectiveManager implements StoryAnalysisManager {
 
     try {
       factory = new PerspectiveAPIFactoryImpl();
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException 
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
         | InvocationTargetException e) {
-      throw new APINotAvailableException("Perspective API is not available"); 
-    } 
-    
+      throw new APINotAvailableException("Perspective API is not available");
+    }
+
     perspectiveAPI = factory.newInstance();
   }
 
@@ -92,15 +92,16 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @throws NoAppropriateStoryException if story is not considered appropriate
    */
   public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
-    PerspectiveValues storyValues = PerspectiveServiceClient.analyze(perspectiveAPI, REQUESTED_ATTRIBUTES, story);
+    PerspectiveValues storyValues =
+        PerspectiveServiceClient.analyze(perspectiveAPI, REQUESTED_ATTRIBUTES, story);
     boolean decision = ContentDecisions.makeDecision(storyValues);
-    
+
     // if content decisions returns that it's appropriate (true),
     // then return a StoryDecision object with this story
     if (decision) {
       return new StoryDecision(story);
     }
-    
+
     // otherwise throw the NoAppropriateStoryException;
     throw new NoAppropriateStoryException("The story passed in was not appropriate.");
   }
