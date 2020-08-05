@@ -20,6 +20,25 @@ import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
  * An implementation of PerspectiveManager using PerspectiveAPI for analysis.
  */
 public class PerspectiveManagerImpl implements PerspectiveManager {
+  /** an array of all the types we want analysis on */
+  private static final AttributeType[] REQUESTED_ATTRIBUTES = {
+      AttributeType.ATTACK_ON_AUTHOR,
+      AttributeType.ATTACK_ON_COMMENTER,
+      AttributeType.FLIRTATION,
+      AttributeType.IDENTITY_ATTACK,
+      AttributeType.INCOHERENT,
+      AttributeType.INSULT,
+      AttributeType.LIKELY_TO_REJECT,
+      AttributeType.OBSCENE,
+      AttributeType.PROFANITY,
+      AttributeType.SEVERE_TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT,
+      AttributeType.SPAM,
+      AttributeType.THREAT,
+      AttributeType.TOXICITY,
+      AttributeType.UNSUBSTANTIAL,
+  };
+
   /** The perspective API used by this instance. */
   private final PerspectiveAPI perspectiveAPI;
 
