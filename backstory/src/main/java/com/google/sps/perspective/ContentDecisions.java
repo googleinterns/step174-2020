@@ -22,9 +22,8 @@ import java.util.Map;
  * using analysis from Perspective API.
  */
 public class ContentDecisions {
-
   /**
-   * Overrides default constructor to ensure class can't be instantiated
+   * Overrides default constructor to ensure class can't be instantiated.
    */
   private ContentDecisions() {
     throw new AssertionError();
