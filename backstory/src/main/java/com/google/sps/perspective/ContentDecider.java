@@ -18,17 +18,17 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import java.util.Map;
 
 /**
- * Makes a decision on whether or not the story (or content) is appropriate 
+ * Makes a decision on whether or not the story (or content) is appropriate
  * using analyses from Perspective API.
  */
 public class ContentDecider {
   /**
-   * Makes decision on whether or not text in perspective value 
+   * Makes decision on whether or not text in perspective value
    * is considered appropriate based on the analyses from Perspective API
    * stored in PerspectiveValue. Returns this decision as a boolean.
    * Current decision logic is based off whether text considered toxic.
    *
-   * @param PerspectiveValue the object containing text to be decided on 
+   * @param PerspectiveValue the object containing text to be decided on
    *     & analyses to help make decision
    * @return true, if content considered appropriate; false, otherwise
    */
@@ -37,7 +37,6 @@ public class ContentDecider {
 
     return !isToxic(perspectiveValue.getAnalyses());
   }
-
 
   /**
    * Private helper method to check if content is considered toxic.
@@ -48,13 +47,14 @@ public class ContentDecider {
    * @return true, if toxicity score (in analyses) >= 70% toxic; false, if not
    * @throws IllegalArgumentException, if analyses is null or does not contain a toxicity score
    */
-  private static boolean isToxic(Map<AttributeType, Float> analyses) throws IllegalArgumentException {
+  private static boolean isToxic(Map<AttributeType, Float> analyses)
+      throws IllegalArgumentException {
     if (analyses == null) {
       throw new IllegalArgumentException("Analyses cannot be null.");
     } else if (!analyses.containsKey(AttributeType.TOXICITY)) {
       throw new IllegalArgumentException("Analyses does not contain a toxicity score");
     }
-      
+
     float toxicity = analyses.get(AttributeType.TOXICITY);
 
     return toxicity >= .7f;
