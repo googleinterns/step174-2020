@@ -30,7 +30,7 @@ public class PerspectiveAPIFactoryImpl implements PerspectiveAPIFactory {
   private static final String GET_KEY_METHOD_NAME = "getKey";
 
   /** the API key to use to create PerspectiveAPI instances in this factory */
-  private String apiKey;
+  private final String apiKey;
 
   /**
    * Constructs a factory by finding and setting the api key for this factory.
