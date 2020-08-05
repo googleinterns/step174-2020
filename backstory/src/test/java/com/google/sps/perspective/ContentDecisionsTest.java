@@ -78,14 +78,14 @@ public final class ContentDecisionsTest {
     inputScores.put(AttributeType.TOXICITY, VERY_LOW_TOXICITY);
     input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(true, ContentDecisions.makeDecision(input));
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
 
     // check with a toxicity just below 70%
     final float LOW_TOXICITY = .69f;
     inputScores.put(AttributeType.TOXICITY, LOW_TOXICITY);
     input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(true, ContentDecisions.makeDecision(input));
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
   }
 
   /**
