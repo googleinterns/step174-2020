@@ -18,7 +18,7 @@ package com.google.sps.perspective;
  * Handles analysis of stories for content and provides a recommendation on
  * the "best" appropriate story (if multiple).
  */
-interface PerspectiveManager {
+interface StoryAnalysisManager {
   /**
    * Analyzes the passed-in story and returns PerspectiveDecision
    * containing decision based on analysis.

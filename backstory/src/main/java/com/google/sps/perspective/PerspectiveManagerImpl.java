@@ -18,9 +18,9 @@ import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 
 /**
- * An implementation of PerspectiveManager using PerspectiveAPI for analysis.
+ * An implementation of StoryAnalysisManager using PerspectiveAPI for analysis.
  */
-public class PerspectiveManagerImpl implements PerspectiveManager {
+public class PerspectiveManagerImpl implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
   private static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
@@ -44,7 +44,7 @@ public class PerspectiveManagerImpl implements PerspectiveManager {
   private final PerspectiveAPI perspectiveAPI;
 
   /**
-   * Constructs an object which implements the PerspectiveManager
+   * Constructs an object which implements the StoryAnalysisManager
    * class.
    */
   public PerspectiveManagerImpl() throws NoAppropriateStoryException {
