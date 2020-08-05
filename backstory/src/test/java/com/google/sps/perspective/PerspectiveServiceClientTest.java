@@ -100,7 +100,7 @@ public final class PerspectiveServiceClientTest {
   public void checkSizeOfMap() {
     PerspectiveValues values = PerspectiveServiceClient.analyze(api, desiredTypes, "foo");
 
-    Assert.assertEquals(desiredTypes.length, values.getAnalyses().size());
+    Assert.assertEquals(desiredTypes.length, values.getAttributeTypesToScores().size());
   }
 
   /**
@@ -131,13 +131,13 @@ public final class PerspectiveServiceClientTest {
 
     api = createMockAPI(desiredScores);
     
-    // get the PerspectiveValues object and specifically the output analyses
+    // get the PerspectiveValues object and specifically the output analyses (scores from PerspectiveAPI)
     PerspectiveValues values = PerspectiveServiceClient.analyze(api, desiredTypes, "foo");
-    Map<AttributeType, Float> outputAnalyses = values.getAnalyses();
+    Map<AttributeType, Float> outputScores = values.getAttributeTypesToScores();
 
     // check all the right scores were returned from analyze()
     for (AttributeType type: desiredTypes) {
-      Assert.assertEquals(desiredScores.get(type), outputAnalyses.get(type), 0);
+      Assert.assertEquals(desiredScores.get(type), outputScores.get(type), 0);
     }
   }
 
