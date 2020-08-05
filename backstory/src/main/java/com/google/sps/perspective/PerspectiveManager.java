@@ -20,7 +20,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 /**
  * An implementation of StoryAnalysisManager using PerspectiveAPI for analysis.
  */
-public class PerspectiveManagerImpl implements StoryAnalysisManager {
+public class PerspectiveManager implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
   private static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
@@ -45,9 +45,9 @@ public class PerspectiveManagerImpl implements StoryAnalysisManager {
 
   /**
    * Constructs an object which implements the StoryAnalysisManager
-   * class.
+   * class using the Google Perspective API.
    */
-  public PerspectiveManagerImpl() throws NoAppropriateStoryException {
+  public PerspectiveManager() throws NoAppropriateStoryException {
     // TODO: instantiate the PerspectiveAPI for this instance
     perspectiveAPI = null;
   }
@@ -59,7 +59,7 @@ public class PerspectiveManagerImpl implements StoryAnalysisManager {
    * @param perspectiveAPI the instance of the PerspectiveAPI to use
    *     to analyze stories with.
    */
-  public PerspectiveManagerImpl(PerspectiveAPI perspectiveAPI) {
+  public PerspectiveManager(PerspectiveAPI perspectiveAPI) {
     this.perspectiveAPI = perspectiveAPI;
   }
 
