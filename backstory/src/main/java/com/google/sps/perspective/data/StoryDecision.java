@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.perspective;
+package com.google.sps.perspective.data;
 
 /** The result of the analysis of text(s) for inappropriate content. */
 public class StoryDecision {
