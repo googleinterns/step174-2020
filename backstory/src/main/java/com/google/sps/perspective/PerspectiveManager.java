@@ -25,6 +25,7 @@ interface PerspectiveManager {
    *
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
+   * @throws NoAppropriateStoryException if no story from decision is considered appropriate
    */
-  public PerspectiveDecision getDecision(String story);
+  public PerspectiveDecision generateDecision(String story) throws NoAppropriateStoryException;
 }
