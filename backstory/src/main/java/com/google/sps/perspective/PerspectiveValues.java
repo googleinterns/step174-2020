@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.data.perspective;
+package com.google.sps.perspective;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import java.util.Map;
