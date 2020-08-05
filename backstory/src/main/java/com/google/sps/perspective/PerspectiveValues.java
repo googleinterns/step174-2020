@@ -31,7 +31,7 @@ public class PerspectiveValues {
    * Constructs a PerspectiveValues object with the text that was analyzed
    * and the subsequent scores produced from Perspective stored in a map.
    *
-   * @param text the text to analyze
+   * @param text the text that was analyzed
    * @param analyses the analysis of the text to be stored
    */
   public PerspectiveValues(String text, Map<AttributeType, Float> analyses) {

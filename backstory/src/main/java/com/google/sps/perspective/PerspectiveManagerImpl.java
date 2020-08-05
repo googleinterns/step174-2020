@@ -25,7 +25,7 @@ public class PerspectiveManagerImpl implements PerspectiveManager {
 
   /**
    * Constructs an object which implements the PerspectiveManager
-   * class
+   * class.
    */
   public PerspectiveManagerImpl() throws NoAppropriateStoryException {
     // TODO: instantiate the PerspectiveAPI for this instance
