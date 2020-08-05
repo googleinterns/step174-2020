@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.data.perspective;
+package com.google.sps.perspective;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class ContentDecider {
    *     & analyses to help make decision
    * @return true, if content considered appropriate; false, otherwise
    */
-  public boolean makeDecision(PerspectiveValue perspectiveValue) {
+  public static boolean makeDecision(PerspectiveValue perspectiveValue) {
     // currently decision is entirely based on whether content is considered toxic
 
     return !isToxic(perspectiveValue.getAnalyses());
