@@ -21,7 +21,7 @@ import java.util.Map;
  * Makes a decision on whether or not the story (or content) is appropriate
  * using analyses from Perspective API.
  */
-public class ContentDecider {
+public class ContentDecisions {
   /**
    * Makes decision on whether or not text in perspective value
    * is considered appropriate based on the analyses from Perspective API
