@@ -14,6 +14,8 @@
 
 package com.google.sps.perspective;
 
+import com.google.sps.perspective.data.StoryDecision;
+
 /**
  * Handles analysis of stories for content and provides a recommendation on
  * the "best" appropriate story (if multiple).
