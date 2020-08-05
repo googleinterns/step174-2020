@@ -25,17 +25,17 @@ public class ContentDecider {
   /**
    * Makes decision on whether or not text in perspective value
    * is considered appropriate based on the analyses from Perspective API
-   * stored in PerspectiveValue. Returns this decision as a boolean.
+   * stored in PerspectiveValues object. Returns this decision as a boolean.
    * Current decision logic is based off whether text considered toxic.
    *
-   * @param PerspectiveValue the object containing text to be decided on
+   * @param PerspectiveValues the object containing text to be decided on
    *     & analyses to help make decision
    * @return true, if content considered appropriate; false, otherwise
    */
-  public static boolean makeDecision(PerspectiveValue perspectiveValue) {
+  public static boolean makeDecision(PerspectiveValues values) {
     // currently decision is entirely based on whether content is considered toxic
 
-    return !isToxic(perspectiveValue.getAnalyses());
+    return !isToxic(values.getAnalyses());
   }
 
   /**
