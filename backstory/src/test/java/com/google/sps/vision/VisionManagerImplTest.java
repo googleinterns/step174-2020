@@ -93,7 +93,7 @@ public final class VisionManagerImplTest {
       BufferedImage bImage = ImageIO.read(new File(reference));
       ImageIO.write(bImage, fileType, bos);
     } catch (IOException exception){
-      System.err.println("IOException while reading image");
+      throw exception;
     }
 
     return bos.toByteArray();

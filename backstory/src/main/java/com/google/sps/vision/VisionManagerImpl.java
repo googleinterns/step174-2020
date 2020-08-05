@@ -54,11 +54,15 @@ public final class VisionManagerImpl implements VisionManager {
    * All representation fields are immutable.
    */
 
-  /** Asserts the rep invariants */
-  private void checkRep() {
-    assert rawImageData != null;
-    assert labelAnnotations != null;
-    assert rawImageData.length != 0;
+  /**
+   * Asserts that the representation invariants are met
+   * The representation invariants are the conditions which must always
+   * be true about the class representation fields.
+   */
+  private void checkRepresentationInvariantMet() {
+    assert rawImageData != null : "raw image data field is null";
+    assert labelAnnotations != null : "label annotations data field is null";
+    assert rawImageData.length != 0 : "raw image data field is empty";
   }
 
   /**
@@ -73,10 +77,10 @@ public final class VisionManagerImpl implements VisionManager {
     if (rawImageData != null && rawImageData.length != 0) {
       this.labelAnnotations = detectLabelsFromImageBytes(rawImageData);
     } else {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Raw image data must be non-null and non-empty");
     }
 
-    checkRep();
+    checkRepresentationInvariantMet();
   }
 
   /**
@@ -90,13 +94,14 @@ public final class VisionManagerImpl implements VisionManager {
   public VisionManagerImpl(byte[] rawImageData, List<EntityAnnotation> labelAnnotations)
       throws IllegalArgumentException {
     if (rawImageData == null || labelAnnotations == null || rawImageData.length == 0) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(
+          "Raw image data must be non-null and non-empty, label annotation data must be non-null");
     }
 
     this.rawImageData = rawImageData;
     this.labelAnnotations = labelAnnotations;
 
-    checkRep();
+    checkRepresentationInvariantMet();
   }
 
   /**
