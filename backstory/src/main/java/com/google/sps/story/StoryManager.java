@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * Interface for story generation class.
  */
-interface StoryManager {
+public interface StoryManager {
   /**
    * Returns generated text output.
    */

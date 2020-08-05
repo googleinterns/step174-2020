@@ -29,7 +29,7 @@ import java.io.IOException;
 /**
  * Interface for story generation network requests.
  */
-interface StoryManagerRequestFactory {
+public interface StoryManagerRequestFactory {
   /**
    * Builds a PostRequest given parameters. Uses String JSON body
    * to generate headers for Post request.
