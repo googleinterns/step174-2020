@@ -28,22 +28,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A service client to analyze text using the Perspective API 
+ * A service client to analyze text using the Perspective API
  */
 public class PerspectiveServiceClient {
-
   /**
-   * Return a PerspectiveValues object with analysis of all of the requested types 
+   * Return a PerspectiveValues object with analysis of all of the requested types
    * for a specified text using a specified Perspective API.
    *
-   * @param perspective an instance of the PerspectiveAPI to use to analyze the text for the requested attributeTypes
+   * @param perspective an instance of the PerspectiveAPI to use to analyze the text for the
+   *     requested attributeTypes
    * @param attributeTypes the requested attribute types to analyze the text for
    * @param text the text to be analyzed by Perspective API
    * @return an PerspectiveValues object containing all of the scores from the PerspectiveAPI
    * @throws IllegalArgumentException if any argument is null or if text is empty
    */
-  public static PerspectiveValues analyze(PerspectiveAPI perspective, AttributeType[] attributeTypes, 
-    String text) {
+  public static PerspectiveValues analyze(
+      PerspectiveAPI perspective, AttributeType[] attributeTypes, String text) {
     if (perspective == null) {
       throw new IllegalArgumentException("PerspectiveAPI argument cannot be null.");
     } else if (attributeTypes == null) {
@@ -52,7 +52,7 @@ public class PerspectiveServiceClient {
       throw new IllegalArgumentException("The text to be analyzed cannot be null");
     } else if (text.equals("")) {
       // it can't be empty b/c if it is, when attempting to analyze it with the PerspectiveAPI
-      // a NullPointerException will be thrown 
+      // a NullPointerException will be thrown
       throw new IllegalArgumentException("The text to be analyzed cannot be empty");
     }
 
@@ -66,7 +66,7 @@ public class PerspectiveServiceClient {
 
     AnalyzeCommentRequest request = builder.build();
     AnalyzeCommentResponse response = perspective.analyze(request);
-    
+
     Map<AttributeType, Float> analyses = new HashMap<AttributeType, Float>();
 
     // extract the score for each of the requested attribute types

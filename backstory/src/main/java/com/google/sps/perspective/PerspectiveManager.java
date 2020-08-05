@@ -39,7 +39,7 @@ interface PerspectiveManager {
       AttributeType.TOXICITY, 
       AttributeType.UNSUBSTANTIAL
     };
-
+    
   /**
    * Analyzes the passed-in story and returns PerspectiveDecision
    * containing decision based on analysis.
