@@ -15,6 +15,7 @@
 package com.google.sps.perspective;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
+import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 
 /**
  * An implementation of PerspectiveManager using PerspectiveAPI for analysis.

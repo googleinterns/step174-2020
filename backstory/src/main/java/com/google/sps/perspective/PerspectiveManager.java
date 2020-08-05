@@ -14,8 +14,6 @@
 
 package com.google.sps.perspective;
 
-import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
-
 /**
  * Handles analysis of stories for content and provides a recommendation on
  * the "best" appropriate story (if multiple).
