@@ -72,7 +72,8 @@ public class PerspectiveManagerImpl implements PerspectiveManager {
    * @throws NoAppropriateStoryException if no story from decision is considered appropriate
    */
   public PerspectiveDecision generateDecision(String story) throws NoAppropriateStoryException {
-    // TODO: Replace this fake behavior with a real API call, etc.
+    // TODO: Replace this fake behavior with a real API call, etc. Fake behavior here so teammates have stubbed
+    //       version of this class to use in integration. 
 
     // returns default instance of PerspectiveDecision
     return new PerspectiveDecision(story);
