@@ -22,7 +22,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Text;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.sps.data.AnalyzedImage;
+import com.google.sps.servlets.data.AnalyzedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

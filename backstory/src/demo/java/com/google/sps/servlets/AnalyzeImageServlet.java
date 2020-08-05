@@ -37,7 +37,9 @@ import com.google.cloud.vision.v1.ImageSource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.protobuf.ByteString;
-import com.google.sps.data.AnalyzedImage;
+import com.google.sps.servlets.data.AnalyzedImage;
+import com.google.sps.vision.VisionManager;
+import com.google.sps.vision.VisionManagerImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -78,10 +80,9 @@ public class AnalyzeImageServlet extends HttpServlet {
       response.sendError(400, "Please upload a valid image.");
 
     } else {
-      // Gets the full label information from the image byte array by calling Vision API.
-      List<EntityAnnotation> labels = detectLabelsFromImageBytes(bytes);
-      Gson gson = new Gson();
-      Text labelsJsonArray = new Text(gson.toJson(labels));
+      // Create the vision manager object and get the labels as JSON
+      VisionManager visionManager = new VisionManagerImpl(bytes);
+      Text labelsJsonArrayString = new Text(visionManager.getLabelsAsJson());
 
       // Add the input to datastore
       Entity analyzedImageEntity = new Entity("analyzed-image");
@@ -94,40 +95,6 @@ public class AnalyzeImageServlet extends HttpServlet {
       // Redirect back to the HTML page.
       response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
     }
-  }
-
-  /** Detects labels in the image specified by the image byte data by calling the Vision API. */
-  private List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-    List<EntityAnnotation> labels;
-
-    Image img = Image.newBuilder().setContent(ByteString.copyFrom(bytes)).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of the requests the
-    // client will be automatically closed, as it is called within the try.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
-
-      // There is only one image in the batch response (only supports uploading one image at a time
-      // right now)
-      AnnotateImageResponse res = responses.get(0);
-
-      if (res.hasError()) {
-        System.out.format("Error: %s%n", res.getError().getMessage());
-        return new ArrayList<EntityAnnotation>();
-      }
-
-      // For full list of available annotations, see http://g.co/cloud/vision/docs
-      labels = res.getLabelAnnotationsList();
-    }
-
-    return labels;
   }
 
   /** Returns a URL that points to the uploaded file, or null if the user didn't upload a file. */
