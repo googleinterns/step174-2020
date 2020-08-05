@@ -37,12 +37,12 @@ public final class ContentDecisionsTest {
 
   /** a PerspectiveValue object to be used as input for ContentDecisions class */
   private static PerspectiveValues input;
-  /** a Map to be used as the analyses field of input */
-  private static Map<AttributeType, Float> inputAnalyses;
+  /** a Map to be used as the attributeTypesToScores field of input */
+  private static Map<AttributeType, Float> inputScores;
 
   @Before 
   public void setUp() {
-    inputAnalyses = new HashMap<AttributeType, Float>();
+    inputScores = new HashMap<AttributeType, Float>();
   }
 
   /**
@@ -51,8 +51,8 @@ public final class ContentDecisionsTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullMapInput() {
-    inputAnalyses = null;
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores = null;
+    input = new PerspectiveValues("foo", inputScores);
     ContentDecisions.makeDecision(input); // should be the line causing the error
   }
 
@@ -62,7 +62,7 @@ public final class ContentDecisionsTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void noToxicityInput() {
-    input = new PerspectiveValues("foo", inputAnalyses); // no toxicity score has been added yet
+    input = new PerspectiveValues("foo", inputScores); // no toxicity score has been added yet
     ContentDecisions.makeDecision(input); // should be the line causing the error
   }
 
@@ -75,15 +75,15 @@ public final class ContentDecisionsTest {
     // check with a pretty low toxicity (far below 70%)
     final float VERY_LOW_TOXICITY = .25f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, VERY_LOW_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, VERY_LOW_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
     Assert.assertEquals(true, ContentDecisions.makeDecision(input));
 
     // check with a toxicity just below 70%
     final float LOW_TOXICITY = .69f;
-    inputAnalyses.put(AttributeType.TOXICITY, LOW_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, LOW_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
     Assert.assertEquals(true, ContentDecisions.makeDecision(input));
   }
@@ -97,8 +97,8 @@ public final class ContentDecisionsTest {
     // check with the threshold toxicity
     final float THRESHOLD_TOXICITY = .7f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, THRESHOLD_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, THRESHOLD_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
     Assert.assertEquals(false, ContentDecisions.makeDecision(input));
   }
@@ -112,16 +112,16 @@ public final class ContentDecisionsTest {
     // check with high toxicity (but just above threshold)
     final float HIGH_TOXICITY = .71f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, HIGH_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, HIGH_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
     Assert.assertEquals(false, ContentDecisions.makeDecision(input));
 
     // check with very high toxicity (well above threshold)
     final float VERY_HIGH_TOXICITY = .9f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, VERY_HIGH_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, VERY_HIGH_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
     Assert.assertEquals(false, ContentDecisions.makeDecision(input));
   }
