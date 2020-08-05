@@ -43,16 +43,19 @@ public class ContentDecisions {
    * Threshold for toxicity is a score greater than or equal to 70% as
    * that was the metric used by the demo on the Google Perspective API site.
    *
-   * @param attributeTypesToScores a map with attributes types mapped to scores from the Perspective API
+   * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
+   *     API
    * @return true, if toxicity score (in attributeTypesToScores) >= 70% toxic; false, if not
-   * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a toxicity score
+   * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
+   *     toxicity score
    */
   private static boolean isToxic(Map<AttributeType, Float> attributeTypesToScores)
       throws IllegalArgumentException {
     if (attributeTypesToScores == null) {
       throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributesTypesToScores.containsKey(AttributeType.TOXICITY)) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) does not contain a toxicity score");
+    } else if (!attributeTypesToScores.containsKey(AttributeType.TOXICITY)) {
+      throw new IllegalArgumentException(
+          "Map (attributeTypesToScores) does not contain a toxicity score");
     }
 
     float toxicity = attributeTypesToScores.get(AttributeType.TOXICITY);
