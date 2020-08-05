@@ -23,18 +23,20 @@ import java.lang.reflect.Method;
  * new instances of PerspectiveAPI class.
  */
 public class PerspectiveAPIFactoryImpl implements PerspectiveAPIFactory {
+  
+  /** the API key to use to create PerspectiveAPI instances in this factory */
+  private String apiKey;
+
   /**
-   * Returns an instance of the PerspectiveAPI using API key.
-   *
-   * @return a functioning instance of PerspectiveAPI.
+   * Constructs a factory by finding and setting the api key for this factory.
+   * 
    * @throws ClassNotFoundException if it cannot found "PerspectiveAPIKey.java"
    * @throws NoSuchMethodException if PerspectiveAPIKey doesn't have a getKey() method
    * @throws IllegalAccessException if class called from doesn't have proper access to getKey()
    * @throws InvocationTargetException if getKey() itself throws an exception
    */
-  public PerspectiveAPI newInstance() throws ClassNotFoundException, NoSuchMethodException,
+  public PerspectiveAPIFactoryImpl() throws ClassNotFoundException, NoSuchMethodException,
       IllegalAccessException, InvocationTargetException {
-    
     // fetch the PerspectiveAPIKey class if it's there
     Class<?> keyClass = Class.forName("com.google.sps.data.perspective.PerspectiveAPIKey");
     
@@ -44,8 +46,15 @@ public class PerspectiveAPIFactoryImpl implements PerspectiveAPIFactory {
 
     // invoke static method getKey() (first null means it's static 
     // & second null means it does not need arguments) & stores result in apiKey
-    String apiKey = (String) getKey.invoke(null, null);
+    apiKey = (String) getKey.invoke(null, null); 
+  }
 
+  /**
+   * Returns an instance of the PerspectiveAPI using API key.
+   *
+   * @return a functioning instance of PerspectiveAPI.
+   */
+  public PerspectiveAPI newInstance() {
     return PerspectiveAPI.create(apiKey);
   }
 }

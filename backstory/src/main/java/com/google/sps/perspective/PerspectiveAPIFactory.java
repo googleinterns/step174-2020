@@ -24,7 +24,6 @@ interface PerspectiveAPIFactory {
    * Returns an instance of the PerspectiveAPI.
    *
    * @return a new instance of PerspectiveAPI.
-   * @throws Exception if it can't create a new instance
    */
-  PerspectiveAPI newInstance() throws Exception;
+  PerspectiveAPI newInstance();
 }
