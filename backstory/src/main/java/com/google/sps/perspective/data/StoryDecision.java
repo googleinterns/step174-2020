@@ -41,4 +41,10 @@ public class StoryDecision {
   public String getStory() {
     return story;
   }
+
+  @Override
+  public boolean equals(Object other) {
+    StoryDecision otherStoryDecision = (StoryDecision) other; 
+    return story.equals(otherStoryDecision.getStory());
+  }
 }
