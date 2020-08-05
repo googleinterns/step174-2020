@@ -20,11 +20,11 @@ package com.google.sps.perspective;
  */
 interface StoryAnalysisManager {
   /**
-   * Analyzes the passed-in story and returns PerspectiveDecision
+   * Analyzes the passed-in story and returns StoryDecision
    * containing decision based on analysis.
    *
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
    */
-  public PerspectiveDecision getDecision(String story);
+  public StoryDecision getDecision(String story);
 }

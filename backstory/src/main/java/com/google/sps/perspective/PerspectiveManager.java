@@ -65,15 +65,15 @@ public class PerspectiveManager implements StoryAnalysisManager {
 
   /**
    * Analyzes the passed-in story using the perspective API and returns the decision
-   * as a PerspectiveDecision object.
+   * as a StoryDecision object.
    *
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
    */
-  public PerspectiveDecision getDecision(String story) {
+  public StoryDecision getDecision(String story) {
     // TODO: Replace this fake behavior with a real API call, etc.
 
-    // returns default instance of PerspectiveDecision
-    return new PerspectiveDecision(story);
+    // returns default instance of StoryDecision
+    return new StoryDecision(story);
   }
 }
