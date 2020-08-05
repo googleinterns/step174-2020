@@ -14,32 +14,11 @@
 
 package com.google.sps.perspective;
 
-import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
-
 /**
  * Handles analysis of stories for content and provides a recommendation on
  * the "best" appropriate story (if multiple).
  */
 interface PerspectiveManager {
-  /** an array of all the types we want analysis on */
-  public static final AttributeType[] REQUESTED_ATTRIBUTES = {
-      AttributeType.ATTACK_ON_AUTHOR,
-      AttributeType.ATTACK_ON_COMMENTER, 
-      AttributeType.FLIRTATION, 
-      AttributeType.IDENTITY_ATTACK,
-      AttributeType.INCOHERENT, 
-      AttributeType.INSULT, 
-      AttributeType.LIKELY_TO_REJECT,
-      AttributeType.OBSCENE, 
-      AttributeType.PROFANITY, 
-      AttributeType.SEVERE_TOXICITY,
-      AttributeType.SEXUALLY_EXPLICIT, 
-      AttributeType.SPAM, 
-      AttributeType.THREAT,
-      AttributeType.TOXICITY, 
-      AttributeType.UNSUBSTANTIAL
-    };
-    
   /**
    * Analyzes the passed-in story and returns PerspectiveDecision
    * containing decision based on analysis.

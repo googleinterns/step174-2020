@@ -17,7 +17,7 @@ package com.google.sps;
 import static org.mockito.Mockito.*;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
-import com.google.sps.perspective.ContentDecider;
+import com.google.sps.perspective.ContentDecisions;
 import com.google.sps.perspective.PerspectiveValues;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,18 +31,18 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-/** Quality tests for ContentDecider */
+/** Quality tests for ContentDecisions */
 @RunWith(JUnit4.class)
-public final class ContentDeciderTest {
+public final class ContentDecisionsTest {
 
-  /** a PerspectiveValue object to be used as input for ContentDecider class */
+  /** a PerspectiveValue object to be used as input for ContentDecisions class */
   private static PerspectiveValues input;
-  /** a Map to be used as the analyses field of input */
-  private static Map<AttributeType, Float> inputAnalyses;
+  /** a Map to be used as the attributeTypesToScores field of input */
+  private static Map<AttributeType, Float> inputScores;
 
   @Before 
   public void setUp() {
-    inputAnalyses = new HashMap<AttributeType, Float>();
+    inputScores = new HashMap<AttributeType, Float>();
   }
 
   /**
@@ -51,9 +51,9 @@ public final class ContentDeciderTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullMapInput() {
-    inputAnalyses = null;
-    input = new PerspectiveValues("foo", inputAnalyses);
-    ContentDecider.makeDecision(input); // should be the line causing the error
+    inputScores = null;
+    input = new PerspectiveValues("foo", inputScores);
+    ContentDecisions.makeDecision(input); // should be the line causing the error
   }
 
   /**
@@ -62,12 +62,12 @@ public final class ContentDeciderTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void noToxicityInput() {
-    input = new PerspectiveValues("foo", inputAnalyses); // no toxicity score has been added yet
-    ContentDecider.makeDecision(input); // should be the line causing the error
+    input = new PerspectiveValues("foo", inputScores); // no toxicity score has been added yet
+    ContentDecisions.makeDecision(input); // should be the line causing the error
   }
 
   /**
-   * Check that ContentDecider returns that PerspectiveValues
+   * Check that ContentDecisions makeDecision returns that PerspectiveValues
    * with low toxicities (below 70% threshold) is appropriate (thus true as return).
    */
   @Test
@@ -75,21 +75,21 @@ public final class ContentDeciderTest {
     // check with a pretty low toxicity (far below 70%)
     final float VERY_LOW_TOXICITY = .25f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, VERY_LOW_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, VERY_LOW_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(true, ContentDecider.makeDecision(input));
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
 
     // check with a toxicity just below 70%
     final float LOW_TOXICITY = .69f;
-    inputAnalyses.put(AttributeType.TOXICITY, LOW_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, LOW_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(true, ContentDecider.makeDecision(input));
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
   }
 
   /**
-   * Check that ContentDecider returns that PerspectiveValues
+   * Check that ContentDecisions makeDecision() returns that PerspectiveValues
    * with threshold toxicity (exactly 70%) is inappropiate (thus false as return).
    */
   @Test
@@ -97,14 +97,14 @@ public final class ContentDeciderTest {
     // check with the threshold toxicity
     final float THRESHOLD_TOXICITY = .7f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, THRESHOLD_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, THRESHOLD_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(false, ContentDecider.makeDecision(input));
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
   }
 
   /**
-   * Check that ContentDecider returns that PerspectiveValues
+   * Check that ContentDecisions returns that PerspectiveValues
    * with high toxicity (above 70% threshold) is inappropiate (thus false as return).
    */
   @Test
@@ -112,17 +112,17 @@ public final class ContentDeciderTest {
     // check with high toxicity (but just above threshold)
     final float HIGH_TOXICITY = .71f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, HIGH_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, HIGH_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(false, ContentDecider.makeDecision(input));
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
 
     // check with very high toxicity (well above threshold)
     final float VERY_HIGH_TOXICITY = .9f;
 
-    inputAnalyses.put(AttributeType.TOXICITY, VERY_HIGH_TOXICITY);
-    input = new PerspectiveValues("foo", inputAnalyses);
+    inputScores.put(AttributeType.TOXICITY, VERY_HIGH_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
 
-    Assert.assertEquals(false, ContentDecider.makeDecision(input));
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
   }
 }
