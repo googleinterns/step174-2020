@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import com.google.sps.perspective.ContentDecider;
-import com.google.sps.perspective.PerspectiveValue;
+import com.google.sps.perspective.PerspectiveValues;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
@@ -36,7 +36,7 @@ import org.mockito.stubbing.Answer;
 public final class ContentDeciderTest {
 
   /** a PerspectiveValue object to be used as input for ContentDecider class */
-  private static PerspectiveValue input;
+  private static PerspectiveValues input;
   /** a Map to be used as the analyses field of input */
   private static Map<AttributeType, Float> inputAnalyses;
 
@@ -46,23 +46,23 @@ public final class ContentDeciderTest {
   }
 
   /**
-   * Call makeDecision with a PerspectiveValue with a null Map
+   * Call makeDecision with a PerspectiveValues with a null Map
    * to ensure that an IllegalArgumentException will be thrown.
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullMapInput() {
     inputAnalyses = null;
-    input = new PerspectiveValue("foo", inputAnalyses);
+    input = new PerspectiveValues("foo", inputAnalyses);
     ContentDecider.makeDecision(input); // should be the line causing the error
   }
 
   /**
-   * Call makeDecision with a PerspectiveValue with a Map without a toxicity score 
+   * Call makeDecision with a PerspectiveValues with a Map without a toxicity score 
    * to ensure that an IllegalArgumentException will be thrown.
    */
   @Test (expected = IllegalArgumentException.class)
   public void noToxicityInput() {
-    input = new PerspectiveValue("foo", inputAnalyses); // no toxicity score has been added yet
+    input = new PerspectiveValues("foo", inputAnalyses); // no toxicity score has been added yet
     ContentDecider.makeDecision(input); // should be the line causing the error
   }
 
@@ -76,20 +76,20 @@ public final class ContentDeciderTest {
     final float VERY_LOW_TOXICITY = .25f;
 
     inputAnalyses.put(AttributeType.TOXICITY, VERY_LOW_TOXICITY);
-    input = new PerspectiveValue("foo", inputAnalyses);
+    input = new PerspectiveValues("foo", inputAnalyses);
 
     Assert.assertEquals(true, ContentDecider.makeDecision(input));
 
     // check with a toxicity just below 70%
     final float LOW_TOXICITY = .69f;
     inputAnalyses.put(AttributeType.TOXICITY, LOW_TOXICITY);
-    input = new PerspectiveValue("foo", inputAnalyses);
+    input = new PerspectiveValues("foo", inputAnalyses);
 
     Assert.assertEquals(true, ContentDecider.makeDecision(input));
   }
 
   /**
-   * Check that ContentDecider returns that PerspectiveValue
+   * Check that ContentDecider returns that PerspectiveValues
    * with threshold toxicity (exactly 70%) is inappropiate (thus false as return).
    */
   @Test
@@ -98,13 +98,13 @@ public final class ContentDeciderTest {
     final float THRESHOLD_TOXICITY = .7f;
 
     inputAnalyses.put(AttributeType.TOXICITY, THRESHOLD_TOXICITY);
-    input = new PerspectiveValue("foo", inputAnalyses);
+    input = new PerspectiveValues("foo", inputAnalyses);
 
     Assert.assertEquals(false, ContentDecider.makeDecision(input));
   }
 
   /**
-   * Check that ContentDecider returns that PerspectiveValue
+   * Check that ContentDecider returns that PerspectiveValues
    * with high toxicity (above 70% threshold) is inappropiate (thus false as return).
    */
   @Test
@@ -113,7 +113,7 @@ public final class ContentDeciderTest {
     final float HIGH_TOXICITY = .71f;
 
     inputAnalyses.put(AttributeType.TOXICITY, HIGH_TOXICITY);
-    input = new PerspectiveValue("foo", inputAnalyses);
+    input = new PerspectiveValues("foo", inputAnalyses);
 
     Assert.assertEquals(false, ContentDecider.makeDecision(input));
 
@@ -121,7 +121,7 @@ public final class ContentDeciderTest {
     final float VERY_HIGH_TOXICITY = .9f;
 
     inputAnalyses.put(AttributeType.TOXICITY, VERY_HIGH_TOXICITY);
-    input = new PerspectiveValue("foo", inputAnalyses);
+    input = new PerspectiveValues("foo", inputAnalyses);
 
     Assert.assertEquals(false, ContentDecider.makeDecision(input));
   }
