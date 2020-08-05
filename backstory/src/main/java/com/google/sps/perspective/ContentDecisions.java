@@ -22,6 +22,14 @@ import java.util.Map;
  * using analysis from Perspective API.
  */
 public class ContentDecisions {
+
+  /**
+   * Overrides default constructor to ensure class can't be instantiated
+   */
+  private ContentDecisions() {
+    throw new AssertionError();
+  }
+
   /**
    * Makes decision on whether or not text in perspective value
    * is considered appropriate based on the analysis scores from Perspective API
