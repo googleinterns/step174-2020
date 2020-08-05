@@ -71,8 +71,9 @@ public class PerspectiveManager implements StoryAnalysisManager {
    *
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
+   * @throws NoAppropriateStoryException if story is not considered appropriate
    */
-  public StoryDecision getDecision(String story) {
+  public StoryDecision generateDecision(String story) {
     // TODO: Replace this fake behavior with a real API call, etc.
 
     // returns default instance of StoryDecision
