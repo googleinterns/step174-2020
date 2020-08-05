@@ -12,30 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.vision;
+package com.google.sps.images.data;
 
-import com.google.cloud.vision.v1.AnnotateImageRequest;
-import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
 import com.google.cloud.vision.v1.EntityAnnotation;
-import com.google.cloud.vision.v1.Feature;
-import com.google.cloud.vision.v1.Image;
-import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.protobuf.ByteString;
-import java.io.IOException;
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public final class VisionManagerImpl implements VisionManager {
+public final class AnnotatedImage {
   private final byte[] rawImageData;
   private final List<EntityAnnotation> labelAnnotations;
 
   /**
-   * VisionManager Manages the gathering and packaging of Vision API image analytics.
-   * A VisionManager object represents an image annotated with analytics from Vision API.
+   * AnnotatedImage is an immutable type which represents an image annotated with labels and other
+   * related analytics.
    *
    * The image is represented as the byte data in the rawImageData byte array, and the annotated
    * analytics are represented as labelAnnotations, a list of Vision EntityAnnotation objects, which
@@ -51,7 +45,8 @@ public final class VisionManagerImpl implements VisionManager {
    * non-null.
    *
    * Safety from Representation Exposure:
-   * All representation fields are immutable.
+   * Representation fields are only returned as immutable representations, or (in the case of
+   * rawImageData) as a defensive copy.
    */
 
   /**
@@ -66,32 +61,14 @@ public final class VisionManagerImpl implements VisionManager {
   }
 
   /**
-   * Instantiates the VisionManager object parameterized with a byte array of raw image data.
-   *
-   * @param rawImageData The raw image data for the image being represented in this VisionManager
-   *     object. Must be non-empty and non-null.
-   */
-  public VisionManagerImpl(byte[] rawImageData) throws IllegalArgumentException, IOException {
-    this.rawImageData = rawImageData;
-
-    if (rawImageData != null && rawImageData.length != 0) {
-      this.labelAnnotations = detectLabelsFromImageBytes(rawImageData);
-    } else {
-      throw new IllegalArgumentException("Raw image data must be non-null and non-empty");
-    }
-
-    checkRepresentationInvariantMet();
-  }
-
-  /**
-   * Instantiates the VisionManager object parameterized with a byte array of raw image data and
-   * preset labels.
+   * Instantiates the AnnotatedImage object parameterized with a byte array of raw image data and
+   * its labels.
    *
    * @param rawImageData The raw image data for the image being represented in this VisionManager
    *     object. Must be non-empty and non-null.
    * @param labelAnnotations the preset labels to annotate the image with. Must be non-null.
    */
-  public VisionManagerImpl(byte[] rawImageData, List<EntityAnnotation> labelAnnotations)
+  public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations)
       throws IllegalArgumentException {
     if (rawImageData == null || labelAnnotations == null || rawImageData.length == 0) {
       throw new IllegalArgumentException(
@@ -132,50 +109,11 @@ public final class VisionManagerImpl implements VisionManager {
 
   /** Return the bytes representing the image */
   public byte[] getRawImageData() {
-    return rawImageData;
+    return Arrays.copyOf(rawImageData, rawImageData.length);
   }
 
   /** Return the labels annotated to the image */
   public List<EntityAnnotation> getLabelAnnotations() {
-    return labelAnnotations;
-  }
-
-  /**
-   * Creates and returns label annotations for the image represented in bytes, using the Vision API.
-   *
-   * @param bytes The raw image byte data for the image from which labels will be annotated.
-   * @return The list of label annotations related to the image, with each individual label being
-   *     represented as an EntityAnnotation object.
-   */
-  private List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-    List<EntityAnnotation> labels;
-
-    Image img = Image.newBuilder().setContent(ByteString.copyFrom(bytes)).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // Initialize the client that will be used to send requests. This client only needs to be
-    // created once, and can be reused for multiple requests. After completing all of the requests
-    // the client will be automatically closed, because it is called within the try block.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
-
-      // There is only one image in the batch response (VisionManager only represents one image).
-      AnnotateImageResponse res = responses.get(0);
-
-      if (res.hasError()) {
-        System.out.format("Error: %s%n", res.getError().getMessage());
-        return new ArrayList<EntityAnnotation>();
-      }
-
-      // For full list of available annotations, see http://g.co/cloud/vision/docs
-      labels = res.getLabelAnnotationsList();
-    }
-
-    return labels;
+    return Collections.unmodifiableList(labelAnnotations);
   }
 }

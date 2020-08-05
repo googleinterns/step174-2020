@@ -12,41 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.vision;
+package com.google.sps.images;
 
 import static org.mockito.Mockito.*;
-import java.io.IOException;
-import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.AnnotateImageRequest;
-import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
-import com.google.cloud.vision.v1.EntityAnnotation;
-import com.google.cloud.vision.v1.Feature;
-import com.google.cloud.vision.v1.Image;
-import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.protobuf.ByteString;
+import com.google.cloud.vision.v1.EntityAnnotation;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
+import java.lang.IllegalArgumentException;
+import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 import java.lang.IllegalArgumentException;
-import com.google.sps.vision.VisionManagerImpl;
+import com.google.sps.images.data.AnnotatedImage;
 import org.junit.Before;
 
 /**
- * Tests for VisionManagerImpl.
+ * Tests for AnnotatedImage.
  */
-public final class VisionManagerImplTest {
+public final class AnnotatedImageTest {
 
-  // Testing strategy for each operation of VisionManagerImpl:
+  // Testing strategy for each operation of AnnotatedImage:
   /*
-   * public VisionManagerImpl(byte[] rawImageData);
-   *  Partition on rawImageData: empty, null, non-empty image data.
+   * public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations);
+   *  Partition on rawImageData: null, empty, non-empty image data.
+   *  Partition on labelAnnotations: empty, non-empty image data.
    * 
    * public String getLabelsAsJson();
    *  Unnecesary to test as it is a wrapper for a Gson call.
@@ -66,7 +63,7 @@ public final class VisionManagerImplTest {
     nullRawImageData = null;
     emptyRawImageData = new byte[0];
     rawImageData = getBytesFromImageReference(
-      "src/test/java/com/google/sps/vision/data/dogRunningOnBeach.jpg", "jpg");
+      "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
     emptyLabelAnnotations = new ArrayList<>();
 
     labelAnnotations = new ArrayList<>();
@@ -100,33 +97,36 @@ public final class VisionManagerImplTest {
   }
 
   /**
-   * Tests paritions on public VisionManagerImpl(byte[] rawImageData);
+   * public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations);
    *  rawImageData is null.
+   *  labelAnnotations is empty.
    *  Expects IllegalArgumentException to be thrown.
   */
   @Test(expected = IllegalArgumentException.class)
-  public void constructorNullImageData() throws IOException {
-    VisionManager visionManagerNullImage = new VisionManagerImpl(nullRawImageData);
+  public void constructorNullImageData() throws IllegalArgumentException {
+    AnnotatedImage annotatedImageActual = new AnnotatedImage(nullRawImageData, emptyLabelAnnotations);
   }
 
   /**
-   * Tests paritions on VisionManagerImpl(byte[] rawImageData);
+   * public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations);
    *  rawImageData is empty.
+   *  labelAnnotations is non-empty.
    *  Expects IllegalArgumentException to be thrown.
   */
   @Test(expected = IllegalArgumentException.class)
-  public void constructorEmptyImageData() throws IOException {
-    VisionManager visionManagerNullImage = new VisionManagerImpl(emptyRawImageData);
+  public void constructorEmptyImageData() throws IllegalArgumentException {
+    AnnotatedImage annotatedImageActual = new AnnotatedImage(emptyRawImageData, labelAnnotations);
   }
 
   /**
-   * Tests paritions on VisionManagerImpl(byte[] rawImageData);
+   * public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations);
    *  rawImageData is non-empty image data.
+   *  labelAnnotations is non-empty.
   */
   @Test
-  public void constructorRawImageData() {
-    VisionManagerImpl actual = new VisionManagerImpl(rawImageData, labelAnnotations);
-    assertEquals(rawImageData, actual.getRawImageData());
+  public void constructorRawImageData() throws IllegalArgumentException {
+    AnnotatedImage actual = new AnnotatedImage(rawImageData, labelAnnotations);
+    assertTrue(Arrays.equals(rawImageData, actual.getRawImageData()));
     assertEquals(labelAnnotations, actual.getLabelAnnotations());
   }
 
@@ -135,21 +135,21 @@ public final class VisionManagerImplTest {
    *  labelAnnotations is empty.
   */
   @Test
-  public void getLabelDescriptionsEmptyLabelAnnotations() {
-    VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, emptyLabelAnnotations);
-    List<String> actual = vmActual.getLabelDescriptions();
+  public void getLabelDescriptionsEmptyLabelAnnotations() throws IllegalArgumentException {
+    AnnotatedImage annotatedImageActual = new AnnotatedImage(rawImageData, emptyLabelAnnotations);
+    List<String> actual = annotatedImageActual.getLabelDescriptions();
     List<String> expected = new ArrayList<>();
     assertEquals(expected, actual);
   }
 
   /**
    * Tests paritions on getLabelDescriptions();
-   *  labelAnnotations is non-empty list of EntityAnnotations..
+   *  labelAnnotations is a non-empty list of EntityAnnotations.
   */
   @Test
-  public void getLabelDescriptionsNonEmptyLabelAnnotations() {
-    VisionManagerImpl vmActual = new VisionManagerImpl(rawImageData, labelAnnotations);
-    List<String> actual = vmActual.getLabelDescriptions();
+  public void getLabelDescriptionsNonEmptyLabelAnnotations() throws IllegalArgumentException {
+    AnnotatedImage annotatedImageActual = new AnnotatedImage(rawImageData, labelAnnotations);
+    List<String> actual = annotatedImageActual.getLabelDescriptions();
     List<String> expected = new ArrayList<>();
     expected.add("DescriptionOne");
     expected.add("DescriptionOne");
