@@ -26,5 +26,5 @@ interface PerspectiveManager {
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
    */
-  public PerspectiveDecision getDecision(String story);
+  public PerspectiveDecision generateDecision(String story);
 }
