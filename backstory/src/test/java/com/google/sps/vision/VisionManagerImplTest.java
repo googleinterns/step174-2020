@@ -62,7 +62,7 @@ public final class VisionManagerImplTest {
   private List<EntityAnnotation> labelAnnotations;
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     nullRawImageData = null;
     emptyRawImageData = new byte[0];
     rawImageData = getBytesFromImageReference(
@@ -86,7 +86,7 @@ public final class VisionManagerImplTest {
    * @param fileType the file extension of the image.
    * @return the byte array representation of the image.
    */
-  private static byte[] getBytesFromImageReference(String reference, String fileType) {
+  private static byte[] getBytesFromImageReference(String reference, String fileType) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
     try {
