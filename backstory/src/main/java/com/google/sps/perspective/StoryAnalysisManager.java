@@ -14,6 +14,7 @@
 
 package com.google.sps.perspective;
 
+import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 
 /**
@@ -29,5 +30,5 @@ interface StoryAnalysisManager {
    * @return An object describing the recommendation resulting from the analysis.
    * @throws NoAppropriateStoryException if story is not considered appropriate
    */
-  public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
+  public StoryDecision generateDecision(String story) throws NoAppropriateStoryException;
 }
