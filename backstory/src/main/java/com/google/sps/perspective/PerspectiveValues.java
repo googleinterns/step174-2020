@@ -24,19 +24,20 @@ public class PerspectiveValues {
   /** the text that generated these scores */
   private final String text;
 
-  /** a map with type-score key-value pairs from the analysis of the text */
-  private final Map<AttributeType, Float> analyses;
+  /** container for Perspective analysis that maps attribute types to scores */
+  private final Map<AttributeType, Float> attributeTypesToScores;
 
   /**
    * Constructs a PerspectiveValues object with the text that was analyzed
    * and the subsequent scores produced from Perspective stored in a map.
    *
    * @param text the text that was analyzed
-   * @param analyses the analysis of the text to be stored
+   * @param attributeTypesToScores the analysis of the text to be stored as
+   *    a map which maps attribute types to scores
    */
-  public PerspectiveValues(String text, Map<AttributeType, Float> analyses) {
+  public PerspectiveValues(String text, Map<AttributeType, Float> attributeTypesToScores) {
     this.text = text;
-    this.analyses = analyses;
+    this.attributeTypesToScores = attributeTypesToScores;
   }
 
   /**
@@ -49,11 +50,12 @@ public class PerspectiveValues {
   }
 
   /**
-   * Returns the scores from the analysis of the text.
+   * Returns the scores from the analysis of the text as Map which maps
+   * AttributeType to scores, which are floats.
    *
    * @return a Map of all AttributeTypes and the corresponding scores from the analysis
    */
-  public Map<AttributeType, Float> getAnalyses() {
-    return analyses;
+  public Map<AttributeType, Float> getAttributeTypesToScores() {
+    return attributeTypesToScores;
   }
 }
