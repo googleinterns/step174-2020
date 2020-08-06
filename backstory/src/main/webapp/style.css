@@ -115,6 +115,11 @@ textarea {
 
 /* Home Page */
 
+#home-content {
+  align-items: center;
+  justify-content: center;
+}
+
 .logo {
   font-family: 'Open Sans', sans-serif;
   font-size: 45px;
@@ -125,26 +130,27 @@ textarea {
   text-align: center;
 }
 
-#photo-upload button {
-  border-radius: 5px;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0 10px 25px;
-}
-
 #image-upload {
   background-color: white;
   border: solid thick var(--saffron);
+  border-radius: 5px;
   color: var(--oxford-blue) !important;
+  font-size: 16px;
+  font-weight: bold;
   height: 50px;
+  margin: 0 10px 25px;
   width: 200px;
 }
 
 #submit-button {
   background-color: var(--saffron);
   border: solid thick var(--saffron);
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
   height: 40px;
+  margin: 0 10px 25px;
   width: 100px;
 }
 
