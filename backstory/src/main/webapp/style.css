@@ -226,7 +226,7 @@ textarea {
   font-weight: bold;
   height: 50px;
   margin: 10px;
-  padding-bottom: 0px;
+  padding-bottom: 0;
   width: 100px;
 }
 
