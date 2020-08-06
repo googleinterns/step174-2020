@@ -34,6 +34,23 @@ import java.util.List;
  * VisionManager Manages the gathering and packaging of Vision API image analytics.
  */
 public final class VisionManager implements ImagesManager {
+  private final imageAnnotatorClient;
+
+  /**
+   *
+   */
+  public VisionManager() {
+    ImageAnnotatorClient imageAnnotatorClient = ImageAnnotatorClient.create();
+    this(imageAnnotatorClient);
+  }
+
+  /**
+   *
+   */
+  public VisionManager(ImageAnnotatorClient imageAnnotatorClient) {
+    this.imageAnnotatorClient = imageAnnotatorClient;
+  }
+
   @Override
   public List<AnnotatedImage> createAnnotatedImagesFromImagesAsByteArrays(
       List<byte[]> imagesAsByteArrays) throws IOException {
@@ -65,25 +82,20 @@ public final class VisionManager implements ImagesManager {
         AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
     requests.add(request);
 
-    // Initialize the client that will be used to send requests. This client only needs to be
-    // created once, and can be reused for multiple requests. After completing all of the requests
-    // the client will be automatically closed, because it is called within the try block.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
+    // ImageAnnotatorClient will make the requests
+    BatchAnnotateImagesResponse response = imageAnnotatorClient.batchAnnotateImages(requests);
+    List<AnnotateImageResponse> responses = response.getResponsesList();
 
-      // There is only one image in the batch response (VisionManager only represents one image).
-      AnnotateImageResponse res = responses.get(0);
+    // For the MVP there is only one image in the batch response.
+    AnnotateImageResponse res = responses.get(0);
 
-      if (res.hasError()) {
-        System.out.format("Error: %s%n", res.getError().getMessage());
-        return new ArrayList<EntityAnnotation>();
-      }
-
-      // For full list of available annotations, see http://g.co/cloud/vision/docs
-      labels = res.getLabelAnnotationsList();
+    if (res.hasError()) {
+      System.out.format("Error: %s%n", res.getError().getMessage());
+      return new ArrayList<EntityAnnotation>();
     }
 
+    // For full list of available annotations, see http://g.co/cloud/vision/docs
+    labels = res.getLabelAnnotationsList();
     return labels;
   }
 }
