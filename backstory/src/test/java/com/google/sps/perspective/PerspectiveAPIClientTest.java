@@ -22,7 +22,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentResponse;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeScore;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import au.com.origma.perspectiveapi.v1alpha1.models.Score;
-import com.google.sps.perspective.PerspectiveServiceClient;
+import com.google.sps.perspective.PerspectiveAPIClient;
 import com.google.sps.perspective.PerspectiveValues;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,12 +37,12 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-/** Quality tests for PerspectiveServiceClient */
+/** Quality tests for PerspectiveAPIClient */
 @RunWith(JUnit4.class)
-public final class PerspectiveServiceClientTest {
+public final class PerspectiveAPIClientTest {
 
-  /** a PerspectiveAPI object to be used as the input api throughout the tests */
-  private static PerspectiveAPI api;
+  /** a mock PerspectiveAPI object to be used as the input api throughout the tests */
+  private static PerspectiveAPI mockAPI;
   /** the array of attribute types that we want scores back for */
   private static final AttributeType[] desiredTypes = { AttributeType.PROFANITY, AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL };;
   /** a Map to be used as the desired scores for PerspectiveAPI to return */
@@ -53,7 +53,7 @@ public final class PerspectiveServiceClientTest {
   public void setUp() {
     // create empty or default instances to be used in classes
     desiredScores = new HashMap<AttributeType, Float>();
-    api = createMockAPI(desiredScores); // will set up an API that only returns -1
+    mockAPI = createMockAPI(desiredScores); // will set up an API that only returns -1
   }
 
   /**
@@ -71,7 +71,7 @@ public final class PerspectiveServiceClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullAttributeArrayInput() {
-    PerspectiveServiceClient.analyze(api, null, "foo");
+    PerspectiveServiceClient.analyze(mockAPI, null, "foo");
   }
 
   /**
