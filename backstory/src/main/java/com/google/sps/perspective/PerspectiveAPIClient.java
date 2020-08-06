@@ -28,9 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A service client to analyze text using the Perspective API
+ * A client to analyze text using the Perspective API
  */
-public class PerspectiveServiceClient {
+public class PerspectiveAPIClient {
   /**
    * Return a PerspectiveValues object with analysis of all of the requested types
    * for a specified text using a specified Perspective API.
