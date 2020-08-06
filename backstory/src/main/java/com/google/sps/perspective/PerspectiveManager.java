@@ -65,8 +65,8 @@ public class PerspectiveManager implements StoryAnalysisManager {
     try {
       factory = new PerspectiveAPIFactoryImpl();
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-        | InvocationTargetException e) {
-      throw new APINotAvailableException("Perspective API is not available: " + e);
+        | InvocationTargetException exception) {
+      throw new APINotAvailableException("Perspective API is not available: " + exception);
     }
 
     perspectiveAPI = factory.newInstance();
