@@ -71,7 +71,7 @@ public final class AnnotatedImageTest {
    * @param fileType the file extension of the image.
    * @return the byte array representation of the image.
    */
-  private static byte[] getBytesFromImageReference(String reference, String fileType) throws IOException {
+  public static byte[] getBytesFromImageReference(String reference, String fileType) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
     try {

@@ -34,18 +34,18 @@ import java.util.List;
  * VisionManager Manages the gathering and packaging of Vision API image analytics.
  */
 public final class VisionManager implements ImagesManager {
-  private final imageAnnotatorClient;
+  private final ImageAnnotatorClient imageAnnotatorClient;
 
   /**
-   *
+   * Creates a vision manager object using the image annotator client from Vision API.
    */
-  public VisionManager() {
+  public VisionManager() throws IOException {
     ImageAnnotatorClient imageAnnotatorClient = ImageAnnotatorClient.create();
-    this(imageAnnotatorClient);
+    this.imageAnnotatorClient = imageAnnotatorClient;
   }
 
   /**
-   *
+   * Creates a vision manager object using a mock image annotator client.
    */
   public VisionManager(ImageAnnotatorClient imageAnnotatorClient) {
     this.imageAnnotatorClient = imageAnnotatorClient;
