@@ -226,11 +226,8 @@ textarea {
   font-weight: bold;
   height: 50px;
   margin: 10px;
-  width: 150px;
-}
-
-#attributes {
-  padding: 15px; /* leave enough space for percentage to pop up */
+  padding-bottom: 0px;
+  width: 100px;
 }
 
 #approval-status {
@@ -239,10 +236,15 @@ textarea {
   text-align: center;
 }
 
+#attributes {
+  color: var(--oxford-blue);
+  padding-bottom: 35px; /* make sure page doesn't end with table */
+}
+
 #attribute-table,
 #attribute-table th,
 #attribute-table td {
-  border: 1px solid black;
+  border: 1px solid var(--oxford-blue);
 }
 
 #attribute-table th,
