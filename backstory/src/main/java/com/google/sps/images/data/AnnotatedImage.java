@@ -23,31 +23,30 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * AnnotatedImage is an immutable type which represents an image annotated with labels and other
+ * related analytics.
+ *
+ * The image is represented as the byte data in the rawImageData byte array, and the annotated
+ * analytics are represented as labelAnnotations, a list of Vision EntityAnnotation objects, which
+ * each represent individual labels.
+ *
+ * Abstraction Function(rawImageData, labelAnnotations) =
+ * An image represented by the bytes in rawImageData, with a list of labels annotated
+ * to the image, represented by the EntityAnnotation(s) in labelAnnotations.
+ *
+ * Representation Invariant:
+ * rawImageData will always represent the same image, it is immutable. It must be non-null. It
+ * must be non-empty. Once set, labelAnnotations will never change, it is immutable. It must be
+ * non-null.
+ *
+ * Safety from Representation Exposure:
+ * Representation fields are only returned as immutable representations, or (in the case of
+ * rawImageData) as a defensive copy.
+ */
 public final class AnnotatedImage {
   private final byte[] rawImageData;
   private final List<EntityAnnotation> labelAnnotations;
-
-  /**
-   * AnnotatedImage is an immutable type which represents an image annotated with labels and other
-   * related analytics.
-   *
-   * The image is represented as the byte data in the rawImageData byte array, and the annotated
-   * analytics are represented as labelAnnotations, a list of Vision EntityAnnotation objects, which
-   * each represent individual labels.
-   *
-   * Abstraction Function(rawImageData, labelAnnotations) =
-   * An image represented by the bytes in rawImageData, with a list of labels annotated
-   * to the image, represented by the EntityAnnotation(s) in labelAnnotations.
-   *
-   * Representation Invariant:
-   * rawImageData will always represent the same image, it is immutable. It must be non-null. It
-   * must be non-empty. Once set, labelAnnotations will never change, it is immutable. It must be
-   * non-null.
-   *
-   * Safety from Representation Exposure:
-   * Representation fields are only returned as immutable representations, or (in the case of
-   * rawImageData) as a defensive copy.
-   */
 
   /**
    * Asserts that the representation invariants are met
@@ -77,14 +76,14 @@ public final class AnnotatedImage {
 
     this.rawImageData = rawImageData;
     this.labelAnnotations = labelAnnotations;
-
-    checkRepresentationInvariantMet();
   }
 
   /**
    * Returns the full image label annotations as a Json-formatted string of text.
    *
    * @return all image labels from Vision API's getLabelAnnotationsList method, in Json.
+   * The string returned will be formatted as a Json array of Json objects, where each label is
+   * represented by a Json object.
    */
   public String getLabelsAsJson() {
     Gson gson = new Gson();
