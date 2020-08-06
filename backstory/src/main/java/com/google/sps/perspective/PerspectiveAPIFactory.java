@@ -12,22 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.story;
-import java.io.IOException;
+package com.google.sps.perspective;
+
+import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 
 /**
- * Interface for story generation class.
+ * Creates instances of PerspectiveAPI.
  */
-public interface StoryManager {
+interface PerspectiveAPIFactory {
   /**
-   * Returns generated text output.
-   */
-  public String generateText() throws RuntimeException;
-
-  /**
-   * Allow public setting of RequestFactory for alternative posting.
+   * Returns an instance of the PerspectiveAPI.
    *
-   * @param factory StoryManagerRequestFactory to use for HttpRequests.
+   * @return a new instance of PerspectiveAPI.
    */
-  public void setRequestFactory(StoryManagerRequestFactory factory);
+  PerspectiveAPI newInstance();
 }

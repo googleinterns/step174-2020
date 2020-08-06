@@ -49,17 +49,6 @@ public final class AnnotatedImage {
   private final List<EntityAnnotation> labelAnnotations;
 
   /**
-   * Asserts that the representation invariants are met
-   * The representation invariants are the conditions which must always
-   * be true about the class representation fields.
-   */
-  private void checkRepresentationInvariantMet() {
-    assert rawImageData != null : "raw image data field is null";
-    assert labelAnnotations != null : "label annotations data field is null";
-    assert rawImageData.length != 0 : "raw image data field is empty";
-  }
-
-  /**
    * Instantiates the AnnotatedImage object parameterized with a byte array of raw image data and
    * its labels.
    *

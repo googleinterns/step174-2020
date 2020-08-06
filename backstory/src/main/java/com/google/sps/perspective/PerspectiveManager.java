@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.story;
-import java.io.IOException;
+package com.google.sps.perspective;
 
 /**
- * Interface for story generation class.
+ * Handles analysis of stories for content and provides a recommendation on
+ * the "best" appropriate story (if multiple).
  */
-public interface StoryManager {
+interface PerspectiveManager {
   /**
-   * Returns generated text output.
-   */
-  public String generateText() throws RuntimeException;
-
-  /**
-   * Allow public setting of RequestFactory for alternative posting.
+   * Analyzes the passed-in story and returns PerspectiveDecision
+   * containing decision based on analysis.
    *
-   * @param factory StoryManagerRequestFactory to use for HttpRequests.
+   * @param story The story to be analyzed
+   * @return An object describing the recommendation resulting from the analysis.
+   * @throws NoAppropriateStoryException if no story from decision is considered appropriate
    */
-  public void setRequestFactory(StoryManagerRequestFactory factory);
+  public PerspectiveDecision generateDecision(String story) throws NoAppropriateStoryException;
 }
