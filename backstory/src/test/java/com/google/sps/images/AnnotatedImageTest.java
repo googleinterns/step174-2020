@@ -92,7 +92,7 @@ public final class AnnotatedImageTest {
   */
   @Test(expected = IllegalArgumentException.class)
   public void constructorNullImageData() throws IllegalArgumentException {
-    AnnotatedImage annotatedImageExpectingException = new AnnotatedImage(nullRawImageData, emptyLabelAnnotations);
+    new AnnotatedImage(nullRawImageData, emptyLabelAnnotations);
   }
 
   /**
@@ -105,8 +105,7 @@ public final class AnnotatedImageTest {
   public void constructorEmptyImageData() throws IllegalArgumentException {
     List<EntityAnnotation> labelAnnotations = new ArrayList<>();
     labelAnnotations.add(makeMockEntityAnnotationWithDescription("Description")); 
-
-    AnnotatedImage annotatedImageExpectingException = new AnnotatedImage(emptyRawImageData, labelAnnotations);
+    new AnnotatedImage(emptyRawImageData, labelAnnotations);
   }
 
   /**
@@ -145,8 +144,8 @@ public final class AnnotatedImageTest {
       throw exception;
     }
         
-    AnnotatedImage annotatedImageActual = new AnnotatedImage(rawImageData, emptyLabelAnnotations);
-    assertEquals(new ArrayList<>(), annotatedImageActual.getLabelDescriptions());
+    AnnotatedImage annotatedImage = new AnnotatedImage(rawImageData, emptyLabelAnnotations);
+    assertEquals(new ArrayList<>(), annotatedImage.getLabelDescriptions());
   }
 
   /**
@@ -156,8 +155,10 @@ public final class AnnotatedImageTest {
   @Test
   public void getLabelDescriptionsNonEmptyLabelAnnotations() throws IllegalArgumentException, IOException {
     List<EntityAnnotation> labelAnnotations = new ArrayList<>();
-    labelAnnotations.add(makeMockEntityAnnotationWithDescription("DescriptionOne"));
-    labelAnnotations.add(makeMockEntityAnnotationWithDescription("DescriptionTwo")); 
+    String firstAnnotationDescription = "DescriptionOne";
+    String secondAnnotationDescription = "DescriptionTwo";
+    labelAnnotations.add(makeMockEntityAnnotationWithDescription(firstAnnotationDescription));
+    labelAnnotations.add(makeMockEntityAnnotationWithDescription(secondAnnotationDescription)); 
     byte[] rawImageData;
     try {
       rawImageData = getBytesFromImageReference(
