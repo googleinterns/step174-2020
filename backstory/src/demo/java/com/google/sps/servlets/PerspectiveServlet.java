@@ -14,27 +14,36 @@
 
 package com.google.sps.servlets;
 
+import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
+import com.google.gson.Gson;
+import com.google.sps.data.perspective.PerspectiveAnalysis;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /** Servlet that filters text using the Perspective API. */
-@WebServlet("/perspective-filter")
-public final class PerspectiveFilterServlet extends HttpServlet {
-  @Override
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {}
+@WebServlet("/perspective")
+public final class PerspectiveServlet extends HttpServlet {
 
-  /**
-   * @return the request parameter, or the default value if the parameter
-   *         was not specified by the client
-   */
-  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
-    String value = request.getParameter(name);
-    if (value == null) {
-      return defaultValue;
-    }
-    return value;
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // prepare response to return JSON and set up a GSON object
+    response.setContentType("application/json;");
+    Gson gson = new Gson();
+
+    String[] cannedOutput = new String[0];
+
+    // write canned output to servlet
+    String json = gson.toJson(cannedOutput);
+
+    response.getWriter().println(json);
   }
 }

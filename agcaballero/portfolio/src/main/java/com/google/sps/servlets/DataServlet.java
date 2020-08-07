@@ -129,8 +129,6 @@ public class DataServlet extends HttpServlet {
     PreparedQuery results = datastore.prepare(query);
     StringBuilder commentDivs = new StringBuilder();
 
-    response.setContentType("application/json");
-
     // Build a String of divs to hold capped # of comments to add to page
     for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(maxComments))) {
       // Create a Comment from the Entity
