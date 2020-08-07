@@ -45,15 +45,14 @@ public final class PerspectiveServlet extends HttpServlet {
     response.setContentType("application/json;");
     Gson gson = new Gson();
 
-    // will hold text to analyze
-    String text;
-
     String json = request.getReader().readLine();
 
-    // get the text from the JSON & handle error if it cannot be converted
+    
+    // get the text to be analyzedfrom the JSON & handle error if it cannot be converted
+    String text = null;
     try {
-      JSONObject jsonContainer = new JSONObject(json);
-      text = jsonContainer.getString("text");
+      JSONObject jsonObject = new JSONObject(json);
+      text = jsonObject.getString("text");
     } catch (JSONException exception) {
       String errorMessage = "Could not convert text sent to server from JSON.";
 
@@ -69,36 +68,33 @@ public final class PerspectiveServlet extends HttpServlet {
 
     // as we want to display the values as well as the decision in our demo
     // we need to access internal code that the MVP would not
-    PerspectiveAPIFactory factory;
-    
+    PerspectiveValues values = null;    
     try {
-      factory = new PerspectiveAPIFactoryImpl();
+      PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
+      PerspectiveAPI api = factory.newInstance();
+      PerspectiveAPIClient apiClient = new PerspectiveAPIClient(api);
+      values = apiClient.analyze(PerspectiveManager.REQUESTED_ATTRIBUTES, text);
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
       // if any errors were thrown for looking for api key, send that it was not retrieved back to page
       handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not retrieve the Perspective API key.");
       return;
     }
 
-    PerspectiveAPI api = factory.newInstance();
-    PerspectiveAPIClient apiClient = new PerspectiveAPIClient(PerspectiveManager.getRequestedAttributes(), text);
-
     // the only code needed for the data pipeline in the MVP is 
     // the construction of a PerspectiveManager object and 
     // a call to the generateDecision() method of PerspectiveManager
+    
+    // create a StoryAnalysisManager
     StoryAnalysisManager manager;
-
     try {
       manager = new PerspectiveManager();
     } catch (APINotAvailableException exception) {   
-      handleError(response,HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.toString());   
+      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.toString());   
       return;
     }
 
+    // generate a StoryDecision with that manager
     StoryDecision storyDecision;
-    
-    // represents decision on appropriateness: if true, appropriate, if false, not
-    boolean decision = false;
-
     try {
       storyDecision = manager.generateDecision(text);
     } catch (NoAppropriateStoryException e) {
@@ -106,13 +102,13 @@ public final class PerspectiveServlet extends HttpServlet {
     }
 
     // if storyDecision is null, then it means the decision is not appropriate (should be false)
-    decision = (storyDecision != null);
+    Boolean isAppropriateStory = (storyDecision != null);
 
-    String jsonDecision = gson.toJson(decision);
-    String jsonValues = gson.toJson(values);
+    // objects to write back on the respones
+    Object[] objectsToWrite = { isAppropriateStory, values.getAttributeTypesToScores() };
 
     // pass the decision and values from PerspectiveAPI to demo as JSON
-    response.getWriter().println("[" + jsonDecision + ", " + jsonValues + "]");
+    response.getWriter().println(gson.toJson(objectsToWrite));
   }
 
   /**

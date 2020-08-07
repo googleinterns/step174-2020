@@ -31,7 +31,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class PerspectiveManager implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
-  private static final AttributeType[] REQUESTED_ATTRIBUTES = {
+  public static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
       AttributeType.ATTACK_ON_COMMENTER,
       AttributeType.FLIRTATION,
@@ -104,14 +104,5 @@ public class PerspectiveManager implements StoryAnalysisManager {
 
     // otherwise throw the NoAppropriateStoryException;
     throw new NoAppropriateStoryException("The story passed in was not appropriate.");
-  }
-
-  /**
-   * Gets an array of the AttributeTypes that will be analyzed (mainly for testing).
-   *
-   * @return An array of the AttributeTypes we're requesting Perspective to analyze
-   */
-  public static AttributeType[] getRequestedAttributes() {
-    return REQUESTED_ATTRIBUTES;
   }
 }
