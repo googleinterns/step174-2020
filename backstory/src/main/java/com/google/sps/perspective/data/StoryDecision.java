@@ -47,4 +47,11 @@ public class StoryDecision {
     StoryDecision otherStoryDecision = (StoryDecision) other;
     return story.equals(otherStoryDecision.getStory());
   }
+
+  @Override
+  public int hashCode() {
+    // overriding hash code b/c need to when you override equals
+    // just setting it to the hash code of the only field
+    return story.hashCode();
+  }
 }

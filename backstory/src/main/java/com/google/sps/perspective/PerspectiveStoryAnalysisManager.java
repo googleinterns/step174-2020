@@ -25,11 +25,12 @@ import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
 import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 /**
  * An implementation of StoryAnalysisManager using PerspectiveAPI for analysis.
  */
-public class PerspectiveManager implements StoryAnalysisManager {
+public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
   public static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
@@ -59,17 +60,14 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @throws APINotAvailableException when it can't create an instance of the PerspectiveAPI
    *    (this most likely occurs if the "PerspectiveAPIKey.java" file is not present)
    */
-  public PerspectiveManager() throws APINotAvailableException {
-    PerspectiveAPIFactory factory;
-
+  public PerspectiveStoryAnalysisManager() throws APINotAvailableException {
     try {
-      factory = new PerspectiveAPIFactoryImpl();
+      PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
+      perspectiveAPI = factory.newInstance();
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
         | InvocationTargetException exception) {
       throw new APINotAvailableException("Perspective API is not available: " + exception);
     }
-
-    perspectiveAPI = factory.newInstance();
   }
 
   /**
@@ -79,7 +77,7 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @param perspectiveAPI the instance of the PerspectiveAPI to use
    *     to analyze stories with.
    */
-  public PerspectiveManager(PerspectiveAPI perspectiveAPI) {
+  public PerspectiveStoryAnalysisManager(PerspectiveAPI perspectiveAPI) {
     this.perspectiveAPI = perspectiveAPI;
   }
 
@@ -93,16 +91,16 @@ public class PerspectiveManager implements StoryAnalysisManager {
    */
   public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
     PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
-    PerspectiveValues storyValues = apiClient.analyze(REQUESTED_ATTRIBUTES, story);
-    boolean decision = ContentDecisions.makeDecision(storyValues);
+    PerspectiveValues storyValues = apiClient.analyze(Arrays.asList(REQUESTED_ATTRIBUTES), story);
+    boolean isStoryAppropriate = ContentDecisions.makeDecision(storyValues);
 
-    // if content decisions returns that it's appropriate (true),
+    // if content decisions returns that it's appropriate
     // then return a StoryDecision object with this story
-    if (decision) {
+    if (isStoryAppropriate) {
       return new StoryDecision(story);
     }
 
-    // otherwise throw the NoAppropriateStoryException;
+    // otherwise throw the NoAppropriateStoryException
     throw new NoAppropriateStoryException("The story passed in was not appropriate.");
   }
 }

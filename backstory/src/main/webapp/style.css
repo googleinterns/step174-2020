@@ -115,6 +115,11 @@ textarea {
 
 /* Home Page */
 
+#home-content {
+  align-items: center;
+  justify-content: center;
+}
+
 .logo {
   font-family: 'Open Sans', sans-serif;
   font-size: 45px;
@@ -125,26 +130,27 @@ textarea {
   text-align: center;
 }
 
-#photo-upload button {
-  border-radius: 5px;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0 10px 25px;
-}
-
 #image-upload {
   background-color: white;
   border: solid thick var(--saffron);
+  border-radius: 5px;
   color: var(--oxford-blue) !important;
+  font-size: 16px;
+  font-weight: bold;
   height: 50px;
+  margin: 0 10px 25px;
   width: 200px;
 }
 
 #submit-button {
   background-color: var(--saffron);
   border: solid thick var(--saffron);
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
   height: 40px;
+  margin: 0 10px 25px;
   width: 100px;
 }
 
@@ -169,13 +175,13 @@ textarea {
   text-decoration: none;
 }
 
-.demo-div {
+.demo-link {
   border-radius: 10px;
   margin: 5px;
   text-align: center;
 }
 
-.demo-div h3 {
+.demo-link h3 {
   padding: 15px 25px;
 }
 
@@ -195,17 +201,77 @@ textarea {
   background-color: var(--blue-yonder);
 }
 
-/* Perspective Demo Page */
-
-#perspective-content {
+/* Demo (Vision, GPT-2, Perspective) Pages Formatting */
+.demo-content {
   align-items: center;
   justify-content: center;
 }
 
-#perspective-div {
+.demo-div {
   align-items: center;
   width: 50%;
 }
+
+.demo-div textarea {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: medium;
+  width: 100%;
+}
+
+.demo-div button {
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* GPT-2 Demo Page */
+#gpt2-div {
+  align-items: center;
+  width: 100%;
+}
+
+#prompt-label {
+  align-self: flex-start;
+  padding: 0 0 10px;
+}
+
+#gpt2-inputs {
+  align-items: center;
+  height: 50px;
+  margin: 10px;
+}
+
+#gpt2-form label {
+  color: var(--oxford-blue);
+  font-size: 17px;
+  font-weight: bold;
+}
+
+#gpt2-form textarea {
+  height: 60px;
+  margin: 0 10px 10px;
+  padding: 5px;
+}
+
+#gpt2-form input {
+  border: medium solid var(--saffron);
+  border-radius: 5px;
+  margin: 10px 30px 10px 10px;
+  padding: 5px;
+  width: 40px;
+}
+
+#gpt2-form button {
+  background-color: var(--dark-cornflower-blue);
+  border: solid thick var(--dark-cornflower-blue);
+  height: 50px;
+  margin: 10px;
+  width: 150px;
+}
+
+/* Perspective Demo Page */
 
 #perspective-div textarea {
   border-radius: 5px;
@@ -214,16 +280,11 @@ textarea {
   height: 150px;
   margin: 0 10px 10px;
   padding: 10px;
-  width: 80%;
 }
 
 #perspective-div button {
   background-color: var(--saffron);
   border: solid thick var(--saffron);
-  border-radius: 5px;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
   height: 50px;
   margin: 10px;
   padding-bottom: 0;

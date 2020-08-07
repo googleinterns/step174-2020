@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps;
+package com.google.sps.perspective;
 
 import static org.mockito.Mockito.*;
 
-import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
-import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest;
-import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentResponse;
-import au.com.origma.perspectiveapi.v1alpha1.models.AttributeScore;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
-import au.com.origma.perspectiveapi.v1alpha1.models.Score;
+import com.google.common.collect.ImmutableList;
+import com.google.sps.perspective.data.MockPerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveValues;
 import java.util.HashMap;
@@ -41,21 +38,10 @@ import org.mockito.stubbing.Answer;
 @RunWith(JUnit4.class)
 public final class PerspectiveAPIClientTest {
 
-  /** an instance of the PerspectiveAPIClient to use throughout our tests */
-  private static PerspectiveAPIClient client;
-  /** a mock PerspectiveAPI object to be used as the input api throughout the tests */
-  private static PerspectiveAPI mockAPI;
-  /** the array of attribute types that we want scores back for */
-  private static final AttributeType[] desiredTypes = { AttributeType.PROFANITY, AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL };;
-
-
-  @Before 
-  public void setUp() {
-    // will set up an API that only returns -1
-    mockAPI = createMockAPI(new HashMap<AttributeType, Float>()); 
-
-    client = new PerspectiveAPIClient(mockAPI);
-  }
+  /** a String of default text to use in tests */
+  private static final String DEFAULT_TEXT = "foo";
+  /** an immutable (b/c we want it to be a constant) list of attribute types that we want scores back for */
+  private static final ImmutableList<AttributeType> DESIRED_TYPES = ImmutableList.of(AttributeType.PROFANITY, AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL);
 
   /**
    * Construct a PerspectiveAPIClient with a null PerspectiveAPI to ensure 
@@ -63,7 +49,7 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullAPIInput() {
-    client = new PerspectiveAPIClient(null); 
+    PerspectiveAPIClient client = new PerspectiveAPIClient(null); 
   }
 
   /**
@@ -72,7 +58,10 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullAttributeArrayInput() {
-    client.analyze(null, "foo");
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(new HashMap<AttributeType, Float>()); 
+    PerspectiveAPIClient client = new PerspectiveAPIClient(factory.newInstance());
+
+    client.analyze(null, DEFAULT_TEXT);
   }
 
   /**
@@ -81,7 +70,10 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullTextInput() {
-    client.analyze(desiredTypes, null);
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(new HashMap<AttributeType, Float>());  
+    PerspectiveAPIClient client = new PerspectiveAPIClient(factory.newInstance());
+
+    client.analyze(DESIRED_TYPES, null);
   }
 
   /**
@@ -90,7 +82,10 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void emptyTextInput() {
-    client.analyze(desiredTypes, "");
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(new HashMap<AttributeType, Float>()); 
+    PerspectiveAPIClient client = new PerspectiveAPIClient(factory.newInstance());
+
+    client.analyze(DESIRED_TYPES, "");
   }
 
   /**
@@ -99,9 +94,12 @@ public final class PerspectiveAPIClientTest {
    */
   @Test
   public void checkSizeOfMap() {
-    PerspectiveValues values = client.analyze(desiredTypes, "foo");
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(new HashMap<AttributeType, Float>()); 
+    PerspectiveAPIClient client = new PerspectiveAPIClient(factory.newInstance());
 
-    Assert.assertEquals(desiredTypes.length, values.getAttributeTypesToScores().size());
+    PerspectiveValues values = client.analyze(DESIRED_TYPES, DEFAULT_TEXT);
+
+    Assert.assertEquals(DESIRED_TYPES.size(), values.getAttributeTypesToScores().size());
   }
 
   /**
@@ -110,9 +108,12 @@ public final class PerspectiveAPIClientTest {
    */
   @Test
   public void checkTextSame() {
-    PerspectiveValues values = client.analyze(desiredTypes, "foo");
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(new HashMap<AttributeType, Float>());  
+    PerspectiveAPIClient client = new PerspectiveAPIClient(factory.newInstance());
 
-    Assert.assertEquals("foo", values.getText());
+    PerspectiveValues values = client.analyze(DESIRED_TYPES, DEFAULT_TEXT);
+
+    Assert.assertEquals(DEFAULT_TEXT, values.getText());
   }
 
   /**
@@ -124,68 +125,25 @@ public final class PerspectiveAPIClientTest {
     // a Map to be used as the desired scores for the mock API to return 
     Map desiredScores = new HashMap<AttributeType, Float>();
 
-    // add each of the desiredTypes and a random float between 0 & 1 as their score 
-    for (AttributeType type: desiredTypes) {
-      Random rand = new Random();
+    // add each of the DESIRED_TYPES and a random float between 0 & 1 as their score 
+    for (AttributeType type: DESIRED_TYPES) {
+      Random random = new Random();
      
-      desiredScores.put(type, rand.nextFloat());
+      desiredScores.put(type, random.nextFloat());
     }
 
-    mockAPI = createMockAPI(desiredScores);
-    client = new PerspectiveAPIClient(mockAPI);
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(desiredScores); 
+    PerspectiveAPIClient client = new PerspectiveAPIClient(factory.newInstance());
     
     // get the PerspectiveValues object and specifically the output analyses (scores from PerspectiveAPI)
-    PerspectiveValues values = client.analyze(desiredTypes, "foo");
+    PerspectiveValues values = client.analyze(DESIRED_TYPES, DEFAULT_TEXT);
     Map<AttributeType, Float> outputScores = values.getAttributeTypesToScores();
 
     // check all the right scores were returned from analyze()
-    for (AttributeType type: desiredTypes) {
+    for (AttributeType type: DESIRED_TYPES) {
       Assert.assertEquals((float) desiredScores.get(type), outputScores.get(type), 0);
     }
   }
 
-  /** 
-   * Returns a mock version of the PerspectiveAPI which will return the scores
-   * passed in through desiredScores or which returns -1 when there is no desired score
-   * (i.e. the map does not contain that attribute type as a key).
-   *
-   * @param desiredScores a map of the scores you want the mockAPI to return 
-   *    (if you don't set any, the mock version of this API will always return -1)
-   * @return the mocked version of the PerspectiveAPI
-   */
-  private static PerspectiveAPI createMockAPI(Map<AttributeType, Float> desiredScores) {
-    // instantiate all the necessary mock objects
-    PerspectiveAPI mockAPI = mock(PerspectiveAPI.class);
-    AnalyzeCommentResponse mockResponse = mock(AnalyzeCommentResponse.class);
-
-    // when analyze is called for our mockAPI, return the mockResponse
-    when(mockAPI.analyze(any(AnalyzeCommentRequest.class))).thenReturn(mockResponse);
-
-    // when getAttributeScore is called we need to be able to grab the type it is looking for
-    // then, check if this AttributeType is in the map and if it is, grab its value, and
-    // set up the next few calls so that this value will be returned. if it isn't in the map,
-    // set up the next few calls so -1 will be returned (-1 signifies no particular value was desired).
-    when(mockResponse.getAttributeScore(any(AttributeType.class))).thenAnswer(new Answer() {
-      public Object answer(InvocationOnMock invocation) {
-        Object[] args = invocation.getArguments();
-        Object mock = invocation.getMock();
-
-        AttributeType type = (AttributeType) args[0];
-
-        float scoreValue = -1;
-        if (desiredScores.containsKey(type)) {
-          scoreValue = desiredScores.get(type);
-        }
-
-        // create a mocked score with the desired scoreValue and null ScoreType
-        Score mockScore = new Score(scoreValue, null);
-        // create a mocked score with mockScore as summary score and null list of spanscores
-        AttributeScore mockAttributeScore = new AttributeScore(mockScore, null);
-
-        return mockAttributeScore;
-      }
-    });
-
-    return mockAPI;
-  }
+  // TODO: add a test that checks that the correct AnalyzeCommentRequest is passed to PerspectiveAPI
 }
