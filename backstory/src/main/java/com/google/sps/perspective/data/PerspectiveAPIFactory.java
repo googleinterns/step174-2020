@@ -19,7 +19,7 @@ import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 /**
  * Creates instances of PerspectiveAPI.
  */
-interface PerspectiveAPIFactory {
+public interface PerspectiveAPIFactory {
   /**
    * Returns an instance of the PerspectiveAPI.
    *

@@ -16,15 +16,23 @@ package com.google.sps.perspective;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
+import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.perspective.data.ContentDecisions;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
+import com.google.sps.perspective.data.PerspectiveAPIClient;
+import com.google.sps.perspective.data.PerspectiveAPIFactory;
+import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
+import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 /**
  * An implementation of StoryAnalysisManager using PerspectiveAPI for analysis.
  */
-public class PerspectiveManager implements StoryAnalysisManager {
+public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
-  private static final AttributeType[] REQUESTED_ATTRIBUTES = {
+  public static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
       AttributeType.ATTACK_ON_COMMENTER,
       AttributeType.FLIRTATION,
@@ -48,10 +56,18 @@ public class PerspectiveManager implements StoryAnalysisManager {
   /**
    * Constructs an object which implements the StoryAnalysisManager
    * class using the Google Perspective API.
+   *
+   * @throws APINotAvailableException when it can't create an instance of the PerspectiveAPI
+   *    (this most likely occurs if the "PerspectiveAPIKey.java" file is not present)
    */
-  public PerspectiveManager() throws NoAppropriateStoryException {
-    // TODO: instantiate the PerspectiveAPI for this instance
-    perspectiveAPI = null;
+  public PerspectiveStoryAnalysisManager() throws APINotAvailableException {
+    try {
+      PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
+      perspectiveAPI = factory.newInstance();
+    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+        | InvocationTargetException exception) {
+      throw new APINotAvailableException("Perspective API is not available: " + exception);
+    }
   }
 
   /**
@@ -61,7 +77,7 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @param perspectiveAPI the instance of the PerspectiveAPI to use
    *     to analyze stories with.
    */
-  public PerspectiveManager(PerspectiveAPI perspectiveAPI) {
+  public PerspectiveStoryAnalysisManager(PerspectiveAPI perspectiveAPI) {
     this.perspectiveAPI = perspectiveAPI;
   }
 
@@ -73,10 +89,18 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @return An object describing the recommendation resulting from the analysis.
    * @throws NoAppropriateStoryException if story is not considered appropriate
    */
-  public StoryDecision generateDecision(String story) {
-    // TODO: Replace this fake behavior with a real API call, etc.
+  public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
+    PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
+    PerspectiveValues storyValues = apiClient.analyze(Arrays.asList(REQUESTED_ATTRIBUTES), story);
+    boolean isStoryAppropriate = ContentDecisions.makeDecision(storyValues);
 
-    // returns default instance of StoryDecision
-    return new StoryDecision(story);
+    // if content decisions returns that it's appropriate
+    // then return a StoryDecision object with this story
+    if (isStoryAppropriate) {
+      return new StoryDecision(story);
+    }
+
+    // otherwise throw the NoAppropriateStoryException
+    throw new NoAppropriateStoryException("The story passed in was not appropriate.");
   }
 }
