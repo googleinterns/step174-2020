@@ -41,28 +41,29 @@ import org.mockito.stubbing.Answer;
 @RunWith(JUnit4.class)
 public final class PerspectiveAPIClientTest {
 
+  /** an instance of the PerspectiveAPIClient to use throughout our tests */
+  private static PerspectiveAPIClient client;
   /** a mock PerspectiveAPI object to be used as the input api throughout the tests */
   private static PerspectiveAPI mockAPI;
   /** the array of attribute types that we want scores back for */
   private static final AttributeType[] desiredTypes = { AttributeType.PROFANITY, AttributeType.TOXICITY, AttributeType.UNSUBSTANTIAL };;
-  /** a Map to be used as the desired scores for PerspectiveAPI to return */
-  private static Map<AttributeType, Float> desiredScores;
 
 
   @Before 
   public void setUp() {
-    // create empty or default instances to be used in classes
-    desiredScores = new HashMap<AttributeType, Float>();
-    mockAPI = createMockAPI(desiredScores); // will set up an API that only returns -1
+    // will set up an API that only returns -1
+    mockAPI = createMockAPI(new HashMap<AttributeType, Float>()); 
+
+    client = new PerspectiveAPIClient(mockAPI);
   }
 
   /**
-   * Call analyze() with a null PerspectiveAPI to ensure 
+   * Construct a PerspectiveAPIClient with a null PerspectiveAPI to ensure 
    * that an IllegalArgumentException will be thrown.
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullAPIInput() {
-    PerspectiveServiceClient.analyze(null, desiredTypes, "foo");
+    client = new PerspectiveAPIClient(null); 
   }
 
   /**
@@ -71,7 +72,7 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullAttributeArrayInput() {
-    PerspectiveServiceClient.analyze(mockAPI, null, "foo");
+    client.analyze(null, "foo");
   }
 
   /**
@@ -80,7 +81,7 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullTextInput() {
-    PerspectiveServiceClient.analyze(api, desiredTypes, null);
+    client.analyze(desiredTypes, null);
   }
 
   /**
@@ -89,55 +90,57 @@ public final class PerspectiveAPIClientTest {
    */
   @Test (expected = IllegalArgumentException.class)
   public void emptyTextInput() {
-    PerspectiveServiceClient.analyze(api, desiredTypes, "");
+    client.analyze(desiredTypes, "");
   }
 
   /**
-   * Check that PerspectiveServiceClient returns a PerspectiveValues object
+   * Check that analyze() returns a PerspectiveValues object
    * with a map of the correct size.
    */
   @Test
   public void checkSizeOfMap() {
-    PerspectiveValues values = PerspectiveServiceClient.analyze(api, desiredTypes, "foo");
+    PerspectiveValues values = client.analyze(desiredTypes, "foo");
 
     Assert.assertEquals(desiredTypes.length, values.getAttributeTypesToScores().size());
   }
 
   /**
-   * Check that PerspectiveServiceClient returns a PerspectiveValues
+   * Check that analyze() returns a PerspectiveValues
    * object with the same text as passed in.
    */
   @Test
   public void checkTextSame() {
-    PerspectiveValues values = PerspectiveServiceClient.analyze(api, desiredTypes, "foo");
+    PerspectiveValues values = client.analyze(desiredTypes, "foo");
 
     Assert.assertEquals("foo", values.getText());
   }
 
   /**
-   * Check that PerspectiveServiceClient returns a PerspectiveValues
+   * Check that analyze() returns a PerspectiveValues
    * object with the right scores.
    */
   @Test
   public void checkRightScores() {
-    // add the attributes we chose to analyze for and scores to API & create API
+    // a Map to be used as the desired scores for the mock API to return 
+    Map desiredScores = new HashMap<AttributeType, Float>();
 
     // add each of the desiredTypes and a random float between 0 & 1 as their score 
     for (AttributeType type: desiredTypes) {
       Random rand = new Random();
-      
+     
       desiredScores.put(type, rand.nextFloat());
     }
 
-    api = createMockAPI(desiredScores);
+    mockAPI = createMockAPI(desiredScores);
+    client = new PerspectiveAPIClient(mockAPI);
     
     // get the PerspectiveValues object and specifically the output analyses (scores from PerspectiveAPI)
-    PerspectiveValues values = PerspectiveServiceClient.analyze(api, desiredTypes, "foo");
+    PerspectiveValues values = client.analyze(desiredTypes, "foo");
     Map<AttributeType, Float> outputScores = values.getAttributeTypesToScores();
 
     // check all the right scores were returned from analyze()
     for (AttributeType type: desiredTypes) {
-      Assert.assertEquals(desiredScores.get(type), outputScores.get(type), 0);
+      Assert.assertEquals((float) desiredScores.get(type), outputScores.get(type), 0);
     }
   }
 
@@ -154,8 +157,6 @@ public final class PerspectiveAPIClientTest {
     // instantiate all the necessary mock objects
     PerspectiveAPI mockAPI = mock(PerspectiveAPI.class);
     AnalyzeCommentResponse mockResponse = mock(AnalyzeCommentResponse.class);
-    AttributeScore mockAttributeScore = mock(AttributeScore.class);
-    Score mockScore = mock(Score.class);
 
     // when analyze is called for our mockAPI, return the mockResponse
     when(mockAPI.analyze(any(AnalyzeCommentRequest.class))).thenReturn(mockResponse);
@@ -169,15 +170,17 @@ public final class PerspectiveAPIClientTest {
         Object[] args = invocation.getArguments();
         Object mock = invocation.getMock();
 
-        float fakeScore = -1;
         AttributeType type = (AttributeType) args[0];
 
+        float scoreValue = -1;
         if (desiredScores.containsKey(type)) {
-          fakeScore = desiredScores.get(type);
+          scoreValue = desiredScores.get(type);
         }
 
-        when(mockAttributeScore.getSummaryScore()).thenReturn(mockScore);
-        when(mockScore.getValue()).thenReturn(fakeScore);
+        // create a mocked score with the desired scoreValue and null ScoreType
+        Score mockScore = new Score(scoreValue, null);
+        // create a mocked score with mockScore as summary score and null list of spanscores
+        AttributeScore mockAttributeScore = new AttributeScore(mockScore, null);
 
         return mockAttributeScore;
       }

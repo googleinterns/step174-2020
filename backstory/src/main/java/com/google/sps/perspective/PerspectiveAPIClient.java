@@ -31,22 +31,36 @@ import java.util.Map;
  * A client to analyze text using the Perspective API
  */
 public class PerspectiveAPIClient {
+
+  /** This client's PerspectiveAPI instance */
+  private final PerspectiveAPI perspective;
+
   /**
-   * Return a PerspectiveValues object with analysis of all of the requested types
-   * for a specified text using a specified Perspective API.
+   * Constructs a PerspectiveAPIClient by setting the PerspectiveAPI instance the client
+   * should use to analyze text.
    *
    * @param perspective an instance of the PerspectiveAPI to use to analyze the text for the
    *     requested attributeTypes
+   * @throws IllegalArgumentException if the PerspectiveAPI instance is null
+   */
+  public PerspectiveAPIClient(PerspectiveAPI perspective) throws IllegalArgumentException {
+    if (perspective == null) {
+      throw new IllegalArgumentException("PerspectiveAPI argument cannot be null.");
+    }  
+
+    this.perspective = perspective;
+  }
+
+  /**
+   * Return a PerspectiveValues object with analysis of all of the requested types for a specified text.
+   *
    * @param attributeTypes the requested attribute types to analyze the text for
    * @param text the text to be analyzed by Perspective API
    * @return an PerspectiveValues object containing all of the scores from the PerspectiveAPI
-   * @throws IllegalArgumentException if any argument is null or if text is empty
+   * @throws IllegalArgumentException if either argument is null or if text is empty
    */
-  public static PerspectiveValues analyze(
-      PerspectiveAPI perspective, AttributeType[] attributeTypes, String text) {
-    if (perspective == null) {
-      throw new IllegalArgumentException("PerspectiveAPI argument cannot be null.");
-    } else if (attributeTypes == null) {
+  public PerspectiveValues analyze(AttributeType[] attributeTypes, String text) {
+    if (attributeTypes == null) {
       throw new IllegalArgumentException("The array of attribute types cannot be null.");
     } else if (text == null) {
       throw new IllegalArgumentException("The text to be analyzed cannot be null");
