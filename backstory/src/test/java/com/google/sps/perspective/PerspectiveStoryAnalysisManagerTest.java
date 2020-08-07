@@ -63,21 +63,6 @@ public final class PerspectiveStoryAnalysisManagerTest {
   }
 
   /**
-   * Creates a PerspectiveStoryAnalysisManager object with the no-args constructor
-   * to check it constructs a non-null object.
-   */
-  @Test
-  public void checkNoArgsConstructor() {
-    try {
-      PerspectiveStoryAnalysisManager manager = new PerspectiveStoryAnalysisManager();
-      Assert.assertNotNull(manager);
-    }
-    catch(APINotAvailableException exception) {
-      Assert.fail(exception.toString()); // should fail if this exception is thrown
-    }
-  }
-
-  /**
    * Checks that the correct story is passed to the PerspectiveAPI 
    * by checking the AnalyzeCommentRequest.
    */

@@ -44,9 +44,6 @@ public class MockPerspectiveAPIFactory implements PerspectiveAPIFactory {
   /** a map of the scores the API should return */
   private Map<AttributeType, Float> cannedScores;
 
-  /** the one instance of this API to return */
-  private final PerspectiveAPI perspectiveAPI; 
-
   /** 
    * Constructs a MockPerspective APIFactory object which will return certain scores
    * (those passed in through desiredScores) and DEFAULT_ATTRIBUTE_SCORE if no scores 
@@ -57,7 +54,6 @@ public class MockPerspectiveAPIFactory implements PerspectiveAPIFactory {
    */
   public MockPerspectiveAPIFactory(Map<AttributeType, Float> desiredScores) {
     cannedScores = desiredScores;
-    perspectiveAPI = createMockAPI(desiredScores);
   }
 
   /** 
@@ -67,7 +63,7 @@ public class MockPerspectiveAPIFactory implements PerspectiveAPIFactory {
    * @return an instance of a mock Perspective API 
    */
   public PerspectiveAPI newInstance() {
-    return perspectiveAPI;
+    return createMockAPI(cannedScores);
   }
 
   /** 
