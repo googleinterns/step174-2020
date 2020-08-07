@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.perspective;
+package com.google.sps.perspective.data;
 
 /**
  * Creates a custom error to be thrown when there is no
