@@ -12,20 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.perspective;
+package com.google.sps.perspective.data;
 
 /** The result of the analysis of text(s) for inappropriate content. */
-public class PerspectiveDecision {
+public class StoryDecision {
   /** a story deemed appropriate by analysis engine */
   private final String story;
 
   /**
-   * Constructs a PerspectiveDecision object from a String story.
+   * Constructs a StoryDecision object from a String story.
    *
    * @param story A story deemed appropriate by the analysis engine.
    * @throws IllegalArgumentException if story is null
    */
-  public PerspectiveDecision(String story) throws IllegalArgumentException {
+  public StoryDecision(String story) throws IllegalArgumentException {
     if (story == null) {
       throw new IllegalArgumentException("Story should never be null");
     }

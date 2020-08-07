@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.perspective;
+package com.google.sps.perspective.data;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest;
@@ -52,7 +52,7 @@ public class PerspectiveAPIClient {
   }
 
   /**
-   * Return a PerspectiveValues object with analysis of all of the requested types 
+   * Return a PerspectiveValues object with analysis of all of the requested types
    * for a specified text.
    *
    * @param attributeTypes the requested attribute types to analyze the text for
