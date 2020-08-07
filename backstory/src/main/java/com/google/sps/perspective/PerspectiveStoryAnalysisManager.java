@@ -25,13 +25,14 @@ import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
 import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 /**
  * An implementation of StoryAnalysisManager using PerspectiveAPI for analysis.
  */
 public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
-  private static final AttributeType[] REQUESTED_ATTRIBUTES = {
+  public static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
       AttributeType.ATTACK_ON_COMMENTER,
       AttributeType.FLIRTATION,
@@ -90,7 +91,7 @@ public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
    */
   public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
     PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
-    PerspectiveValues storyValues = apiClient.analyze(REQUESTED_ATTRIBUTES, story);
+    PerspectiveValues storyValues = apiClient.analyze(Arrays.asList(REQUESTED_ATTRIBUTES), story);
     boolean isStoryAppropriate = ContentDecisions.makeDecision(storyValues);
 
     // if content decisions returns that it's appropriate
@@ -101,14 +102,5 @@ public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
 
     // otherwise throw the NoAppropriateStoryException
     throw new NoAppropriateStoryException("The story passed in was not appropriate.");
-  }
-
-  /**
-   * Gets an array of the AttributeTypes that will be analyzed (mainly for testing).
-   *
-   * @return An array of the AttributeTypes we're requesting Perspective to analyze
-   */
-  public static AttributeType[] getRequestedAttributes() {
-    return REQUESTED_ATTRIBUTES;
   }
 }
