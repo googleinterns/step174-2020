@@ -28,8 +28,6 @@ async function displayAnalysis() {
     return;
   }
 
-  console.log(input);
-
   // get display
   const display = document.getElementById('attributes');
 
@@ -44,10 +42,6 @@ async function displayAnalysis() {
 
   const ok = response.ok; // checks if status of response is an error
   const data = await response.text();
-  
-  console.log(ok);
-  console.log(data);
-  display.innerHTML = data;
 
   // parse the JSON into an object
   // if there was an error, should be a string error message 
@@ -55,16 +49,13 @@ async function displayAnalysis() {
   // [decision (as boolean), scores (as map)]
   const jsonObject = JSON.parse(data);
 
-  console.log(jsonObject);
-
   // properly format and display either the error message or the results from Perspective
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);
-  } else {
-    if (display.firstChild) display.firstChild.remove();
-
-    display.appendChild(formatResponse(jsonObject[0], jsonObject[1].attributeTypesToScores));
   }
+
+  if (display.firstChild) display.firstChild.remove();
+  display.appendChild(formatResponse(jsonObject[0], jsonObject[1]));
 }
 
 /**

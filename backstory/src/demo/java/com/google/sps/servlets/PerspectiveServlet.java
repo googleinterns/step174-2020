@@ -16,7 +16,7 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.perspective.PerspectiveManager;
+import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
@@ -27,6 +27,7 @@ import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -73,7 +74,7 @@ public final class PerspectiveServlet extends HttpServlet {
       PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
       PerspectiveAPI api = factory.newInstance();
       PerspectiveAPIClient apiClient = new PerspectiveAPIClient(api);
-      values = apiClient.analyze(PerspectiveManager.REQUESTED_ATTRIBUTES, text);
+      values = apiClient.analyze(Arrays.asList(PerspectiveStoryAnalysisManager.REQUESTED_ATTRIBUTES), text);
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
       // if any errors were thrown for looking for api key, send that it was not retrieved back to page
       handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not retrieve the Perspective API key.");
@@ -87,7 +88,7 @@ public final class PerspectiveServlet extends HttpServlet {
     // create a StoryAnalysisManager
     StoryAnalysisManager manager;
     try {
-      manager = new PerspectiveManager();
+      manager = new PerspectiveStoryAnalysisManager();
     } catch (APINotAvailableException exception) {   
       handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.toString());   
       return;
