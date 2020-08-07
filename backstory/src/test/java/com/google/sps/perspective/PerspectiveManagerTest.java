@@ -22,7 +22,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentResponse;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeScore;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import au.com.origma.perspectiveapi.v1alpha1.models.Score;
-import com.google.sps.perspective.PerspectiveManager;
+import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
@@ -38,9 +38,9 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-/** Quality tests for PerspectiveManager */
+/** Quality tests for PerspectiveStoryAnalysisManager */
 @RunWith(JUnit4.class)
-public final class PerspectiveManagerTest {
+public final class PerspectiveStoryAnalysisManagerTest {
 
   /** a PerspectiveAPI object to be used as the input api throughout the tests */
   private static PerspectiveAPI api;
@@ -52,8 +52,8 @@ public final class PerspectiveManagerTest {
 
   @Before 
   public void setUp() {
-    // get requested attribute types from PerspectiveManager class
-    desiredTypes = PerspectiveManager.getRequestedAttributes();
+    // get requested attribute types from PerspectiveStoryAnalysisManager class
+    desiredTypes = PerspectiveStoryAnalysisManager.getRequestedAttributes();
 
     // create empty or default instances to be used in classes
     desiredScores = new HashMap<AttributeType, Float>();
@@ -61,13 +61,13 @@ public final class PerspectiveManagerTest {
   }
 
   /**
-   * Creates a PerspectiveManager object with the no-args constructor
+   * Creates a PerspectiveStoryAnalysisManager object with the no-args constructor
    * to check it constructs a non-null object.
    */
   @Test 
   public void checkNoArgsConstructor() {
     try {
-      PerspectiveManager manager = new PerspectiveManager();
+      PerspectiveStoryAnalysisManager manager = new PerspectiveStoryAnalysisManager();
       Assert.assertNotNull(manager);
     }
     catch(APINotAvailableException exception) {
@@ -80,7 +80,7 @@ public final class PerspectiveManagerTest {
    */
   @Test
   public void checkRequestedAttributesGetter() {
-    Assert.assertEquals(desiredTypes, PerspectiveManager.getRequestedAttributes());
+    Assert.assertEquals(desiredTypes, PerspectiveStoryAnalysisManager.getRequestedAttributes());
   }
 
   /**
@@ -94,7 +94,7 @@ public final class PerspectiveManagerTest {
     desiredScores.put(AttributeType.TOXICITY, NOT_TOO_TOXIC);
     api = createMockAPI(desiredScores);
 
-    PerspectiveManager manager = new PerspectiveManager(api);
+    PerspectiveStoryAnalysisManager manager = new PerspectiveStoryAnalysisManager(api);
     
     try {
       StoryDecision actual = manager.generateDecision("foo");
@@ -117,7 +117,7 @@ public final class PerspectiveManagerTest {
     desiredScores.put(AttributeType.TOXICITY, TOO_TOXIC);
     api = createMockAPI(desiredScores);
 
-    PerspectiveManager manager = new PerspectiveManager(api);
+    PerspectiveStoryAnalysisManager manager = new PerspectiveStoryAnalysisManager(api);
     try {
       manager.generateDecision("foo");
     } catch (NoAppropriateStoryException exception) {

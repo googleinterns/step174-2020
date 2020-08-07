@@ -29,7 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * An implementation of StoryAnalysisManager using PerspectiveAPI for analysis.
  */
-public class PerspectiveManager implements StoryAnalysisManager {
+public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
   /** an array of all the types we want analysis on */
   private static final AttributeType[] REQUESTED_ATTRIBUTES = {
       AttributeType.ATTACK_ON_AUTHOR,
@@ -59,7 +59,7 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @throws APINotAvailableException when it can't create an instance of the PerspectiveAPI
    *    (this most likely occurs if the "PerspectiveAPIKey.java" file is not present)
    */
-  public PerspectiveManager() throws APINotAvailableException {
+  public PerspectiveStoryAnalysisManager() throws APINotAvailableException {
     try {
       PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
       perspectiveAPI = factory.newInstance();
@@ -76,7 +76,7 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @param perspectiveAPI the instance of the PerspectiveAPI to use
    *     to analyze stories with.
    */
-  public PerspectiveManager(PerspectiveAPI perspectiveAPI) {
+  public PerspectiveStoryAnalysisManager(PerspectiveAPI perspectiveAPI) {
     this.perspectiveAPI = perspectiveAPI;
   }
 
