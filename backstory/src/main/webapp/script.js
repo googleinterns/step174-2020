@@ -11,3 +11,46 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+/**
+ * Fetches the URL for uploading to Blobstore and adds it to the image upload
+ * form
+ */
+function fetchBlobstoreUrl() {
+  fetch('/blobstore-upload-url')
+      .then((response) => {
+        return response.text();
+      })
+      .then((imageUploadUrl) => {
+        const imageUploadForm = document.getElementById('image-upload');
+        imageUploadForm.action = imageUploadUrl;
+      });
+}
+
+/** Adds the  analyzed images to the image-list unordered list element */
+function getAnalyzedImages() {
+  fetch('/analyzed-images')
+      .then((response) => response.json())
+      .then((analyzedImageObject) => {
+        const storyDisplayElement = document.getElementById("story-display");
+        storyDisplayElement.innerHTML = '';
+
+        const imageUrl = analyzedImageObject.imageUrl;
+        const backstory = analyzedImageObject.backstory;
+
+        storyDisplayElement.appendChild(createBackstoryElement(imageUrl, backstory));
+      });
+}
+
+/** @return {Element} containing the analyzed image with its story */
+function createBackstoryElement(imageUrl, backstory) {  
+  const imageElement = document.createElement('img');
+  imageElement.src = imageUrl;
+
+  const backstory = document.createTextNode(backstory);
+
+  const backstoryElement = document.createElement('div');
+  backstoryElement.appendChild(imageElementDiv);
+  backstoryElement.appendChild(backstory);
+  return backstoryElement;
+}

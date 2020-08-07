@@ -21,7 +21,7 @@
     </script>
   </head>
 
-  <body>
+  <body onload="fetchBlobstoreUrl(); getAnalyzedImages();">
     <div id="nav-bar"></div>
 
     <div class="content vertical-flex-container" id="home-content">
@@ -31,21 +31,13 @@
         ><span class="yellow-header">o</span><span class="pink-header">r</span><span class="red-header">y</span>
       </h1>
 
-      <form id="photo-upload" action="/backstory" method="post">
-        <button type="button" id="image-upload" name="image-upload">Upload Your Image</button><br />
+      <form id="photo-upload" method="post" enctype="multipart/form-data">
+        <label for="image-upload">Upload Your Image</label>
+        <input type="file" id="image-upload" name="image-upload" />
         <button type="submit" id="submit-button">Submit</button>
       </form>
 
       <div id="story-display">
-        <p>
-          Lorem ipsum dolor sit amet, putent convenire ne vel, his at putent perfecto. Liber admodum per cu, eu sea
-          paulo alienum. Per ea iisque consequuntur mediocritatem, alii fastidii ut vel. Ius no nulla aeque dicunt, usu
-          inani volumus at, duo quidam epicuri appareat et. Modo natum accusam in pri, cum eius percipit scripserit an.
-          <br /><br />
-          Per ea consulatu pertinacia. In atqui facete qui. Usu aeterno democritum id, sea aeque animal hendrerit at,
-          his viris corpora id. Mei vitae luptatum cu, id pro luptatum conceptam liberavisse. Wisi docendi mentitum te
-          his, eos et detracto perpetua. Vis nemore latine maiestatis at, tollit homero scribentur has an.
-        </p>
       </div>
     </div>
   </body>
