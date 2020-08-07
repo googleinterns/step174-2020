@@ -69,14 +69,9 @@ function formatErrorMessage(message) {
 }
 
 /**
- * Adds HTML formatting to JSON response to display properly on page
- * Constructs a table to display the attributes & display the
- * decision from the JSON as "Approved" or "Disapproved" above table.
- * Returns an element which is a div containing all this formatting.
+ * Adds HTML formatting to JSON response to display generated text on page.
  *
- * @param {boolean} - decision the decision on whether it's appropriate
- * @param {object} - attributes a map of attribute scores and types
- * @return {object} - Element that displays attribute scores & decision
+ * @param {string} The text to display.
  */
 function formatResponse(text) {
   const container = document.createElement('div');
