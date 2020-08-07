@@ -90,7 +90,8 @@ public final class VisionImagesManager implements ImagesManager {
 
     // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
     if (!(responses.size() == 1)) {
-      throw new IllegalArgumentException("detectLabelsFromImageBytes only supports analytics on one image");
+      throw new IllegalArgumentException(
+          "detectLabelsFromImageBytes only supports analytics on one image");
     }
     AnnotateImageResponse res = responses.get(0);
 
