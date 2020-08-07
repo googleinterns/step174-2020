@@ -60,16 +60,13 @@ public class PerspectiveManager implements StoryAnalysisManager {
    *    (this most likely occurs if the "PerspectiveAPIKey.java" file is not present)
    */
   public PerspectiveManager() throws APINotAvailableException {
-    PerspectiveAPIFactory factory;
-
     try {
-      factory = new PerspectiveAPIFactoryImpl();
+      PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
+      perspectiveAPI = factory.newInstance();
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
         | InvocationTargetException exception) {
       throw new APINotAvailableException("Perspective API is not available: " + exception);
     }
-
-    perspectiveAPI = factory.newInstance();
   }
 
   /**
@@ -94,15 +91,15 @@ public class PerspectiveManager implements StoryAnalysisManager {
   public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
     PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
     PerspectiveValues storyValues = apiClient.analyze(REQUESTED_ATTRIBUTES, story);
-    boolean decision = ContentDecisions.makeDecision(storyValues);
+    boolean isStoryAppropriate = ContentDecisions.makeDecision(storyValues);
 
-    // if content decisions returns that it's appropriate (true),
+    // if content decisions returns that it's appropriate
     // then return a StoryDecision object with this story
-    if (decision) {
+    if (isStoryAppropriate) {
       return new StoryDecision(story);
     }
 
-    // otherwise throw the NoAppropriateStoryException;
+    // otherwise throw the NoAppropriateStoryException
     throw new NoAppropriateStoryException("The story passed in was not appropriate.");
   }
 
