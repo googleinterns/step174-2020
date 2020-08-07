@@ -52,7 +52,7 @@ public class PerspectiveAPIClient {
   }
 
   /**
-   * Return a PerspectiveValues object with analysis of all of the requested types 
+   * Return a PerspectiveValues object with analysis of all of the requested types
    * for a specified text.
    *
    * @param attributeTypes the requested attribute types to analyze the text for
