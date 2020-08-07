@@ -11,23 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-package com.google.sps.story;
-import java.io.IOException;
-
 /**
- * Interface for story generation class.
+ * JS for GPT-2 Page
+ * features: display story
  */
-public interface StoryManager {
-  /**
-   * Returns generated text output.
-   */
-  public String generateText() throws RuntimeException;
 
-  /**
-   * Allow public setting of RequestFactory for alternative posting.
-   *
-   * @param factory StoryManagerRequestFactory to use for HttpRequests.
-   */
-  public void setRequestFactory(StoryManagerRequestFactory factory);
-}
+// DISPLAY STORY
