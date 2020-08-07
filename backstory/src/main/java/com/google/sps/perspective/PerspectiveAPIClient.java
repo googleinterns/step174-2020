@@ -31,7 +31,6 @@ import java.util.Map;
  * A client to analyze text using the Perspective API
  */
 public class PerspectiveAPIClient {
-
   /** This client's PerspectiveAPI instance */
   private final PerspectiveAPI perspective;
 
@@ -46,13 +45,14 @@ public class PerspectiveAPIClient {
   public PerspectiveAPIClient(PerspectiveAPI perspective) throws IllegalArgumentException {
     if (perspective == null) {
       throw new IllegalArgumentException("PerspectiveAPI argument cannot be null.");
-    }  
+    }
 
     this.perspective = perspective;
   }
 
   /**
-   * Return a PerspectiveValues object with analysis of all of the requested types for a specified text.
+   * Return a PerspectiveValues object with analysis of all of the requested types for a specified
+   * text.
    *
    * @param attributeTypes the requested attribute types to analyze the text for
    * @param text the text to be analyzed by Perspective API
