@@ -19,9 +19,9 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.ContentDecisions;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
+import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
-import com.google.sps.perspective.data.PerspectiveServiceClient;
 import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.lang.reflect.InvocationTargetException;
@@ -65,8 +65,8 @@ public class PerspectiveManager implements StoryAnalysisManager {
     try {
       factory = new PerspectiveAPIFactoryImpl();
     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-        | InvocationTargetException e) {
-      throw new APINotAvailableException("Perspective API is not available");
+        | InvocationTargetException exception) {
+      throw new APINotAvailableException("Perspective API is not available: " + exception);
     }
 
     perspectiveAPI = factory.newInstance();
@@ -92,8 +92,8 @@ public class PerspectiveManager implements StoryAnalysisManager {
    * @throws NoAppropriateStoryException if story is not considered appropriate
    */
   public StoryDecision generateDecision(String story) throws NoAppropriateStoryException {
-    PerspectiveValues storyValues =
-        PerspectiveServiceClient.analyze(perspectiveAPI, REQUESTED_ATTRIBUTES, story);
+    PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
+    PerspectiveValues storyValues = apiClient.analyze(REQUESTED_ATTRIBUTES, story);
     boolean decision = ContentDecisions.makeDecision(storyValues);
 
     // if content decisions returns that it's appropriate (true),

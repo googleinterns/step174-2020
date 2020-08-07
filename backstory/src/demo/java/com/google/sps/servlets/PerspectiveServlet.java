@@ -22,7 +22,7 @@ import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
-import com.google.sps.perspective.data.PerspectiveServiceClient;
+import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.io.IOException;
@@ -80,8 +80,7 @@ public final class PerspectiveServlet extends HttpServlet {
     }
 
     PerspectiveAPI api = factory.newInstance();
-    PerspectiveValues values = PerspectiveServiceClient.analyze(api, 
-        PerspectiveManager.getRequestedAttributes(), text);
+    PerspectiveAPIClient apiClient = new PerspectiveAPIClient(PerspectiveManager.getRequestedAttributes(), text);
 
     // the only code needed for the data pipeline in the MVP is 
     // the construction of a PerspectiveManager object and 
