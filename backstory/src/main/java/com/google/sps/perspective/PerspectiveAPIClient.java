@@ -25,6 +25,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.Entry;
 import au.com.origma.perspectiveapi.v1alpha1.models.RequestedAttribute;
 import au.com.origma.perspectiveapi.v1alpha1.models.Score;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,15 +52,15 @@ public class PerspectiveAPIClient {
   }
 
   /**
-   * Return a PerspectiveValues object with analysis of all of the requested types for a specified
-   * text.
+   * Return a PerspectiveValues object with analysis of all of the requested types 
+   * for a specified text.
    *
    * @param attributeTypes the requested attribute types to analyze the text for
    * @param text the text to be analyzed by Perspective API
    * @return an PerspectiveValues object containing all of the scores from the PerspectiveAPI
    * @throws IllegalArgumentException if either argument is null or if text is empty
    */
-  public PerspectiveValues analyze(AttributeType[] attributeTypes, String text) {
+  public PerspectiveValues analyze(List<AttributeType> attributeTypes, String text) {
     if (attributeTypes == null) {
       throw new IllegalArgumentException("The array of attribute types cannot be null.");
     } else if (text == null) {
@@ -85,9 +86,7 @@ public class PerspectiveAPIClient {
 
     // extract the score for each of the requested attribute types
     // and put it in a map which will be used to create a PerspectiveValues object
-    for (int i = 0; i < attributeTypes.length; i++) {
-      AttributeType attributeType = attributeTypes[i];
-
+    for (AttributeType attributeType : attributeTypes) {
       analyses.put(attributeType, extractScore(response, attributeType));
     }
 
