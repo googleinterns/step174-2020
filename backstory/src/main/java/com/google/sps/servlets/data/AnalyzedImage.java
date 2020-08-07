@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.data;
+package com.google.sps.servlets.data;
 
 /** Represents an image analyzed with the Vison API */
 public final class AnalyzedImage {

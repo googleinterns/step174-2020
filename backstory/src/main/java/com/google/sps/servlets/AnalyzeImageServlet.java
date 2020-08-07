@@ -26,18 +26,10 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ServingUrlOptions;
-import com.google.cloud.vision.v1.AnnotateImageRequest;
-import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
-import com.google.cloud.vision.v1.EntityAnnotation;
-import com.google.cloud.vision.v1.Feature;
-import com.google.cloud.vision.v1.Image;
-import com.google.cloud.vision.v1.ImageAnnotatorClient;
-import com.google.cloud.vision.v1.ImageSource;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.protobuf.ByteString;
-import com.google.sps.data.AnalyzedImage;
+import com.google.sps.images.data.AnnotatedImage;
+import com.google.sps.images.ImagesManager;
+import com.google.sps.images.VisionImagesManager;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -78,10 +70,14 @@ public class AnalyzeImageServlet extends HttpServlet {
       response.sendError(400, "Please upload a valid image.");
 
     } else {
-      // Gets the full label information from the image byte array by calling Vision API.
-      List<EntityAnnotation> labels = detectLabelsFromImageBytes(bytes);
-      Gson gson = new Gson();
-      Text labelsJsonArray = new Text(gson.toJson(labels));
+      // Gets the full label information from the image byte array by calling Images Manager.
+      ImagesManager demoImagesManager = new VisionImagesManager();
+      List<byte[]> imagesAsByteArrays = new ArrayList<>();
+      imagesAsByteArrays.add(bytes);
+      List<AnnotatedImage> annotatedImages = demoImagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
+      // There wil only be one image uploaded at a time for the demo
+      AnnotatedImage demoAnnotatedImage = annotatedImages.get(0);
+      Text labelsJsonArray = new Text(demoAnnotatedImage.getLabelsAsJson());
 
       // Add the input to datastore
       Entity analyzedImageEntity = new Entity("analyzed-image");
@@ -94,40 +90,6 @@ public class AnalyzeImageServlet extends HttpServlet {
       // Redirect back to the HTML page.
       response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
     }
-  }
-
-  /** Detects labels in the image specified by the image byte data by calling the Vision API. */
-  private List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-    List<EntityAnnotation> labels;
-
-    Image img = Image.newBuilder().setContent(ByteString.copyFrom(bytes)).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of the requests the
-    // client will be automatically closed, as it is called within the try.
-    try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-      BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-      List<AnnotateImageResponse> responses = response.getResponsesList();
-
-      // There is only one image in the batch response (only supports uploading one image at a time
-      // right now)
-      AnnotateImageResponse res = responses.get(0);
-
-      if (res.hasError()) {
-        System.out.format("Error: %s%n", res.getError().getMessage());
-        return new ArrayList<EntityAnnotation>();
-      }
-
-      // For full list of available annotations, see http://g.co/cloud/vision/docs
-      labels = res.getLabelAnnotationsList();
-    }
-
-    return labels;
   }
 
   /** Returns a URL that points to the uploaded file, or null if the user didn't upload a file. */
