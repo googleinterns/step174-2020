@@ -24,22 +24,23 @@ import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import com.google.protobuf.ByteString;
 import com.google.sps.images.data.AnnotatedImage;
 import java.io.IOException;
+import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * {@inheritDoc}
  *
- * VisionManager is an ImagesManager implemented using the Google Vision API.
- * VisionManager Manages the gathering and packaging of Vision API image analytics.
+ * VisionImagesManager is an ImagesManager implemented using the Google Vision API.
+ * VisionImagesManager Manages the gathering and packaging of Vision API image analytics.
  */
-public final class VisionManager implements ImagesManager {
+public final class VisionImagesManager implements ImagesManager {
   private final ImageAnnotatorClient imageAnnotatorClient;
 
   /**
    * Creates a vision manager object using the image annotator client from Vision API.
    */
-  public VisionManager() throws IOException {
+  public VisionImagesManager() throws IOException {
     ImageAnnotatorClient imageAnnotatorClient = ImageAnnotatorClient.create();
     this.imageAnnotatorClient = imageAnnotatorClient;
   }
@@ -47,7 +48,7 @@ public final class VisionManager implements ImagesManager {
   /**
    * Creates a vision manager object using a mock image annotator client.
    */
-  public VisionManager(ImageAnnotatorClient imageAnnotatorClient) {
+  public VisionImagesManager(ImageAnnotatorClient imageAnnotatorClient) {
     this.imageAnnotatorClient = imageAnnotatorClient;
   }
 
@@ -56,6 +57,7 @@ public final class VisionManager implements ImagesManager {
       List<byte[]> imagesAsByteArrays) throws IOException {
     List<AnnotatedImage> annotatedImages = new ArrayList<>();
 
+    // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
     for (byte[] rawImageData : imagesAsByteArrays) {
       List<EntityAnnotation> labelAnnotations = detectLabelsFromImageBytes(rawImageData);
       AnnotatedImage annotatedImage = new AnnotatedImage(rawImageData, labelAnnotations);
@@ -82,16 +84,18 @@ public final class VisionManager implements ImagesManager {
         AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
     requests.add(request);
 
-    // ImageAnnotatorClient will make the requests
+    // The invocation of batchAnnotateImages() makes a network call.
     BatchAnnotateImagesResponse response = imageAnnotatorClient.batchAnnotateImages(requests);
     List<AnnotateImageResponse> responses = response.getResponsesList();
 
-    // For the MVP there is only one image in the batch response.
+    // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
+    if (!(responses.size() == 1)) {
+      throw new IllegalArgumentException("detectLabelsFromImageBytes only supports analytics on one image");
+    }
     AnnotateImageResponse res = responses.get(0);
 
     if (res.hasError()) {
-      System.out.format("Error: %s%n", res.getError().getMessage());
-      return new ArrayList<EntityAnnotation>();
+      throw new IOException(res.getError().getMessage());
     }
 
     // For full list of available annotations, see http://g.co/cloud/vision/docs

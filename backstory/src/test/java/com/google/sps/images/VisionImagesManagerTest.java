@@ -22,7 +22,7 @@ import com.google.cloud.vision.v1.EntityAnnotation;
 import org.mockito.ArgumentCaptor;
 import com.google.sps.images.AnnotatedImageTest;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
-import com.google.sps.images.VisionManager;
+import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,9 +31,9 @@ import java.util.List;
 import java.io.IOException;
 
 /**
- * Tests for VisionManager.
+ * Tests for VisionImagesManager.
  */
-public final class VisionManagerTest {
+public final class VisionImagesManagerTest {
 
   /**
    * Checkts that the request given to Vision API is valid
@@ -55,11 +55,12 @@ public final class VisionManagerTest {
     when(mockResponse.hasError()).thenReturn(false);
     when(mockResponse.getLabelAnnotationsList()).thenReturn(mockLabelAnnotations);
     when(mockResponses.get(0)).thenReturn(mockResponse);
+    when(mockResponses.size()).thenReturn(1);
     when(mockBatchResponse.getResponsesList()).thenReturn(mockResponses);
     when(mockImageAnnotatorClient.batchAnnotateImages(any(List.class))).thenReturn(mockBatchResponse);
 
     // Create the ImagesManager with the mock image annotator client
-    ImagesManager manager = new VisionManager(mockImageAnnotatorClient);
+    ImagesManager manager = new VisionImagesManager(mockImageAnnotatorClient);
 
     // Use the ImageAnnotatorClient to check the response given  to it
     manager.createAnnotatedImagesFromImagesAsByteArrays(rawImageDataList);
