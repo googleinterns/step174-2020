@@ -23,26 +23,26 @@
     <div class="content">
       <div class="header">
         <h1 id="contact-title">Contact Me</h1>
-        <p id="contact-subtitle">Feel free to fill out the form to reach out.</p>
+        <p id="contact-subtitle">Feel free to fill out the form to reach out. (* = required)</p>
       </div>
 
-      <div class="flex-container">
+      <div class="flex-container" id="contact-container">
         <div class="col" id="contact-form">
-          <form action="mailto:agcaballero@google.com">
-            <label for="fname">First Name</label><br />
-            <input type="text" id="first-name" placeholder="Your first name" />
+          <form action="/message" method="post">
+            <label for="fname">First Name*</label><br />
+            <input type="text" name="fname" id="first-name" placeholder="Your first name" required />
             <br /><br />
-            <label for="lname">Last Name</label><br />
-            <input type="text" id="last-name" placeholder="Your last name" />
+            <label for="lname">Last Name*</label><br />
+            <input type="text" name="lname" id="last-name" placeholder="Your last name" required />
             <br /><br />
-            <label for="email">Email Address</label><br />
-            <input type="text" id="email" placeholder="yourname@gmail.com" />
+            <label for="email">Email Address*</label><br />
+            <input type="email" name="email" id="email" placeholder="yourname@gmail.com" required />
             <br /><br />
-            <label for="subject">Subject</label><br />
-            <input type="text" id="subject" placeholder="Subject line" />
+            <label for="subject">Subject*</label><br />
+            <input type="text" name="subject" id="subject" placeholder="Subject line" required />
             <br /><br />
-            <label for="body">Description</label><br />
-            <textarea id="desc" name="body" placeholder="Your reason for getting in touch"></textarea>
+            <label for="body">Description*</label><br />
+            <textarea id="desc" name="body" placeholder="Your reason for getting in touch" required></textarea>
             <br /><br />
             <div class="centered-button">
               <button type="submit" id="submit-button"><b>Submit</b></button>
@@ -50,9 +50,7 @@
           </form>
         </div>
 
-        <div class="col" id="cm-pic-bg">
-          <img id="contact-me-pic" src="images/tunnel.jpg" alt="Picture of a road leading through a tunnel" />
-        </div>
+        <div class="col" id="contact-me-pic"></div>
       </div>
     </div>
 

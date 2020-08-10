@@ -4,6 +4,7 @@
     <title>Gallery</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js"></script>
+    <script src="gallery.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.3.1.js"
       integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -15,8 +16,9 @@
         $("footer").load("footer.html")
       })
     </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAEQd51hndr1lX__sO6RauEwa5Owi7AILY"></script>
   </head>
-  <body>
+  <body onload="createPhotoLocationMap()">
     <div id="nav"></div>
 
     <div class="content">
@@ -31,66 +33,71 @@
             <a href="https://cambridgeroad.org/">here</a>), so I fully comprehend that I have no great talent for
             photography. However, personally, I love photography for the same reason as many others: when I view the
             photos, I get to re-experience all the places I've been privileged to be able to go to. Hope you enjoy the
-            photos!
+            photos! <br /><br />
+            Look <a href="#map">below</a> to see where they were taken.
           </p>
         </div>
 
-        <a href="/images/travel/rome.jpg" class="vert-photo">
+        <a href="images/travel/rome.jpg" class="vert-photo">
           <img src="images/travel/rome.jpg" alt="Picture of street in Rome"
         /></a>
 
-        <a href="/images/travel/alps.jpg" class="horiz-photo">
+        <a href="images/travel/alps.jpg" class="horiz-photo">
           <img src="images/travel/alps.jpg" alt="Picture of Alps"
         /></a>
 
-        <a href="/images/travel/tjorn.jpg" class="vert-photo">
+        <a href="images/travel/tjorn.jpg" class="vert-photo">
           <img src="images/travel/tjorn.jpg" alt="Picture of lake in Tjorn"
         /></a>
 
-        <a href="/images/travel/annecy.jpg" class="horiz-photo">
+        <a href="images/travel/annecy.jpg" class="horiz-photo">
           <img src="images/travel/annecy.jpg" alt="Picture of Annecy"
         /></a>
 
-        <a href="/images/travel/cambridge.jpg" class="vert-photo">
-          <img src="images/travel/cambridge.jpg" alt="Picture of Cambridge"
+        <a href="images/travel/oxford.jpg" class="vert-photo">
+          <img src="images/travel/oxford.jpg" alt="Picture of Oxford"
         /></a>
 
-        <a href="/images/travel/chamonix.jpg" class="horiz-photo">
+        <a href="images/travel/chamonix.jpg" class="horiz-photo">
           <img src="images/travel/chamonix.jpg" alt="Picture of Chamonix"
         /></a>
 
-        <a href="/images/travel/dublin.jpg" class="vert-photo">
+        <a href="images/travel/dublin.jpg" class="vert-photo">
           <img src="images/travel/dublin.jpg" alt="Picture of Dublin"
         /></a>
 
-        <a href="/images/travel/florence.jpg" class="horiz-photo">
+        <a href="images/travel/florence.jpg" class="horiz-photo">
           <img src="images/travel/florence.jpg" alt="Picture of Florence"
         /></a>
 
-        <a href="/images/travel/galway.jpg" class="vert-photo">
-          <img src="images/travel/galway.jpg" alt="Picture of Galway"
+        <a href="images/travel/moher.jpg" class="vert-photo">
+          <img src="images/travel/moher.jpg" alt="Picture of the Cliffs of Moher"
         /></a>
 
-        <a href="/images/travel/haleakala.jpg" class="horiz-photo">
+        <a href="images/travel/haleakala.jpg" class="horiz-photo">
           <img src="images/travel/haleakala.jpg" alt="Picture of Haleakala Volcano"
         /></a>
 
-        <a href="/images/travel/hanauma-bay.jpg" class="vert-photo">
+        <a href="images/travel/hanauma-bay.jpg" class="vert-photo">
           <img src="images/travel/hanauma-bay.jpg" alt="Picture of Hanauma Bay"
         /></a>
 
-        <a href="/images/travel/heustreu.jpg" class="horiz-photo">
-          <img src="images/travel/heustreu.jpg" alt="Picture near Heustreu"
+        <a href="images/travel/kreuzberg.jpg" class="horiz-photo">
+          <img src="images/travel/kreuzberg.jpg" alt="Picture near Heustreu"
         /></a>
 
-        <a href="/images/travel/london.jpg" class="vert-photo">
+        <a href="images/travel/london.jpg" class="vert-photo">
           <img src="images/travel/london.jpg" alt="Picture of the London Eye"
         /></a>
 
-        <a href="/images/travel/venice.jpg" class="vert-photo">
+        <a href="images/travel/venice.jpg" class="vert-photo">
           <img src="images/travel/venice.jpg" alt="Picture of canal in Venice"
         /></a>
       </div>
+    </div>
+
+    <div class="flex-container" id="map-canvas">
+      <div id="map"></div>
     </div>
 
     <footer></footer>

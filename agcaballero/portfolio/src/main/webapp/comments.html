@@ -2,9 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
     <title>Comments</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js"></script>
+    <script src="comments.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.3.1.js"
       integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -14,6 +17,8 @@
       $(function () {
         $("#nav").load("nav.html")
         $("footer").load("footer.html")
+        $("#original-lang").load("language-select.html")
+        $("#display-lang").load("language-select.html")
       })
     </script>
   </head>
@@ -39,6 +44,11 @@
 
             <br /><br />
 
+            <label for="language">Language</label><br />
+            <select id="original-lang" name="language"></select>
+
+            <br /><br />
+
             <label for="comment">Enter a comment:</label><br />
             <textarea name="comment"></textarea>
 
@@ -51,14 +61,12 @@
 
           <div id="num-comments">
             <label for="max-comments">Comments to Show:</label>
-            <input
-              type="number"
-              id="max-comments"
-              name="max-comments"
-              min="0"
-              max="50"
-              onchange="getComments(this.value)"
-            />
+            <input type="number" id="max-comments" name="max-comments" min="0" max="50" onchange="getComments()" />
+          </div>
+
+          <div id="lang-div">
+            <label for="language">Language to Display:</label>
+            <select id="display-lang" onchange="getComments()"></select>
           </div>
 
           <div class="flex-container" id="comments-display"></div>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Comments Example</title>
+    <script src="commentFetcher.js"></script>
+  </head>
+
+  <body onload="getComments()">
+    <div>
+      <h1>Comments Example page!</h1>
+    </div>
+
+    <form action="/data" method="POST">
+      <p>Comments:</p>
+      <input type="text" name="comment" />
+      <br /><br />
+
+      <input type="submit" />
+      <br /><br />
+
+      <label for="num-comments">Number of comments:</label>
+
+      <select name="num-comments" id="num-comments" onchange="getComments()">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="15">15</option>
+        <option value="20">20</option>
+      </select>
+    </form>
+
+    <button type="button" onclick="deleteComments()">Delete all comments</button>
+
+    <ul id="comment-list"></ul>
+  </body>
+</html>

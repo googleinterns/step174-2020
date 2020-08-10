@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html>
-  <body>
+<html lang="en">
+  <head>
+    <title>Contact Uday!</title>
     <link rel="stylesheet" href="style.css" />
-
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDE-lO3LKuonuEzit9Yc8kJEfZuqqFDP78"></script>
+    <script src="script.js"></script>
+  </head>
+  <body onload="createMap();">
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
       integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
       crossorigin="anonymous"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <div class="grey">
       <div class="go animate">
         <a href="index.html">ME, MYSELF, AND I</a>
@@ -25,19 +28,26 @@
             <h1>Contact Me!</h1>
             <iframe
               src="https://docs.google.com/forms/d/e/1FAIpQLSdJDcrQgXFtNFBDaf7xOd8PxlWq0pEcT0-wUn1YAFVHn77Dqw/viewform?embedded=true"
-              width="800px"
-              height="1000px"
-              frameborder="0"
-              marginheight="0"
-              marginwidth="0"
+              width="600px"
+              height="800px"
+              title="Contact Form"
               >Loading…</iframe
             >
           </div>
         </div>
+        <div class="col-sm-6 center">
+          <div class="textbox center">
+            <h1>Current School: UC San Diego</h1>
+            <div id="map" class="center"></div>
+            <br />
+            <h2><b>Address:</b>9500 Gilman Dr, La Jolla, CA 92093</h2>
+          </div>
+        </div>
       </div>
     </div>
+
+    <footer>
+      <span>Hope you enjoy your visit!</span>
+    </footer>
   </body>
-  <footer>
-    <span>Hope you enjoy your visit!</span>
-  </footer>
 </html>

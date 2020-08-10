@@ -22,6 +22,9 @@ import com.google.appengine.api.datastore.FetchOptions.Builder;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,7 +54,9 @@ public class DataServlet extends HttpServlet {
     /** Stores the email of the commenter */
     private final String email;
     /** Stores the text of the comment */
-    private final String text;
+    private String text;
+    /** Original language code of comment (an ISO-639-1 Code e.g. "EN" for English) */
+    private String language;
 
     /**
      * Constructs a Comment object from an Entity
@@ -61,6 +66,7 @@ public class DataServlet extends HttpServlet {
       name = (String) entity.getProperty("name");
       email = (String) entity.getProperty("email");
       text = (String) entity.getProperty("text");
+      language = (String) entity.getProperty("language");
     }
 
     /**
@@ -72,8 +78,10 @@ public class DataServlet extends HttpServlet {
 
     /**
      * @return a Comment as a HTML div with proper formatting to be displayed
+     * @param String language code for language text should be translated to (an ISO-639-1 Code e.g.
+     *     "EN" for English)
      */
-    private String htmlFormat() {
+    private String htmlFormat(String languageCode) {
       // gets time in local time zone (default: US ET)
       LocalDateTime localTime =
           new LocalDateTime(timestamp.getTime(), DateTimeZone.forID("US/Eastern"));
@@ -81,14 +89,39 @@ public class DataServlet extends HttpServlet {
 
       return "<div class='comment-div'>"
           + "<p class='date'>" + formatter.print(localTime) + "</p>"
-          + "<p><b>" + name + " (" + email + "):</b> <br><br>" + text + "</p></div>";
+          + "<p><b>" + name + " (<a href='mailto:" + email + "'>" + email + "</a>):</b></p>"
+          + "<p class='comment-text' lang=" + languageCode + ">" + getTranslatedText(languageCode)
+          + "</p></div>";
+    }
+
+    /**
+     * Returns translated text of comment, if necessary. Makes a network call to Translation API,
+     * so method could be slow.
+     * @return the text field translated to the language of a given language code (e.g. "EN" for
+     *     English)
+     */
+    public String getTranslatedText(String languageCode) {
+      // declare an instance of translate
+      Translate translate = TranslateOptions.getDefaultInstance().getService();
+
+      // if the target language code is NOT same as original language code, translate the text &
+      // return it else, just return the text itself (avoids a network call)
+      if (!language.toUpperCase().equals(languageCode.toUpperCase())) {
+        Translation translation =
+            translate.translate(text, Translate.TranslateOption.sourceLanguage(language),
+                Translate.TranslateOption.targetLanguage(languageCode));
+        return translation.getTranslatedText();
+      } else {
+        return text;
+      }
     }
   }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Retrieve max number of comments (if no info provided, default is 50)
-    int maxComments = Integer.parseInt(getRequestParameter(request, "max-comments", "50"));
+    // Retrieve max number & language code for comments (defaults in comments.js)
+    int maxComments = Integer.parseInt(request.getParameter("max-comments"));
+    String languageCode = request.getParameter("display-lang");
 
     // Retrieve from Datastore all entities of type "Comment", sorted by descending time
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -102,11 +135,12 @@ public class DataServlet extends HttpServlet {
       Comment comment = new Comment(entity);
 
       // append current entity's div to HTML string commentDivs
-      commentDivs.append(comment.htmlFormat());
+      commentDivs.append(comment.htmlFormat(languageCode));
     }
 
     // Respond to request with the commentDivs html
     response.setContentType("application/html;");
+    response.setCharacterEncoding("UTF-8"); // ensures special characters display
     response.getWriter().println(commentDivs);
   }
 
@@ -117,6 +151,8 @@ public class DataServlet extends HttpServlet {
     commentEntity.setProperty("name", getRequestParameter(request, "name", ""));
     commentEntity.setProperty("email", getRequestParameter(request, "email", ""));
     commentEntity.setProperty("text", getRequestParameter(request, "comment", ""));
+    // default language of source is English
+    commentEntity.setProperty("language", getRequestParameter(request, "language", "en"));
 
     // Store date/time in commentEntity
     Calendar cal = Calendar.getInstance();
