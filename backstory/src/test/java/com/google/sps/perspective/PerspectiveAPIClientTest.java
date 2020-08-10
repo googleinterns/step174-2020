@@ -16,7 +16,13 @@ package com.google.sps.perspective;
 
 import static org.mockito.Mockito.*;
 
+import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
+import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest;
+import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest.Builder;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
+import au.com.origma.perspectiveapi.v1alpha1.models.ContentType;
+import au.com.origma.perspectiveapi.v1alpha1.models.Entry;
+import au.com.origma.perspectiveapi.v1alpha1.models.RequestedAttribute;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.perspective.data.MockPerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
