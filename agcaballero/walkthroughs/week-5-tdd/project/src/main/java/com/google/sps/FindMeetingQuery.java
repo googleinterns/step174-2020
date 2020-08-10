@@ -91,6 +91,8 @@ public final class FindMeetingQuery {
     // attendees possible
     int maxUnavailableAttendeesFound = 0;
 
+    System.out.println(Arrays.toString(minuteAvailability));
+
     // fill the minuteAvailability array with the correct availabilities based on events given
     for (Event event: events) {
       Availability status = new Availability();
@@ -108,6 +110,7 @@ public final class FindMeetingQuery {
         TimeRange range = event.getWhen();
 
         for (int i = range.start(); i < range.end(); i++) {
+          System.out.println(i);
           // update the mandatory attendee availability of this minute
           if (!status.areMandatoryAttendeesAllAvailable) {
             minuteAvailability[i].mandatoryAttendeeUnavailable();
