@@ -17,6 +17,8 @@ package com.google.sps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  * A class to find a time that satisfies a meeting query and ensures
@@ -83,15 +85,16 @@ public final class FindMeetingQuery {
 
     // The +1 is to account for last minute in day
     Availability[] minuteAvailability = new Availability[MINUTES_IN_DAY + 1];
+
     // fill the minute availability array with the default (the assumption all attendees can come)
-    Arrays.fill(minuteAvailability, new Availability());
+    for (int i = 0; i < minuteAvailability.length; i++) {
+      minuteAvailability[i] = new Availability();
+    }
 
     // keep a champion for the maximum number of unavailable attendees found so that when analyzing the minuteAvailability
     // array, we can determine where to stop. starts at 0 b/c that's the lowest number of unavailable
     // attendees possible
     int maxUnavailableAttendeesFound = 0;
-
-    System.out.println(Arrays.toString(minuteAvailability));
 
     // fill the minuteAvailability array with the correct availabilities based on events given
     for (Event event: events) {
@@ -110,7 +113,6 @@ public final class FindMeetingQuery {
         TimeRange range = event.getWhen();
 
         for (int i = range.start(); i < range.end(); i++) {
-          System.out.println(i);
           // update the mandatory attendee availability of this minute
           if (!status.areMandatoryAttendeesAllAvailable) {
             minuteAvailability[i].mandatoryAttendeeUnavailable();
@@ -128,8 +130,6 @@ public final class FindMeetingQuery {
         }
       }
     }
-
-    System.out.println(Arrays.toString(minuteAvailability));
 
     for (int status = 0; status <= maxUnavailableAttendeesFound; status++) {
       // an array list of available times 
@@ -153,15 +153,41 @@ public final class FindMeetingQuery {
   private int amountOfOverlap(Collection<String> left, Collection<String> right) {
     int overlap = 0;
 
-    for (String leftElement: left) {
-      for (String rightElement: right) {
-        if (leftElement.equals(rightElement)) {
-          overlap++;
-        }
+    // pre-process the collections for the number of times an element occurred
+    Map<String, Integer> leftMap = countOccurrences(left);
+    Map<String, Integer> rightMap = countOccurrences(right);
+
+    // increase overlap by the number of times a given element occurred
+    // in both collections
+    for (String key: leftMap.keySet()) {
+      if(rightMap.containsKey(key)) {
+        overlap += Math.min(leftMap.get(key), rightMap.get(key));
       }
     }
 
     return overlap;
+  }
+
+  /**
+   * Takes in a String collection and returns a map with strings from the
+   * collection as keys and the number of times that string 
+   * appeared in the collection as the value.
+   * 
+   * @param strings the String collection to count occurrences for
+   * @return a map containining the strings from the colleciton and the number of times they occurred
+   */
+  private Map<String, Integer> countOccurrences(Collection<String> strings) {
+    Map<String, Integer> map = new HashMap<String, Integer>();
+
+    for (String string: strings) {
+      if(map.containsKey(string)) {
+        map.put(string, map.get(string) + 1);
+      } else {
+        map.put(string, 1);
+      }
+    }
+
+    return map;
   }
 
   /** 
