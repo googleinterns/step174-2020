@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps;
+package com.google.sps.perspective;
 
 import static org.mockito.Mockito.*;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
-import com.google.sps.perspective.ContentDecisions;
-import com.google.sps.perspective.PerspectiveValues;
+import com.google.sps.perspective.data.ContentDecisions;
+import com.google.sps.perspective.data.PerspectiveValues;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;

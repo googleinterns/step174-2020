@@ -14,18 +14,21 @@
 
 package com.google.sps.perspective;
 
+import com.google.sps.perspective.data.NoAppropriateStoryException;
+import com.google.sps.perspective.data.StoryDecision;
+
 /**
  * Handles analysis of stories for content and provides a recommendation on
  * the "best" appropriate story (if multiple).
  */
-interface PerspectiveManager {
+public interface StoryAnalysisManager {
   /**
-   * Analyzes the passed-in story and returns PerspectiveDecision
+   * Analyzes the passed-in story and returns StoryDecision
    * containing decision based on analysis.
    *
    * @param story The story to be analyzed
    * @return An object describing the recommendation resulting from the analysis.
-   * @throws NoAppropriateStoryException if no story from decision is considered appropriate
+   * @throws NoAppropriateStoryException if story is not considered appropriate
    */
-  public PerspectiveDecision generateDecision(String story) throws NoAppropriateStoryException;
+  public StoryDecision generateDecision(String story) throws NoAppropriateStoryException;
 }

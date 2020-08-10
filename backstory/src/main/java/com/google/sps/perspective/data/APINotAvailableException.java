@@ -12,32 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.perspective;
+package com.google.sps.perspective.data;
 
 /**
- * Creates a custom error to be thrown when there is no
- * appropriate story available.
+ * Creates a custom error to be thrown when an API is not available
  */
-public class NoAppropriateStoryException extends Exception {
-  /** holds the error message for the class */
+public class APINotAvailableException extends Exception {
+  /** holds the error message for the exception */
   private final String errorMessage;
 
   /**
-   * Constructs a custom exception for when no appropriate story is found
+   * Constructs a custom exception for when API is not available
    * with a specified error message.
    *
    * @param errorMessage the error message for this exception
    */
-  public NoAppropriateStoryException(String errorMessage) {
+  public APINotAvailableException(String errorMessage) {
     this.errorMessage = errorMessage;
   }
 
   /**
    * Returns a String representation of this exception.
    *
-   * @return "NoAppropriateStoryException occurred" with the passed-in error message.
+   * @return "APINotAvailableException occurred: " with the passed-in error message.
    */
   public String toString() {
-    return "NoAppropriateStoryException occurred: " + errorMessage;
+    return "APINotAvailableException occurred: " + errorMessage;
   }
 }
