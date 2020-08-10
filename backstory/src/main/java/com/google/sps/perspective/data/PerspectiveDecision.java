@@ -14,7 +14,7 @@
 
 package com.google.sps.perspective.data;
 
-/** 
+/**
  * A type of StoryDecision that includes not just the decision (the
  * appropriate story) but the values used to make that decision.
  */
@@ -29,7 +29,8 @@ public class PerspectiveDecision extends StoryDecision {
    * @param values the values used to make the decision
    * @throws IllegalArgumentException if story is null
    */
-  public PerspectiveDecision(String story, PerspectiveValues values) throws IllegalArgumentException {
+  public PerspectiveDecision(String story, PerspectiveValues values)
+      throws IllegalArgumentException {
     super(story);
 
     this.values = values;
