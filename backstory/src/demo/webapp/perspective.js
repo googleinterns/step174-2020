@@ -21,7 +21,7 @@
 /** displays the Perspective scores for the text in the "text-for-analysis" element  */
 async function displayAnalysis() {
   /* eslint-disable no-unused-vars */
-  const input = document.getElementById('text-for-analysis').value;
+  let input = document.getElementById('text-for-analysis').value;
 
   if (input === '' || input === null) {
     alert('You need to enter a value');
@@ -31,12 +31,16 @@ async function displayAnalysis() {
   // get display
   const display = document.getElementById('attributes');
 
+  // convert input into a form that can be sent in response body
+  const inputObj = {text: input};
+  const inputJSON = JSON.stringify(inputObj);
+
   // grab data and get its text version (it is sent as JSON)
   const response = await fetch('/perspective', 
     {
       method: 'post', 
       headers: {'Content-Type': 'application/json'},
-      body: `{text: ${input}}`,
+      body: inputJSON,
     }
   );
 
@@ -52,10 +56,10 @@ async function displayAnalysis() {
   // properly format and display either the error message or the results from Perspective
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);
+  } else {
+    if (display.firstChild) display.firstChild.remove();
+    display.appendChild(formatResponse(jsonObject.isAppropriate, jsonObject.attributeTypesToScores));
   }
-
-  if (display.firstChild) display.firstChild.remove();
-  display.appendChild(formatResponse(jsonObject[0], jsonObject[1]));
 }
 
 /**

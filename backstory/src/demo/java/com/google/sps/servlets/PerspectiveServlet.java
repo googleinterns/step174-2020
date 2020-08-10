@@ -23,11 +23,12 @@ import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
+import com.google.sps.perspective.data.PerspectiveDecision;
 import com.google.sps.perspective.data.PerspectiveValues;
-import com.google.sps.perspective.data.StoryDecision;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -47,14 +48,15 @@ public final class PerspectiveServlet extends HttpServlet {
     Gson gson = new Gson();
 
     String json = request.getReader().readLine();
-
     
     // get the text to be analyzedfrom the JSON & handle error if it cannot be converted
     String text = null;
+
     try {
       JSONObject jsonObject = new JSONObject(json);
       text = jsonObject.getString("text");
     } catch (JSONException exception) {
+      exception.printStackTrace();
       String errorMessage = "Could not convert text sent to server from JSON.";
 
       handleError(response, HttpServletResponse.SC_BAD_REQUEST, errorMessage);
@@ -66,27 +68,9 @@ public final class PerspectiveServlet extends HttpServlet {
       handleError(response, HttpServletResponse.SC_BAD_REQUEST, "Text input was null or empty");
       return;
     }
-
-    // as we want to display the values as well as the decision in our demo
-    // we need to access internal code that the MVP would not
-    PerspectiveValues values = null;    
-    try {
-      PerspectiveAPIFactory factory = new PerspectiveAPIFactoryImpl();
-      PerspectiveAPI api = factory.newInstance();
-      PerspectiveAPIClient apiClient = new PerspectiveAPIClient(api);
-      values = apiClient.analyze(Arrays.asList(PerspectiveStoryAnalysisManager.REQUESTED_ATTRIBUTES), text);
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
-      // if any errors were thrown for looking for api key, send that it was not retrieved back to page
-      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not retrieve the Perspective API key.");
-      return;
-    }
-
-    // the only code needed for the data pipeline in the MVP is 
-    // the construction of a PerspectiveManager object and 
-    // a call to the generateDecision() method of PerspectiveManager
     
-    // create a StoryAnalysisManager
-    StoryAnalysisManager manager;
+    // create a PerspectiveStoryAnalysisManager
+    PerspectiveStoryAnalysisManager manager;
     try {
       manager = new PerspectiveStoryAnalysisManager();
     } catch (APINotAvailableException exception) {   
@@ -94,22 +78,25 @@ public final class PerspectiveServlet extends HttpServlet {
       return;
     }
 
-    // generate a StoryDecision with that manager
-    StoryDecision storyDecision;
+    // generate a PerspectiveDecision with that manager
+    PerspectiveDecision perspectiveDecision;
     try {
-      storyDecision = manager.generateDecision(text);
+      perspectiveDecision = manager.generatePerspectiveDecision(text);
     } catch (NoAppropriateStoryException e) {
-      storyDecision = null;
+      perspectiveDecision = null;
     }
 
-    // if storyDecision is null, then it means the decision is not appropriate (should be false)
-    Boolean isAppropriateStory = (storyDecision != null);
+    // if perspectiveDecision is null, then it means the decision is not appropriate (should be false)
+    Boolean isAppropriateStory = (perspectiveDecision != null);
+    PerspectiveValues values = perspectiveDecision.getValues();
 
     // objects to write back on the respones
-    Object[] objectsToWrite = { isAppropriateStory, values.getAttributeTypesToScores() };
+    Map<String, Object> responseBody = new HashMap<String, Object>();
+    responseBody.put("isAppropriate", isAppropriateStory);
+    responseBody.put("attributeTypesToScores", values.getAttributeTypesToScores());
 
     // pass the decision and values from PerspectiveAPI to demo as JSON
-    response.getWriter().println(gson.toJson(objectsToWrite));
+    response.getWriter().println(gson.toJson(responseBody));
   }
 
   /**
