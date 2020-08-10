@@ -22,6 +22,7 @@ import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
+import com.google.sps.perspective.data.PerspectiveDecision;
 import com.google.sps.perspective.data.PerspectiveValues;
 import com.google.sps.perspective.data.StoryDecision;
 import java.lang.reflect.InvocationTargetException;
@@ -98,6 +99,29 @@ public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
     // then return a StoryDecision object with this story
     if (isStoryAppropriate) {
       return new StoryDecision(story);
+    }
+
+    // otherwise throw the NoAppropriateStoryException
+    throw new NoAppropriateStoryException("The story passed in was not appropriate.");
+  }
+
+   /**
+   * Analyzes the passed-in story using the perspective API and returns the decision
+   * as a PerspectiveDecision object (for demo purposes).
+   *
+   * @param story The story to be analyzed
+   * @return An object describing the recommendation resulting from the analysis.
+   * @throws NoAppropriateStoryException if story is not considered appropriate
+   */
+  public PerspectiveDecision generatePerspectiveDecision(String story) throws NoAppropriateStoryException {
+    PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
+    PerspectiveValues storyValues = apiClient.analyze(Arrays.asList(REQUESTED_ATTRIBUTES), story);
+    boolean isStoryAppropriate = ContentDecisions.makeDecision(storyValues);
+
+    // if content decisions returns that it's appropriate
+    // then return a StoryDecision object with this story
+    if (isStoryAppropriate) {
+      return new PerspectiveDecision(story, storyValues);
     }
 
     // otherwise throw the NoAppropriateStoryException

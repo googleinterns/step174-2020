@@ -13,15 +13,15 @@
 // limitations under the License.
 /**
  * JS for Perspective Page
- * features: display scores
+ * features: display analysis
  */
 
-// DISPLAY SCORES
+// DISPLAY ANALYSIS
 
 /** displays the Perspective scores for the text in the "text-for-analysis" element  */
-async function displayScores() {
+async function displayAnalysis() {
   /* eslint-disable no-unused-vars */
-  const input = document.getElementById('text-for-analysis').value;
+  let input = document.getElementById('text-for-analysis').value;
 
   if (input === '' || input === null) {
     alert('You need to enter a value');
@@ -31,19 +31,34 @@ async function displayScores() {
   // get display
   const display = document.getElementById('attributes');
 
+  // convert input into a form that can be sent in response body
+  const inputObj = {text: input};
+  const inputJSON = JSON.stringify(inputObj);
+
   // grab data and get its text version (it is sent as JSON)
-  const data = await fetch('/perspective', {method: 'post', text: input});
-  const ok = data.ok; // checks if status of response is an error
-  const json = await data.text();
+  const response = await fetch('/perspective', 
+    {
+      method: 'post', 
+      headers: {'Content-Type': 'application/json'},
+      body: inputJSON,
+    }
+  );
+
+  const ok = response.ok; // checks if status of response is an error
+  const data = await response.text();
 
   // parse the JSON into an object
-  const jsonObject = JSON.parse(json);
+  // if there was an error, should be a string error message 
+  // if there wasn't an error, should be an array such that 
+  // [decision (as boolean), scores (as map)]
+  const jsonObject = JSON.parse(data);
 
-  // properly format and display either the error message or the attribute array
+  // properly format and display either the error message or the results from Perspective
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);
   } else {
-    display.innerHTML = formatAttributeArray(jsonObject);
+    if (display.firstChild) display.firstChild.remove();
+    display.appendChild(formatResponse(jsonObject.isAppropriate, jsonObject.attributeTypesToScores));
   }
 }
 
@@ -58,26 +73,66 @@ function formatErrorMessage(message) {
 }
 
 /**
- * Formats an array of attributes into a HTML table.
+ * Adds HTML formatting to JSON response to display properly on page
+ * Constructs a table to display the attributes & display the
+ * decision from the JSON as "Approved" or "Disapproved" above table.
+ * Returns an element which is a div containing all this formatting.
  *
- * @param {object} attributes - an array of the values returned from the Perspective API
- * @return {string} - HTML table representing attributes array.
+ * @param {boolean} - decision the decision on whether it's appropriate
+ * @param {object} - attributes a map of attribute scores and types
+ * @return {object} - Element that displays attribute scores & decision
  */
-function formatAttributeArray(attributes) {
-  let html = '<table id="attribute-table">' +
-      '<tr><th>Attribute Type</th><th class="score">Score</th></tr>';
+function formatResponse(decision, attributes) {
+  const container = document.createElement('div');
 
-  for (let i = 0; i < attributes.length; i++) {
-    html += `<tr>` +
-        `<td>${uppercaseSnakeCaseToTitleCase(attributes[i].type)}</td>` +
-        `<td class="score" id="score-header">
-          ${(attributes[i].score * 100).toFixed(3)}%</td>` +
-        `</tr>`;
+  const approval = document.createElement('p');
+  approval.id = 'approval-status';
+
+  if (decision) {
+    approval.innerText = 'Approved';
+  } else {
+    approval.innerText = 'Not approved';
   }
 
-  html += '</table>';
+  // add the approval to the larger container
+  container.appendChild(approval);
 
-  return html;
+  const table = document.createElement('table');
+  table.id = 'attribute-table';
+
+  let index = 0;
+
+  // create a header & add appropriate titles
+  const header = table.insertRow(index);
+  const typeHeader = document.createElement('th');
+  typeHeader.innerText = 'Attribute Type';
+  const scoreHeader = document.createElement('th');
+  scoreHeader.innerText = 'Attribute Score';
+
+  header.appendChild(typeHeader);
+  header.appendChild(scoreHeader);
+
+  index++;
+
+  // construct the rows of the table using the data from attributes
+  for (const [key, value] of Object.entries(attributes)) {
+    const row = table.insertRow(index);
+
+    // create data element for type and set its text
+    const typeData = row.insertCell(0);
+    typeData.innerText = uppercaseSnakeCaseToTitleCase(key);
+
+    // create data element for score, set its text, and add a class type for it
+    const scoreData = row.insertCell(1);
+    scoreData.classList.add('score');
+    scoreData.innerText = (value * 100).toFixed(3);
+
+    index++;
+  }
+
+  container.append(table);
+
+  return container;
 }
 
 /**
