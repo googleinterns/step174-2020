@@ -94,6 +94,7 @@ public class AnalyzeImageServlet extends HttpServlet {
       // Filtration Check
       // StoryAnalysisManager storyAnalysisManager = new PerspectiveManager();
 
+
       final long timestamp = System.currentTimeMillis();
 
       // Add the input to datastore
