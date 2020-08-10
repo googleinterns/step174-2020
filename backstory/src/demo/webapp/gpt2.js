@@ -10,15 +10,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+/* eslint-disable no-unused-vars */
+
 /**
- * JS for GPT-2 Page
- * features: display story
+ * Sends request to text generation servlet and displays
+ * result to front end.
  */
-
-// DISPLAY STORY
-
 async function displayStory() {
-  /* eslint-disable no-unused-vars */
   const input = document.getElementById('prompt').value;
 
   if (input === '' || input === null) {
@@ -30,7 +28,7 @@ async function displayStory() {
 
   // get display
   const display = document.getElementById('story-display');
-  display.appendChild(formatResponse('Loading...'));
+  display.appendChild(formatResponse('Generating... Please be patient.'));
   // grab data and get its text version (it is sent as JSON)
   const response = await fetch('/gpt2', {
     method: 'post',
@@ -38,7 +36,7 @@ async function displayStory() {
     body: `{text: ${input}}`,
   });
 
-  const ok = response.ok;  // checks for server error
+  
   const data = await response.text();
 
   display.innerHTML = data;
@@ -47,7 +45,7 @@ async function displayStory() {
   const jsonObject = JSON.parse(data);
 
   console.log(jsonObject);
-
+  const ok = response.ok;  // checks for server error
   // properly format and display either the error message or the results
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);

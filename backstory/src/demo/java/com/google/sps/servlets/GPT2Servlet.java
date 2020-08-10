@@ -35,6 +35,10 @@ import org.json.JSONObject;
 /** Servlet that returns a generated story. */
 @WebServlet("/gpt2")
 public final class GPT2Servlet extends HttpServlet {
+  
+  public static final int DEFAULT_MAX_STORY_LENGTH = 200;
+  public static final Double DEFAULT_TEMPERATURE = 0.7;
+
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     response.setContentType("application/json;");
@@ -44,8 +48,8 @@ public final class GPT2Servlet extends HttpServlet {
 
     // get the text from the JSON & handle error if it cannot be converted
     try {
-      JSONObject jsonContainer = new JSONObject(json);
-      text = jsonContainer.getString("text");
+      JSONObject jsonObject = new JSONObject(json);
+      text = jsonObject.getString("text");
     } catch (JSONException exception) {
       String errorMessage = "Could not convert text sent to server from JSON.";
       System.out.println(text);
@@ -61,18 +65,17 @@ public final class GPT2Servlet extends HttpServlet {
     }
     String generatedText;
     try {
-      StoryManager storyManager = new StoryManagerImpl(text, 200, 0.7);
+      StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
       generatedText = storyManager.generateText();
-    } catch (Exception e) {
+    } catch (Exception exception) {
+      System.out.println(exception);
       // Displays if internal server error.
       handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server Error");
       return;
     }
 
-    String jsonText = gson.toJson(generatedText);
-
     // Return Generated Text as JSON
-    response.getWriter().println(jsonText);
+    response.getWriter().println(generatedText);
   }
 
   /**
