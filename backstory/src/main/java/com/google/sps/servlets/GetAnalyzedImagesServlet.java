@@ -20,6 +20,8 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.sps.servlets.data.AnalyzedImage;
@@ -32,24 +34,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * 
+ * Prototype Servlet for serving the GET request for the Vision-analyzed images resource.
  */
 @WebServlet("/analyzed-images")
 public class GetAnalyzedImagesServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Query to find all analyzed image entities.
-    Query query = new Query("analyzed-image");
+    Query query = new Query("analyzed-image").addSort("timestamp", SortDirection.DESCENDING);
+    // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
+    // Thus displaying the most recent story uploaded.
+    int onlyShowMostRecentStoryUploaded = 1;
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
     List<AnalyzedImage> analyzedImages = new ArrayList<>();
-    for (Entity entity : results.asIterable()) {
+    for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
       String imageUrl = (String) entity.getProperty("imageUrl");
-      String labelsJsonArray = (String) ((Text) entity.getProperty("labelsJsonArray")).getValue();
+      String backstory = (String) ((Text) entity.getProperty("backstory")).getValue();
 
-      analyzedImages.add(new AnalyzedImage(imageUrl, labelsJsonArray));
+      analyzedImages.add(new AnalyzedImage(imageUrl, backstory));
     }
 
     response.setContentType("application/json;");

@@ -89,7 +89,7 @@ public class AnalyzeImageServlet extends HttpServlet {
 
      // Sample parameterizations
       StoryManager storyManager = new StoryManagerImpl(prompt, 200, .7);
-      String backstory = storyManager.generateText();
+      Text backstory = new Text(storyManager.generateText());
 
       // Filtration Check
       // StoryAnalysisManager storyAnalysisManager = new PerspectiveManager();
@@ -106,7 +106,7 @@ public class AnalyzeImageServlet extends HttpServlet {
       datastore.put(analyzedImageEntity);
 
       // Redirect back to the HTML page.
-      response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
+      response.sendRedirect("/index.html");
     }
   }
 

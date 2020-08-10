@@ -22,7 +22,7 @@ function fetchBlobstoreUrl() {
         return response.text();
       })
       .then((imageUploadUrl) => {
-        const imageUploadForm = document.getElementById('image-upload');
+        const imageUploadForm = document.getElementById('photo-upload');
         imageUploadForm.action = imageUploadUrl;
       });
 }
@@ -32,13 +32,24 @@ function getAnalyzedImages() {
   fetch('/analyzed-images')
       .then((response) => response.json())
       .then((analyzedImageObject) => {
-        const storyDisplayElement = document.getElementById("story-display");
+        const storyDisplayElement = document.getElementById('story-display');
         storyDisplayElement.innerHTML = '';
 
-        const imageUrl = analyzedImageObject.imageUrl;
-        const backstory = analyzedImageObject.backstory;
+        if (analyzedImageObject.length === 1) {
+          const imageUrl = analyzedImageObject[0].imageUrl;
+          const backstory = analyzedImageObject[0].backstory;
 
-        storyDisplayElement.appendChild(createBackstoryElement(imageUrl, backstory));
+          console.log(analyzedImageObject);
+          console.log(imageUrl);
+          console.log(backstory);
+
+          if (storyDisplayElement.childNodes.length === 1) {
+            storyDisplayElement.replaceChild(
+              createBackstoryElement(imageUrl, backstory), storyDisplayElement.childNodes[0]);
+          } else {
+            storyDisplayElement.appendChild(createBackstoryElement(imageUrl, backstory));
+          }
+        }
       });
 }
 
@@ -47,10 +58,10 @@ function createBackstoryElement(imageUrl, backstory) {
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
 
-  const backstory = document.createTextNode(backstory);
+  const backstoryText = document.createTextNode(backstory);
 
   const backstoryElement = document.createElement('div');
-  backstoryElement.appendChild(imageElementDiv);
-  backstoryElement.appendChild(backstory);
+  backstoryElement.appendChild(imageElement);
+  backstoryElement.appendChild(backstoryText);
   return backstoryElement;
 }

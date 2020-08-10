@@ -14,14 +14,16 @@
 
 package com.google.sps.servlets.data;
 
-/** Represents an image analyzed with the Vison API */
+/**
+ *
+ */
 public final class AnalyzedImage {
   private final String imageUrl;
-  private final String labelsJsonArray;
+  private final String backstory;
 
-  public AnalyzedImage(String imageUrl, String labelsJsonArray) {
+  public AnalyzedImage(String imageUrl, String backstory) {
     this.imageUrl = imageUrl;
-    this.labelsJsonArray = labelsJsonArray;
+    this.backstory = backstory;
   }
 
   /** Get the ImageUrl */
@@ -29,11 +31,8 @@ public final class AnalyzedImage {
     return imageUrl;
   }
 
-  /**
-   * Get the array of JSON objects representing a the list of labels returned from Vision API for
-   * the labels
-   */
-  public String getLabelsJsonArray() {
-    return labelsJsonArray;
+  /** Get the backstory */
+  public String getBackstory() {
+    return backstory;
   }
 }

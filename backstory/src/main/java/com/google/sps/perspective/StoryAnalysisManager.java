@@ -21,7 +21,7 @@ import com.google.sps.perspective.data.StoryDecision;
  * Handles analysis of stories for content and provides a recommendation on
  * the "best" appropriate story (if multiple).
  */
-interface StoryAnalysisManager {
+public interface StoryAnalysisManager {
   /**
    * Analyzes the passed-in story and returns StoryDecision
    * containing decision based on analysis.
