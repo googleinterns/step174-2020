@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Perspective Demo</title>
+
+    <!-- Stylesheets and Fonts API -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
+    
+    <!-- Script Calls -->
+    <script src="perspective.js"></script>
+    
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.js"
+      integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      $(function () {
+        $("#nav-bar").load("nav-bar.html")
+      })
+    </script>
+  </head>
+
+  <body>
+    <div id="nav-bar"></div>
+
+    <div class="content demo-content vertical-flex-container" id="perspective-content">
+      <h1 class="header blue-header">Perspective Demo</h1>
+
+      <div class="demo-div vertical-flex-container" id="perspective-div">
+        <textarea id="text-for-analysis" name="text"></textarea>
+        <button type="button" onclick="displayAnalysis()">Analyze</button>
+
+        <div id="attributes"></div>
+      </div>
+    </div>
+  </body>
+</html>
