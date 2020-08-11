@@ -28,6 +28,7 @@ import com.google.sps.perspective.data.MockPerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveValues;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import org.junit.Assert;
@@ -166,19 +167,14 @@ public final class PerspectiveAPIClientTest {
     ArgumentCaptor<AnalyzeCommentRequest> requestCaptor = ArgumentCaptor.forClass(AnalyzeCommentRequest.class);
     verify(mockAPI).analyze(requestCaptor.capture()); 
 
-    AnalyzeCommentRequest actual = requestCaptor.getValue();
+    AnalyzeCommentRequest request = requestCaptor.getValue();
 
     // check that the entry to score and requested attributes are as expected
-    Assert.assertEquals(DEFAULT_TEXT, actual.getComment().getText()); // check text
-    Assert.assertEquals(ContentType.PLAIN_TEXT, actual.getComment().getType()); // check content type
+    Assert.assertEquals(DEFAULT_TEXT, request.getComment().getText()); // check text
+    Assert.assertEquals(ContentType.PLAIN_TEXT, request.getComment().getType()); // check content type
 
-    Map<AttributeType, RequestedAttribute> requestedAttributes = actual.getRequestedAttributes();
+    Map<AttributeType, RequestedAttribute> requestedAttributes = request.getRequestedAttributes();
 
-    Assert.assertEquals(DESIRED_TYPES.size(), requestedAttributes.size()); // check number of requested types
-    
-    // check that the types requested match
-    for (AttributeType type: DESIRED_TYPES) {
-      Assert.assertTrue(requestedAttributes.containsKey(type));
-    }
+    Assert.assertEquals(new HashSet(DESIRED_TYPES), requestedAttributes.keySet());
   }
 }
