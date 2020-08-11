@@ -16,12 +16,19 @@ package com.google.sps.perspective;
 
 import static org.mockito.Mockito.*;
 
+import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
+import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest;
+import au.com.origma.perspectiveapi.v1alpha1.models.AnalyzeCommentRequest.Builder;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
+import au.com.origma.perspectiveapi.v1alpha1.models.ContentType;
+import au.com.origma.perspectiveapi.v1alpha1.models.Entry;
+import au.com.origma.perspectiveapi.v1alpha1.models.RequestedAttribute;
 import com.google.common.collect.ImmutableList;
 import com.google.sps.perspective.data.MockPerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveValues;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import org.junit.Assert;
@@ -145,5 +152,29 @@ public final class PerspectiveAPIClientTest {
     }
   }
 
-  // TODO: add a test that checks that the correct AnalyzeCommentRequest is passed to PerspectiveAPI
+  /**
+   * Check that the correct AnalyzeCommentRequest is passed to the Perspective API 
+   * by checking all values of AnalyzeCommentRequest that are set by PerspectiveAPIClient.
+   */
+  @Test
+  public void checkRequest() {
+    MockPerspectiveAPIFactory factory = new MockPerspectiveAPIFactory(new HashMap<AttributeType, Float>()); 
+    PerspectiveAPI mockAPI = factory.newInstance();
+    PerspectiveAPIClient client = new PerspectiveAPIClient(mockAPI);
+
+    PerspectiveValues values = client.analyze(DESIRED_TYPES, DEFAULT_TEXT);
+
+    ArgumentCaptor<AnalyzeCommentRequest> requestCaptor = ArgumentCaptor.forClass(AnalyzeCommentRequest.class);
+    verify(mockAPI).analyze(requestCaptor.capture()); 
+
+    AnalyzeCommentRequest request = requestCaptor.getValue();
+
+    // check that the entry to score and requested attributes are as expected
+    Assert.assertEquals(DEFAULT_TEXT, request.getComment().getText()); // check text
+    Assert.assertEquals(ContentType.PLAIN_TEXT, request.getComment().getType()); // check content type
+
+    Map<AttributeType, RequestedAttribute> requestedAttributes = request.getRequestedAttributes();
+
+    Assert.assertEquals(new HashSet(DESIRED_TYPES), requestedAttributes.keySet());
+  }
 }
