@@ -12,6 +12,8 @@
 // limitations under the License.
 /* eslint-disable no-unused-vars */
 
+// DISPLAY STORY
+
 /**
  * Sends request to text generation servlet and displays
  * result to front end.
@@ -36,7 +38,6 @@ async function displayStory() {
     body: `{text: ${input}}`,
   });
 
-  
   const data = await response.text();
 
   display.innerHTML = data;
@@ -44,7 +45,6 @@ async function displayStory() {
   // parse the JSON into an object
   const jsonObject = JSON.parse(data);
 
-  console.log(jsonObject);
   const ok = response.ok;  // checks for server error
   // properly format and display either the error message or the results
   if (!ok) {
@@ -78,7 +78,6 @@ function formatResponse(text) {
   generatedText.id = 'outputText';
 
   generatedText.innerText = text;
-
 
   // add the approval to the larger container
   container.appendChild(generatedText);
