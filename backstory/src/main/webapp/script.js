@@ -27,30 +27,38 @@ function fetchBlobstoreUrl() {
       });
 }
 
-/** Adds the  analyzed images to the image-list unordered list element */
+/**
+ *
+ */
 function getAnalyzedImages() {
-  fetch('/analyzed-images')
+  fetch('/backstory')
       .then((response) => response.json())
-      .then((analyzedImageObject) => {
-        const storyDisplayElement = document.getElementById('story-display');
-        storyDisplayElement.innerHTML = '';
-
-        if (analyzedImageObject.length === 1) {
-          const imageUrl = analyzedImageObject[0].imageUrl;
-          const backstory = analyzedImageObject[0].backstory;
-
-          console.log(analyzedImageObject);
-          console.log(imageUrl);
+      .then((backstoryObject) => {
+        console.log(backstoryObject);
+        
+        if (backstoryObject.length !== 0){
+          // Only support returning a single backstory at the moment
+          const backstory = backstoryObject[0].backstory;
+          console.log(backstoryObject)
           console.log(backstory);
 
-          if (storyDisplayElement.childNodes.length === 1) {
-            storyDisplayElement.replaceChild(
-              createBackstoryElement(imageUrl, backstory), storyDisplayElement.childNodes[0]);
-          } else {
-            storyDisplayElement.appendChild(createBackstoryElement(imageUrl, backstory));
-          }
+          fetch('/analyzed-images')
+              .then((response) => response.blob())
+              .then((blob) => {
+                const storyDisplayElement = document.getElementById('story-display');
+                storyDisplayElement.innerHTML = '';
+                const urlCreator = window.URL;
+                const imageUrl = urlCreator.createObjectURL(blob);
+
+                if (storyDisplayElement.childNodes.length === 1) {
+                storyDisplayElement.replaceChild(
+                  createBackstoryElement(imageUrl, backstory), storyDisplayElement.childNodes[0]);
+                } else {
+                  storyDisplayElement.appendChild(createBackstoryElement(imageUrl, backstory));
+                }
+              });
         }
-      });
+      });  
 }
 
 /** @return {Element} containing the analyzed image with its story */

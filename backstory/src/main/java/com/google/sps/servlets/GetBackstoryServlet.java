@@ -22,12 +22,8 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.sps.servlets.data.AnalyzedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +31,15 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.NullPointerException;
+import com.google.sps.servlets.data.Backstory;
 
 /**
  *
  */
-@WebServlet("/analyzed-images")
-public class GetAnalyzedImagesServlet extends HttpServlet {
+@WebServlet("/backstory")
+public class GetBackstoryServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-
     // Query to find all analyzed image entities.
     Query query = new Query("analyzed-image").addSort("timestamp", SortDirection.DESCENDING);
     // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
@@ -55,15 +49,17 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    BlobKey blobKey = null;
+    List<Backstory> backstories = new ArrayList<>();
     for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
-      blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
+      Backstory backstory = new Backstory(
+          (String) ((Text) entity.getProperty("backstory")).getValue());
+      backstories.add(backstory);
     }
 
-    if (blobKey == null) {
-      throw new NullPointerException("No image(s) were uploaded, this servlet should not have been called.");
-    }
-
-    blobstoreService.serve(blobKey, response);
+    response.setContentType("application/json;");
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    String backstoriesJsonArray = gson.toJson(backstories);
+    System.out.println(backstoriesJsonArray);
+    response.getWriter().println(backstoriesJsonArray);
   }
 }

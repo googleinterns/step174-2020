@@ -23,8 +23,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.images.ImagesService;
-import com.google.appengine.api.images.ImagesServiceFactory;
 import com.google.appengine.api.images.ServingUrlOptions;
 import com.google.protobuf.ByteString;
 import com.google.sps.images.data.AnnotatedImage;
@@ -63,13 +61,13 @@ public class AnalyzeImageServlet extends HttpServlet {
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
-    // Get the URL of the image that the user uploaded to Blobstore.
-    final String imageUrl = getUploadedFileUrl(request, "image-upload");
+    // 
+    final String blobKeyString = getUploadedFileBlobKeyString(request, "image-upload");
 
     // Get the raw byte array representing the image from Blobstore
     final byte[] bytes = getBlobBytes(request, "image-upload");
 
-    if (bytes == null || imageUrl == null) {
+    if (bytes == null || blobKeyString == null) {
       // Redirect back to the HTML page.
       response.sendError(400, "Please upload a valid image.");
 
@@ -99,7 +97,7 @@ public class AnalyzeImageServlet extends HttpServlet {
 
       // Add the input to datastore
       Entity analyzedImageEntity = new Entity("analyzed-image");
-      analyzedImageEntity.setProperty("imageUrl", imageUrl);
+      analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
       analyzedImageEntity.setProperty("backstory", backstory);
       analyzedImageEntity.setProperty("timestamp", timestamp);
 
@@ -111,8 +109,10 @@ public class AnalyzeImageServlet extends HttpServlet {
     }
   }
 
-  /** Returns a URL that points to the uploaded file, or null if the user didn't upload a file. */
-  private String getUploadedFileUrl(HttpServletRequest request, String formInputElementName) {
+  /**
+   *
+   */
+  private String getUploadedFileBlobKeyString(HttpServletRequest request, String formInputElementName) {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(formInputElementName);
@@ -131,22 +131,14 @@ public class AnalyzeImageServlet extends HttpServlet {
       blobstoreService.delete(blobKey);
       return null;
     }
-
-    // Use ImagesService to get a URL that points to the uploaded file.
-    ImagesService imagesService = ImagesServiceFactory.getImagesService();
-    ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
-
-    // To support running in Google Cloud Shell with AppEngine's devserver, we must use the relative
-    // path to the image, rather than the path returned by imagesService which contains a host.
-    try {
-      URL url = new URL(imagesService.getServingUrl(options));
-      return url.getPath();
-    } catch (MalformedURLException e) {
-      return imagesService.getServingUrl(options);
-    }
+     
+    String blobKeyString = blobKey.getKeyString();
+    return blobKeyString;
   }
 
-  /** Returns image byte data from BlobKey of image stored with Blobstore. */
+  /** 
+   *
+   */
   private byte[] getBlobBytes(HttpServletRequest request, String formInputElementName)
       throws IOException {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
