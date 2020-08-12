@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* exported fetchBlobstoreUrl getAnalyzedImages createBackstoryLoadingElement */
+
 /**
  *
  */
@@ -33,34 +35,36 @@ function getAnalyzedImages() {
   fetch('/backstory')
       .then((response) => response.json())
       .then((backstoryObject) => {
-        
-        if (backstoryObject.length !== 0){
+        if (backstoryObject.length !== 0) {
           // Only support returning a single backstory at the moment
           const backstory = backstoryObject[0].backstory;
 
           fetch('/analyzed-images')
               .then((response) => response.blob())
               .then((blob) => {
-                const storyDisplayElement = document.getElementById('story-display');
+                const storyDisplayElement =
+                    document.getElementById('story-display');
                 storyDisplayElement.innerHTML = '';
                 const urlCreator = window.URL;
                 const imageUrl = urlCreator.createObjectURL(blob);
 
                 if (storyDisplayElement.childNodes.length === 1) {
-                storyDisplayElement.replaceChild(
-                  createBackstoryElement(imageUrl, backstory), storyDisplayElement.childNodes[0]);
+                  storyDisplayElement.replaceChild(
+                      createBackstoryElement(imageUrl, backstory),
+                      storyDisplayElement.childNodes[0]);
                 } else {
-                  storyDisplayElement.appendChild(createBackstoryElement(imageUrl, backstory));
+                  storyDisplayElement.appendChild(
+                      createBackstoryElement(imageUrl, backstory));
                 }
               });
         }
-      });  
+      });
 }
 
 /**
  *
  */
-function createBackstoryElement(imageUrl, backstory) {  
+function createBackstoryElement(imageUrl, backstory) {
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
 
@@ -87,7 +91,8 @@ function createBackstoryLoadingElement() {
 
   const backstoryLoadingParagraphDiv = document.createElement('div');
   const backstoryLoadingParagraph = document.createElement('p');
-  const backstoryLoadingText = document.createTextNode("Your backstory is loading, please be patient :)");
+  const backstoryLoadingText = document.createTextNode(
+      'Your backstory is loading, please be patient :)');
   backstoryLoadingParagraph.appendChild(backstoryLoadingText);
   backstoryLoadingParagraphDiv.appendChild(backstoryLoadingParagraph);
   backstoryLoadingParagraphDiv.classList.add('backstory-paragraph');
@@ -96,10 +101,11 @@ function createBackstoryLoadingElement() {
   backstoryLoadingElement.classList.add('backstory-element');
   backstoryLoadingElement.appendChild(backstoryLoadingIcon);
   backstoryLoadingElement.appendChild(backstoryLoadingParagraphDiv);
-  
+
   const storyDisplayElement = document.getElementById('story-display');
   if (storyDisplayElement.childNodes.length === 1) {
-    storyDisplayElement.replaceChild(backstoryLoadingElement, storyDisplayElement.childNodes[0]);
+    storyDisplayElement.replaceChild(
+        backstoryLoadingElement, storyDisplayElement.childNodes[0]);
   } else {
     storyDisplayElement.appendChild(backstoryLoadingElement);
   }

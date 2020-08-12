@@ -25,14 +25,14 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.images.ServingUrlOptions;
 import com.google.protobuf.ByteString;
-import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.images.ImagesManager;
 import com.google.sps.images.VisionImagesManager;
+import com.google.sps.images.data.AnnotatedImage;
+import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
+import com.google.sps.perspective.StoryAnalysisManager;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
-import com.google.sps.perspective.PerspectiveManager;
-import com.google.sps.perspective.StoryAnalysisManager;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -55,13 +55,13 @@ public class AnalyzeImageServlet extends HttpServlet {
    * Expecting a post request from Blobstore containing the data fields from the image-upload
    * form. After having gone through Blobstore, the request will include the image uploaded. The
    * form in the HTML will connect to the Blobstore URL, which encodes the image and then
-   * redirects the request to this Url. 
+   * redirects the request to this Url.
    *
    * TO-DO
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
-    // 
+    //
     final String blobKeyString = getUploadedFileBlobKeyString(request, "image-upload");
 
     // Get the raw byte array representing the image from Blobstore
@@ -76,7 +76,8 @@ public class AnalyzeImageServlet extends HttpServlet {
       ImagesManager imagesManager = new VisionImagesManager();
       List<byte[]> imagesAsByteArrays = new ArrayList<>();
       imagesAsByteArrays.add(bytes);
-      List<AnnotatedImage> annotatedImages = imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
+      List<AnnotatedImage> annotatedImages =
+          imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
       // There wil only be one image uploaded at a time for the demo
       AnnotatedImage annotatedImage = annotatedImages.get(0);
       List<String> descriptions = annotatedImage.getLabelDescriptions();
@@ -85,13 +86,12 @@ public class AnalyzeImageServlet extends HttpServlet {
       // The delimiter for the MVP will be "and"
       String prompt = promptManager.generatePrompt(" and ");
 
-     // Sample parameterizations
+      // Sample parameterizations
       StoryManager storyManager = new StoryManagerImpl(prompt, 200, .7);
       Text backstory = new Text(storyManager.generateText());
 
       // Filtration Check
       // StoryAnalysisManager storyAnalysisManager = new PerspectiveManager();
-
 
       final long timestamp = System.currentTimeMillis();
 
@@ -112,7 +112,8 @@ public class AnalyzeImageServlet extends HttpServlet {
   /**
    *
    */
-  private String getUploadedFileBlobKeyString(HttpServletRequest request, String formInputElementName) {
+  private String getUploadedFileBlobKeyString(
+      HttpServletRequest request, String formInputElementName) {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
     List<BlobKey> blobKeys = blobs.get(formInputElementName);
@@ -131,12 +132,12 @@ public class AnalyzeImageServlet extends HttpServlet {
       blobstoreService.delete(blobKey);
       return null;
     }
-     
+
     String blobKeyString = blobKey.getKeyString();
     return blobKeyString;
   }
 
-  /** 
+  /**
    *
    */
   private byte[] getBlobBytes(HttpServletRequest request, String formInputElementName)

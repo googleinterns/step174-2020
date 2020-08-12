@@ -14,28 +14,28 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.PreparedQuery;
-import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Text;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.sps.servlets.data.AnalyzedImage;
 import java.io.IOException;
+import java.lang.NullPointerException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.NullPointerException;
 
 /**
  *
@@ -56,12 +56,14 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
     PreparedQuery results = datastore.prepare(query);
 
     BlobKey blobKey = null;
-    for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
+    for (Entity entity :
+        results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
       blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
     }
 
     if (blobKey == null) {
-      throw new NullPointerException("No image(s) were uploaded, this servlet should not have been called.");
+      throw new NullPointerException(
+          "No image(s) were uploaded, this servlet should not have been called.");
     }
 
     blobstoreService.serve(blobKey, response);
