@@ -12,6 +12,11 @@
 // limitations under the License.
 /* eslint-disable no-unused-vars */
 
+/**
+ * JS for GPT2 Page
+ * features: display story
+ */
+
 // DISPLAY STORY
 
 /**
