@@ -13,8 +13,7 @@
 // limitations under the License.
 
 /**
- * Fetches the URL for uploading to Blobstore and adds it to the image upload
- * form
+ *
  */
 function fetchBlobstoreUrl() {
   fetch('/blobstore-upload-url')
@@ -34,13 +33,10 @@ function getAnalyzedImages() {
   fetch('/backstory')
       .then((response) => response.json())
       .then((backstoryObject) => {
-        console.log(backstoryObject);
         
         if (backstoryObject.length !== 0){
           // Only support returning a single backstory at the moment
           const backstory = backstoryObject[0].backstory;
-          console.log(backstoryObject)
-          console.log(backstory);
 
           fetch('/analyzed-images')
               .then((response) => response.blob())
@@ -61,15 +57,50 @@ function getAnalyzedImages() {
       });  
 }
 
-/** @return {Element} containing the analyzed image with its story */
+/**
+ *
+ */
 function createBackstoryElement(imageUrl, backstory) {  
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
 
+  const backstoryParagraphDiv = document.createElement('div');
+  const backstoryParagraph = document.createElement('p');
   const backstoryText = document.createTextNode(backstory);
+  backstoryParagraph.appendChild(backstoryText);
+  backstoryParagraphDiv.appendChild(backstoryParagraph);
+  backstoryParagraphDiv.classList.add('backstory-paragraph');
 
   const backstoryElement = document.createElement('div');
+  backstoryElement.classList.add('backstory-element');
   backstoryElement.appendChild(imageElement);
-  backstoryElement.appendChild(backstoryText);
+  backstoryElement.appendChild(backstoryParagraphDiv);
   return backstoryElement;
+}
+
+/**
+ *
+ */
+function createBackstoryLoadingElement() {
+  const backstoryLoadingIcon = document.createElement('div');
+  backstoryLoadingIcon.classList.add('backstory-loading');
+
+  const backstoryLoadingParagraphDiv = document.createElement('div');
+  const backstoryLoadingParagraph = document.createElement('p');
+  const backstoryLoadingText = document.createTextNode("Your backstory is loading, please be patient :)");
+  backstoryLoadingParagraph.appendChild(backstoryLoadingText);
+  backstoryLoadingParagraphDiv.appendChild(backstoryLoadingParagraph);
+  backstoryLoadingParagraphDiv.classList.add('backstory-paragraph');
+
+  const backstoryLoadingElement = document.createElement('div');
+  backstoryLoadingElement.classList.add('backstory-element');
+  backstoryLoadingElement.appendChild(backstoryLoadingIcon);
+  backstoryLoadingElement.appendChild(backstoryLoadingParagraphDiv);
+  
+  const storyDisplayElement = document.getElementById('story-display');
+  if (storyDisplayElement.childNodes.length === 1) {
+    storyDisplayElement.replaceChild(backstoryLoadingElement, storyDisplayElement.childNodes[0]);
+  } else {
+    storyDisplayElement.appendChild(backstoryLoadingElement);
+  }
 }

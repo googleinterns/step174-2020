@@ -36,6 +36,42 @@ body {
   flex-direction: column;
 }
 
+.backstory-element {
+  margin: 25px auto;
+  text-align: center;
+  width: 40vw;
+}
+
+.backstory-element img {
+  width: 100%;
+  box-shadow: 
+    0 0 0 2px var(--dark-cornflower-blue),
+    0 0 0 4px var(--saffron),
+    0 0 0 6px var(--congo-pink),
+    0 0 0 8px var(--bittersweet),
+    0 0 0 10px var(--blue-yonder);
+}
+
+.backstory-paragraph {
+  margin-top: 15px;
+}
+
+@keyframes loading {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.backstory-loading {
+  animation: loading 2s linear infinite;
+  border-top: 16px solid var(--dark-cornflower-blue);
+  border-right: 16px solid var(--saffron);
+  border-bottom: 16px solid var(--congo-pink);
+  border-left: 16px solid var(--bittersweet);
+  border-radius: 50%;
+  height: 120px;
+  margin: 0px auto;
+  width: 120px;
+}
+
 button {
   font-family: 'Lato', sans-serif; /* override Arial for buttons */
   letter-spacing: 0.08em; /* give more space between Roboto letters */
@@ -156,7 +192,6 @@ textarea {
 
 #story-display {
   color: var(--oxford-blue);
-  width: 50%;
 }
 
 /* Demos Page */
