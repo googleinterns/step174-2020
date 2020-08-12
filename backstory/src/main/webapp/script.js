@@ -15,7 +15,8 @@
 /* exported fetchBlobstoreUrl getAnalyzedImages createBackstoryLoadingElement */
 
 /**
- *
+ * On load of the application, this function fetches the blobstore Url and sets it as the action
+ * of the photo-upload form.
  */
 function fetchBlobstoreUrl() {
   fetch('/blobstore-upload-url')
@@ -29,7 +30,9 @@ function fetchBlobstoreUrl() {
 }
 
 /**
- *
+ * This function interfaces with the back-end to get the user's photo upload along, with the relevant
+ * backstory, from permanent storage. No analysis or computation is done from this interface with the
+ * backend.
  */
 function getAnalyzedImages() {
   fetch('/backstory')
@@ -62,7 +65,13 @@ function getAnalyzedImages() {
 }
 
 /**
+ * Helper function to format the image and backstory combination into one element. This element
+ * and it's components have classes added to them for front-end purposes - the classes can be found
+ * in the project style.css file.
  *
+ * @param {string} imageUrl the url created to display the user-uploaded image.
+ * @param {string} backstory the backstory text
+ * @return {element} the HTML DOM element consisting of the uploaded image and the backstory text.
  */
 function createBackstoryElement(imageUrl, backstory) {
   const imageElement = document.createElement('img');
@@ -83,7 +92,8 @@ function createBackstoryElement(imageUrl, backstory) {
 }
 
 /**
- *
+ * Helper function to create and set a loading element to display after the photo-upload
+ * form is submitted, while image is being analyzed and the backstory is being created.
  */
 function createBackstoryLoadingElement() {
   const backstoryLoadingIcon = document.createElement('div');
