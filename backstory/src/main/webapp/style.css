@@ -126,11 +126,11 @@ textarea {
   letter-spacing: 0.04em;
 }
 
-#photo-upload {
+#home-content #photo-upload {
   text-align: center;
 }
 
-#image-upload {
+#home-content #image-upload {
   background-color: white;
   border: solid thick var(--saffron);
   border-radius: 5px;
@@ -224,6 +224,68 @@ textarea {
   color: white;
   font-size: 16px;
   font-weight: bold;
+}
+
+/* Vision Demo Page */
+#upload-form-div {
+  align-items: center;
+  width: 80%;
+}
+
+#image-upload-form {
+  text-align: center;
+  width: 100%;
+}
+
+/** Make the image upload input invisible */
+.file-input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+/** Make visible label pressable */
+.file-input + label {
+  cursor: pointer;
+}
+
+#image-upload-form label {
+  color: var(--oxford-blue);
+  font-size: 17px;
+  font-weight: bold;
+  margin: 10px;
+}
+
+#image-upload-form button {
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
+  height: 45px;
+  margin: 20px;
+  width: 100px;
+}
+
+.row {
+  align-items: center;
+  color: var(--oxford-blue);
+  margin: 20px;
+}
+
+.row .image {
+  margin: 0px 20px;
+  width: 250px;
+}
+
+#labels-table {
+  border: 1px solid var(--oxford-blue);
+  margin: 5px;
+}
+
+.labels-table-cell {
+  border: 1px solid var(--oxford-blue);
+  padding: 5px;
 }
 
 /* GPT-2 Demo Page */

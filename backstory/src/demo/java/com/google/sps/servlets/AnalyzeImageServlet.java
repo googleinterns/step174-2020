@@ -60,10 +60,10 @@ public class AnalyzeImageServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
     // Get the URL of the image that the user uploaded to Blobstore.
-    final String imageUrl = getUploadedFileUrl(request, "image-upload");
+    final String imageUrl = getUploadedFileUrl(request, "image-upload-form");
 
     // Get the raw byte array representing the image from Blobstore
-    final byte[] bytes = getBlobBytes(request, "image-upload");
+    final byte[] bytes = getBlobBytes(request, "image-upload-form");
 
     if (bytes == null || imageUrl == null) {
       // Redirect back to the HTML page.
@@ -88,7 +88,7 @@ public class AnalyzeImageServlet extends HttpServlet {
       datastore.put(analyzedImageEntity);
 
       // Redirect back to the HTML page.
-      response.sendRedirect("/vision-upload-prototype/vision-demo.html#image-upload");
+      response.sendRedirect("vision-demo.html#image-upload");
     }
   }
 

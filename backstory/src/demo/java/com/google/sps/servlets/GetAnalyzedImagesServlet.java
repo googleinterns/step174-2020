@@ -44,7 +44,7 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery results = datastore.prepare(query);
 
-    List<AnalyzedImage> analyzedImages = new ArrayList<>();
+    List<AnalyzedImage> analyzedImages = new ArrayList<AnalyzedImage>();
     for (Entity entity : results.asIterable()) {
       String imageUrl = (String) entity.getProperty("imageUrl");
       String labelsJsonArray = (String) ((Text) entity.getProperty("labelsJsonArray")).getValue();
