@@ -16,6 +16,8 @@
  * features: display analysis
  */
 
+/* exported displayAnalysis */
+
 // DISPLAY ANALYSIS
 
 /** displays the Perspective scores for the text in the "text-for-analysis" element  */

@@ -18,6 +18,8 @@
  * display correct file upload
  */
 
+ /* exported fetchBlobstoreUrl getAnalyzedImages updateFileName */
+
 // FETCH BLOBSTORE URL
 
 /**
