@@ -13,7 +13,7 @@
     />
 
     <link rel="stylesheet" href="style.css" />
-    
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
@@ -44,7 +44,7 @@
       <form id="photo-upload" method="post" enctype="multipart/form-data">
         <div class="vertical-flex-container" id="photo-upload-div">
           <label id="upload-label" for="image-upload">Upload Your Image...</label>
-          <input class="file-input" type="file" id="image-upload" name="image-upload" onchange="updateFileName()"/>
+          <input class="file-input" type="file" id="image-upload" name="image-upload" onchange="updateFileName()" />
           <button type="submit" id="submit-button" onclick="createBackstoryLoadingElement()">Submit</button>
         </div>
       </form>

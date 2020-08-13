@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* JS for Home page 
+/* JS for Home page
  * features: get blobstore url, retrieve analyzed images,
  * create loading element, and update file upload label
  */
 
-/* exported fetchBlobstoreUrl getAnalyzedImages createBackstoryLoadingElement */
+/* exported fetchBlobstoreUrl getAnalyzedImages
+   createBackstoryLoadingElement updateFileName */
 
 // FETCH BLOBSTORE URL
 
@@ -114,8 +115,8 @@ function createBackstoryLoadingElement() {
 
   const backstoryLoadingParagraphDiv = document.createElement('div');
   const backstoryLoadingParagraph = document.createElement('p');
-  const backstoryLoadingText = document.createTextNode(
-      'Your backstory is loading! Please be patient.');
+  const backstoryLoadingText =
+      document.createTextNode('Your backstory is loading! Please be patient.');
   backstoryLoadingParagraph.appendChild(backstoryLoadingText);
   backstoryLoadingParagraphDiv.appendChild(backstoryLoadingParagraph);
   backstoryLoadingParagraphDiv.classList.add('backstory-paragraph');
@@ -145,10 +146,10 @@ function updateFileName() {
   const label = document.getElementById('upload-label');
 
   if (fileInput.files) {
-    if (fileInput.files.length > 1)  {
+    if (fileInput.files.length > 1) {
       label.innerText = `${fileInput.files.length} files selected`;
     } else {
       label.innerText = fileInput.files.item(0).name;
     }
   }
-} 
+}
