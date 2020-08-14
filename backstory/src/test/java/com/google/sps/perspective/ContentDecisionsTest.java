@@ -17,6 +17,7 @@ package com.google.sps.perspective;
 import static org.mockito.Mockito.*;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.perspective.data.ContentDecisions;
 import com.google.sps.perspective.data.PerspectiveValues;
 import java.util.HashMap;
@@ -35,6 +36,11 @@ import org.mockito.stubbing.Answer;
 @RunWith(JUnit4.class)
 public final class ContentDecisionsTest {
 
+  /** the types used as criteria for the content decisions */
+  private static final ImmutableList<AttributeType> CRITERIA = ImmutableList.of(AttributeType.TOXICITY,
+      AttributeType.SEXUALLY_EXPLICIT, AttributeType.PROFANITY, AttributeType.IDENTITY_ATTACK,
+      AttributeType.OBSCENE);
+
   /** a PerspectiveValue object to be used as input for ContentDecisions class */
   private static PerspectiveValues input;
   /** a Map to be used as the attributeTypesToScores field of input */
@@ -43,6 +49,11 @@ public final class ContentDecisionsTest {
   @Before 
   public void setUp() {
     inputScores = new HashMap<AttributeType, Float>();
+
+    // set all criteria to 0 at the moment (so default is it's appropriate)
+    for (AttributeType type: CRITERIA) {
+      inputScores.put(type, 0f);
+    }
   }
 
   /**
@@ -61,10 +72,61 @@ public final class ContentDecisionsTest {
    * to ensure that an IllegalArgumentException will be thrown.
    */
   @Test (expected = IllegalArgumentException.class)
-  public void noToxicityInput() {
-    input = new PerspectiveValues("foo", inputScores); // no toxicity score has been added yet
+  public void noToxicityScore() {
+    inputScores.remove(AttributeType.TOXICITY);
+
+    input = new PerspectiveValues("foo", inputScores); 
     ContentDecisions.makeDecision(input); // should be the line causing the error
   }
+
+  /**
+   * Call makeDecision with a PerspectiveValues with a Map without a sexually explicit score 
+   * to ensure that an IllegalArgumentException will be thrown.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void noSexuallyExplicitScore() {
+    inputScores.remove(AttributeType.SEXUALLY_EXPLICIT);
+
+    input = new PerspectiveValues("foo", inputScores); 
+    ContentDecisions.makeDecision(input); // should be the line causing the error
+  }
+
+  /**
+   * Call makeDecision with a PerspectiveValues with a Map without a profanity score 
+   * to ensure that an IllegalArgumentException will be thrown.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void noProfanityScore() {
+    inputScores.remove(AttributeType.PROFANITY);
+
+    input = new PerspectiveValues("foo", inputScores); 
+    ContentDecisions.makeDecision(input); // should be the line causing the error
+  }
+
+  /**
+   * Call makeDecision with a PerspectiveValues with a Map without an identity attack score 
+   * to ensure that an IllegalArgumentException will be thrown.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void noIdentityAttackScore() {
+    inputScores.remove(AttributeType.IDENTITY_ATTACK);
+
+    input = new PerspectiveValues("foo", inputScores); 
+    ContentDecisions.makeDecision(input); // should be the line causing the error
+  }
+
+  /**
+   * Call makeDecision with a PerspectiveValues with a Map without an obscenity score 
+   * to ensure that an IllegalArgumentException will be thrown.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void noObscenityScore() {
+    inputScores.remove(AttributeType.OBSCENE);
+
+    input = new PerspectiveValues("foo", inputScores); 
+    ContentDecisions.makeDecision(input); // should be the line causing the error
+  }
+  
 
   /**
    * Check that ContentDecisions makeDecision returns that PerspectiveValues
@@ -121,6 +183,258 @@ public final class ContentDecisionsTest {
     final float VERY_HIGH_TOXICITY = .9f;
 
     inputScores.put(AttributeType.TOXICITY, VERY_HIGH_TOXICITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision returns that PerspectiveValues
+   * with low scores for sexually explicit material (below 60% threshold) 
+   * is appropriate (thus true as return).
+   */
+  @Test
+  public void checkDecisionForLowSexuallyExplicit() {
+    // check with a pretty low sexually explicit score (far below 60%)
+    final float VERY_LOW_SEXUALLY_EXPLICIT = .25f;
+
+    inputScores.put(AttributeType.SEXUALLY_EXPLICIT, VERY_LOW_SEXUALLY_EXPLICIT);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+
+    // check with a sexually explicit score just below 60%
+    final float LOW_SEXUALLY_EXPLICIT = .59f;
+    inputScores.put(AttributeType.SEXUALLY_EXPLICIT, LOW_SEXUALLY_EXPLICIT);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision() returns that PerspectiveValues
+   * with threshold sexually explicit material (exactly 60%) is inappropiate 
+   * (thus false as return).
+   */
+  @Test
+  public void checkDecisionForThresholdSexuallyExplicit() {
+    // check with the threshold sexually explicit score
+    final float THRESHOLD_SEXUALLY_EXPLICIT = .6f;
+
+    inputScores.put(AttributeType.SEXUALLY_EXPLICIT, THRESHOLD_SEXUALLY_EXPLICIT);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions returns that PerspectiveValues
+   * with high sexually explicit material (above 60% threshold) 
+   * is inappropiate (thus false as return).
+   */
+  @Test
+  public void checkDecisionForHighSexuallyExplicit() {
+    // check with high sexually explicit score (but just above threshold)
+    final float HIGH_SEXUALLY_EXPLICIT = .61f;
+
+    inputScores.put(AttributeType.SEXUALLY_EXPLICIT, HIGH_SEXUALLY_EXPLICIT);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+
+    // check with very high sexually explicit score (well above threshold)
+    final float VERY_HIGH_SEXUALLY_EXPLICIT = .8f;
+
+    inputScores.put(AttributeType.SEXUALLY_EXPLICIT, VERY_HIGH_SEXUALLY_EXPLICIT);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision returns that PerspectiveValues
+   * with low scores for profane material (below 80% threshold) 
+   * is appropriate (thus true as return).
+   */
+  @Test
+  public void checkDecisionForLowProfanity() {
+    // check with a pretty low profanity score (far below 80%)
+    final float VERY_LOW_PROFANITY = .35f;
+
+    inputScores.put(AttributeType.PROFANITY, VERY_LOW_PROFANITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+
+    // check with a sexually explicit score just below 80%
+    final float LOW_PROFANITY = .79f;
+    inputScores.put(AttributeType.PROFANITY, LOW_PROFANITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision() returns that PerspectiveValues
+   * with threshold profane material (exactly 80%) is inappropiate 
+   * (thus false as return).
+   */
+  @Test
+  public void checkDecisionForThresholdProfanity() {
+    // check with the threshold sexually explicit score
+    final float THRESHOLD_PROFANITY = .8f;
+
+    inputScores.put(AttributeType.PROFANITY, THRESHOLD_PROFANITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions returns that PerspectiveValues
+   * with highly profane material (above 80% threshold) 
+   * is inappropiate (thus false as return).
+   */
+  @Test
+  public void checkDecisionForHighProfanity() {
+    // check with high profanity score (but just above threshold)
+    final float HIGH_PROFANITY = .81f;
+
+    inputScores.put(AttributeType.PROFANITY, HIGH_PROFANITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+
+    // check with very high profanity score (well above threshold)
+    final float VERY_HIGH_PROFANITY = .95f;
+
+    inputScores.put(AttributeType.PROFANITY, VERY_HIGH_PROFANITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision returns that PerspectiveValues
+   * with low scores for offensive material (below 80% threshold) 
+   * is appropriate (thus true as return).
+   */
+  @Test
+  public void checkDecisionForLowOffensivity() {
+    // check with a pretty low identity attack score (far below 80%)
+    final float VERY_LOW_OFFENSIVITY = .35f;
+
+    inputScores.put(AttributeType.IDENTITY_ATTACK, VERY_LOW_OFFENSIVITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+
+    // check with a identity attack score just below 80%
+    final float LOW_OFFENSIVITY = .79f;
+    inputScores.put(AttributeType.IDENTITY_ATTACK, LOW_OFFENSIVITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision() returns that PerspectiveValues
+   * with threshold offensive material (exactly 80%) is inappropiate 
+   * (thus false as return).
+   */
+  @Test
+  public void checkDecisionForThresholdOffensivity() {
+    // check with the threshold identity attack score
+    final float THRESHOLD_OFFENSIVITY = .8f;
+
+    inputScores.put(AttributeType.IDENTITY_ATTACK, THRESHOLD_OFFENSIVITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions returns that PerspectiveValues
+   * with highly offensive material (above 80% threshold) 
+   * is inappropiate (thus false as return).
+   */
+  @Test
+  public void checkDecisionForHighOffensivity() {
+    // check with high identity attack score (but just above threshold)
+    final float HIGH_OFFENSIVITY = .81f;
+
+    inputScores.put(AttributeType.IDENTITY_ATTACK, HIGH_OFFENSIVITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+
+    // check with very high identity attack score (well above threshold)
+    final float VERY_HIGH_OFFENSIVITY = .95f;
+
+    inputScores.put(AttributeType.IDENTITY_ATTACK, VERY_HIGH_OFFENSIVITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision returns that PerspectiveValues
+   * with low scores for obscene material (below 80% threshold) 
+   * is appropriate (thus true as return).
+   */
+  @Test
+  public void checkDecisionForLowObscenity() {
+    // check with a pretty low obscenity score (far below 80%)
+    final float VERY_LOW_OBSCENITY = .35f;
+
+    inputScores.put(AttributeType.OBSCENE, VERY_LOW_OBSCENITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+
+    // check with an obscenity score just below 80%
+    final float LOW_OBSCENITY = .79f;
+    inputScores.put(AttributeType.OBSCENE, LOW_OBSCENITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertTrue(ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions makeDecision() returns that PerspectiveValues
+   * with threshold obscene material (exactly 80%) is inappropiate 
+   * (thus false as return).
+   */
+  @Test
+  public void checkDecisionForThresholdObscenity() {
+    // check with the threshold obscene score
+    final float THRESHOLD_OBSCENITY = .8f;
+
+    inputScores.put(AttributeType.OBSCENE, THRESHOLD_OBSCENITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+  }
+
+  /**
+   * Check that ContentDecisions returns that PerspectiveValues
+   * with highly obscene material (above 80% threshold) 
+   * is inappropiate (thus false as return).
+   */
+  @Test
+  public void checkDecisionForHighObscenity() {
+    // check with high obscenity score (but just above threshold)
+    final float HIGH_OBSCENITY = .81f;
+
+    inputScores.put(AttributeType.OBSCENE, HIGH_OBSCENITY);
+    input = new PerspectiveValues("foo", inputScores);
+
+    Assert.assertEquals(false, ContentDecisions.makeDecision(input));
+
+    // check with very high identity attack score (well above threshold)
+    final float VERY_HIGH_OBSCENITY = .95f;
+
+    inputScores.put(AttributeType.OBSCENE, VERY_HIGH_OBSCENITY);
     input = new PerspectiveValues("foo", inputScores);
 
     Assert.assertEquals(false, ContentDecisions.makeDecision(input));
