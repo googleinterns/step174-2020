@@ -43,7 +43,7 @@ public class ContentDecisions {
   public static boolean makeDecision(PerspectiveValues values) {
     Map<AttributeType, Float> scores = values.getAttributeTypesToScores();
 
-    return !isToxic(scores) && !isSexuallyExplicit(scores) && !isProfane(scores) 
+    return !isToxic(scores) && !isSexuallyExplicit(scores) && !isProfane(scores)
         && !isOffensive(scores) && !isObscene(scores);
   }
 
@@ -74,8 +74,8 @@ public class ContentDecisions {
 
   /**
    * Private helper method to check if content is considered sexually explicit.
-   * Threshold for sexually explicit content is a score greater than or equal to 60% 
-   * after experimenting with Perspective API  
+   * Threshold for sexually explicit content is a score greater than or equal to 60%
+   * after experimenting with Perspective API
    *
    * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
    *     API
@@ -99,8 +99,8 @@ public class ContentDecisions {
 
   /**
    * Private helper method to check if content is considered profane.
-   * Threshold for profane content is a score greater than or equal to 80% 
-   * after experimenting with Perspective API  
+   * Threshold for profane content is a score greater than or equal to 80%
+   * after experimenting with Perspective API
    *
    * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
    *     API
@@ -124,8 +124,8 @@ public class ContentDecisions {
 
   /**
    * Private helper method to check if content is considered offensive.
-   * Threshold for offensive content is an identity attack score greater than or equal to 80% 
-   * after experimenting with Perspective API  
+   * Threshold for offensive content is an identity attack score greater than or equal to 80%
+   * after experimenting with Perspective API
    *
    * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
    *     API
@@ -149,8 +149,8 @@ public class ContentDecisions {
 
   /**
    * Private helper method to check if content is considered obscene.
-   * Threshold for obscene content is an obscenity score greater than or equal to 80% 
-   * after experimenting with Perspective API  
+   * Threshold for obscene content is an obscenity score greater than or equal to 80%
+   * after experimenting with Perspective API
    *
    * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
    *     API
