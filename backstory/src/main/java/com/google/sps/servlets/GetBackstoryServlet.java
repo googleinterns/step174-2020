@@ -34,7 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
+ * Servlet which gets the Backstory resource. Currently, only the most recently uploaded Backstory
+ * will be gathered from permanent storage then sent back to the front-end by writing it to the
+ * response.
  */
 @WebServlet("/backstory")
 public class GetBackstoryServlet extends HttpServlet {

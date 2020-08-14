@@ -49,16 +49,25 @@ import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 
 /**
- *
+ * Tests for the analyze image servlet, which contains all image analysis and backstory generation
+ * functionalities.
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class AnalyzeImageServletTest {
+
+  /**
+   * Tests that the correct input is passed from the initial call to the managers, 
+   * and that the correct ouput is passed from the managers to the permanent storage service.
+   */
   @Test
   public void testDoPostInputAndOuput() throws APINotAvailableException, NoAppropriateStoryException {
     try {
+      // Creates the required mocks for an HTTP request/response.
       HttpServletRequest requestMock = mock(HttpServletRequest.class);
       HttpServletResponse responseMock = mock(HttpServletResponse.class);
 
+      // Creates the required mocks for the managers and their dependent classes (in the case
+      // that real object cannot be used).
       AnalyzeImageServlet servlet = new AnalyzeImageServlet();
       ImagesManager mockImagesManager = mock(VisionImagesManager.class);
       StoryManager mockStoryManager = mock(StoryManagerImpl.class);
@@ -67,6 +76,7 @@ public final class AnalyzeImageServletTest {
       Entity mockAnalyzedImageEntity = mock(Entity.class);
       BlobstoreService mockBlobstoreService = mock(BlobstoreService.class);
 
+      // Creates the required real test objects, and sets the required behavior of the mocks.
       Map<String, List<BlobKey>> mockInputToBlobkey = new HashMap<>();
       List<BlobKey> mockBlobKeys = new ArrayList<>();
       mockBlobKeys.add(new BlobKey("mockBlobkey"));
@@ -96,14 +106,15 @@ public final class AnalyzeImageServletTest {
       when(mockStoryAnalysisManager.generateDecision(anyString())).thenReturn(mockStoryDecision);
 
       when(mockDatastoreService.put(any(Entity.class))).thenReturn(mock(Key.class));
-      // when(mockAnalyzedImageEntity.setProperty(eq("blobKeyString"), anyString));
 
+      // Calls the servlet injection code to insert the required mocks.
       servlet.setToUseMockImagesManager(mockImagesManager);
       servlet.setToUseMockStoryAnalysisManager(mockStoryAnalysisManager);
       servlet.setToUseMockStoryManager(mockStoryManager);
       servlet.setToUseMockDatastoreService(mockDatastoreService, mockAnalyzedImageEntity);
       servlet.setToUseMockBlobstoreService(mockBlobstoreService);
 
+      // doPost call to initiate testing.
       servlet.doPost(requestMock, responseMock);
 
       // Check that the request is as expected:
@@ -111,9 +122,9 @@ public final class AnalyzeImageServletTest {
       verify(mockImagesManager).createAnnotatedImagesFromImagesAsByteArrays(inputArguments.capture());
       List<byte[]> inputImagesByteArrays = inputArguments.getValue();
 
-      // The list of input images in this example consists of only one image
+      // The list of input images in this example consists of only one image.
       Assert.assertEquals(1, inputImagesByteArrays.size());
-      // The one image in the imput images is modeled by an empty byte array
+      // The one image in the imput images is modeled by an empty byte array.
       Assert.assertTrue(inputImagesByteArrays.get(0).length == 0);
 
       // Check that the analyzed image gets put into datastore correctly:

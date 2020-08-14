@@ -27,7 +27,6 @@ import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.Text;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.sps.servlets.data.AnalyzedImage;
 import java.io.IOException;
 import java.lang.NullPointerException;
 import java.util.ArrayList;
@@ -38,7 +37,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
+ * Servlet which gets the Analyzed Image resource. The image is returned back to
+ * the front-end by accessing the blob key from permanent storage, and then
+ * using blobstore's serve functionality. Blobstore's serve functionality only
+ * supports one image per request.
  */
 @WebServlet("/analyzed-images")
 public class GetAnalyzedImagesServlet extends HttpServlet {
@@ -61,6 +63,7 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
       blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
     }
 
+    // Validation to make sure that empty images are not getting uploaded to permanent storage.
     if (blobKey == null) {
       throw new NullPointerException(
           "No image(s) were uploaded, this servlet should not have been called.");

@@ -14,9 +14,7 @@
 
 package com.google.sps.servlets.data;
 
-/**
- *
- */
+/** Wrapper class representing a backstory */
 public final class Backstory {
   private final String backstory;
 

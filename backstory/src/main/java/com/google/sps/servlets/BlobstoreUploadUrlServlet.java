@@ -31,18 +31,13 @@ import javax.servlet.http.HttpServletResponse;
  * ("/analyze-image" in this case). To see the intermediate blobstore URL, try:
  * System.out.println(uploadUrl)
  *
- * From the response sent, to access the explicit url of the encoded file, from the blob object in
- * the request, try: Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
- * List<BlobKey> blobKeys = blobs.get(formInputElementName);
+ * From the response sent, to access the explicit blob keys of the encoded file, from the blob
+ * object in the request, try: Map<String, List<BlobKey>> blobs =
+ * blobstoreService.getUploads(request); List<BlobKey> blobKeys = blobs.get(formInputElementName);
  *
  * Where formInputElementName is the name attribute for the file input in the original HTML form.
- * From blobKeys, you can access the keys for any of the files uploaded. Then with ImagesService,
- * you can build the image from the blobkey, and get the url for it.
- *
- * ImagesService imagesService = ImagesServiceFactory.getImagesService();
- * ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(blobKey);
- * URL url = new URL(imagesService.getServingUrl(options));
- * return url.getPath();
+ * From blobKeys, you can access the keys for any of the files uploaded. Then with ImagesService or
+ * with Javascript, you can build the image from the blobkey, and get the url for it.
  */
 @WebServlet("/blobstore-upload-url")
 public class BlobstoreUploadUrlServlet extends HttpServlet {

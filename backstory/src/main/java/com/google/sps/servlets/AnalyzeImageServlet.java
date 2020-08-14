@@ -29,9 +29,9 @@ import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.perspective.data.StoryDecision;
-import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.perspective.data.NoAppropriateStoryException;
+import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
@@ -48,6 +48,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * Backend servlet which manages the analysis of images, creation of backstories, and uploading
+ * the analyzed images with the backstory to permanent storage.
  */
 @WebServlet("/analyze-image")
 public class AnalyzeImageServlet extends HttpServlet {
@@ -71,43 +73,82 @@ public class AnalyzeImageServlet extends HttpServlet {
     blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
   }
 
-  //TESTING METHODS
+  // Injection methods for testing.
+
+  /**
+   * Sets an optional images manager.
+   * @param imagesManager an ImagesManager object, real or mock.
+   */
   public void setToUseMockImagesManager(ImagesManager imagesManager) {
     this.imagesManager = imagesManager;
   }
 
+  /**
+   * Sets an optional storyAnalysisManager.
+   * @param storyAnalysisManager an StoryAnalysisManager object, real or mock.
+   */
   public void setToUseMockStoryAnalysisManager(StoryAnalysisManager storyAnalysisManager) {
     this.storyAnalysisManager = storyAnalysisManager;
   }
 
-  public void setToUseMockDatastoreService(DatastoreService datastore, Entity mockAnalyzedImageEntity) {
+  /**
+   * Sets optional Datastore services and entities.
+   * @param datastore a datastore service object, real or mock.
+   * @param mockAnalyzedImageEntity an entity object, real or mock.
+   */
+  public void setToUseMockDatastoreService(
+      DatastoreService datastore, Entity mockAnalyzedImageEntity) {
     useMockDatastoreService = true;
     this.datastore = datastore;
     this.mockAnalyzedImageEntity = mockAnalyzedImageEntity;
   }
 
+  /**
+   * Sets optional Blobstore services.
+   * @param blobstoreService a Blobstore service object, real or mock.
+   */
   public void setToUseMockBlobstoreService(BlobstoreService blobstoreService) {
     useMockBlobstoreService = true;
     this.blobstoreService = blobstoreService;
   }
 
-
+  /**
+   * Sets an optional StoryManager.
+   * @param storyManager a StoryManager object, real or mock.
+   */
   public void setToUseMockStoryManager(StoryManager storyManager) {
     useMockStoryManager = true;
     this.storyManager = storyManager;
   }
 
+  /**
+   * Helper method to set a real story manager object, if a mock is not being used.
+   * @param prompt the small prompt used to generate a larger story.
+   * @param storyLength number of words to be in the backstory.
+   * @param temperature 0-1 paramater which determines the freedom of expression given to
+   * the text generation model.
+   */
   private void createStoryManager(String prompt, int storyLength, double temperature) {
     if (!useMockStoryManager) {
       storyManager = new StoryManagerImpl(prompt, storyLength, temperature);
     }
   }
 
-  private int getBlobstoreServiceMaxFetch(){
+  /**
+   * Method which returns the max fetch size for blobstore, or returns a trivial answer of 1 when
+   * using a mock blobstore service.
+   * @return a trivial 1 or the BlobstoreService.MAX_BLOB_FETCH_SIZE, as required.
+   */
+  private int getBlobstoreServiceMaxFetch() {
     return useMockBlobstoreService ? 1 : BlobstoreService.MAX_BLOB_FETCH_SIZE;
   }
 
-  private Entity createEntity(String entityName){
+  /**
+   * Method to return a real or mock Entity object to put into datastore, as required.
+   * @param entityName the type of the entity to be used, if a real entity is required.
+   * @return a real or mock Entity object as required.
+   */
+  private Entity createEntity(String entityName) {
     if (useMockDatastoreService) {
       return mockAnalyzedImageEntity;
     } else {
@@ -115,7 +156,6 @@ public class AnalyzeImageServlet extends HttpServlet {
       return analyzedImageEntity;
     }
   }
-
 
   /**
    * {@inheritDoc}
@@ -125,10 +165,10 @@ public class AnalyzeImageServlet extends HttpServlet {
    * form in the HTML will connect to the Blobstore URL, which encodes the image and then
    * redirects the request to this Url.
    *
-   * The image is analyzed with the ImagesAnalysisManager, the result of which is fed into the PromptManager to
-   * create a prompt which is then used to generate the raw Backstory throug the StoryManager. The raw Backstory
-   * then is checked by the StoryAnalysisManager for toxicity and, if it passes, is sent to permanent storage,
-   * along with the uploaded image's blob key.
+   * The image is analyzed with the ImagesAnalysisManager, the result of which is fed into the
+   * PromptManager to create a prompt which is then used to generate the raw Backstory throug the
+   * StoryManager. The raw Backstory then is checked by the StoryAnalysisManager for toxicity and,
+   * if it passes, is sent to permanent storage, along with the uploaded image's blob key.
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form: the image uploaded.
@@ -206,7 +246,7 @@ public class AnalyzeImageServlet extends HttpServlet {
     BlobKey blobKey = blobKeys.get(0);
 
     // User submitted form without selecting a file, so we can't get a URL. (live server)
-    if (!useMockBlobstoreService){
+    if (!useMockBlobstoreService) {
       BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
       if (blobInfo.getSize() == 0) {
         blobstoreService.delete(blobKey);
@@ -239,7 +279,7 @@ public class AnalyzeImageServlet extends HttpServlet {
     BlobKey blobKey = blobKeys.get(0);
 
     // User submitted form without selecting a file, so we can't get a URL. (live server)
-    if (!useMockBlobstoreService){
+    if (!useMockBlobstoreService) {
       BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
       if (blobInfo.getSize() == 0) {
         blobstoreService.delete(blobKey);
