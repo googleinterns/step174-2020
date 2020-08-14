@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* exported fetchBlobstoreUrl getAnalyzedImages createBackstoryLoadingElement */
+/* JS for Home page
+ * features: get blobstore url, retrieve analyzed images,
+ * create loading element, and update file upload label
+ */
+
+/* exported fetchBlobstoreUrl getAnalyzedImages
+   createBackstoryLoadingElement updateFileName */
+
+// FETCH BLOBSTORE URL
 
 /**
  * On load of the application, this function fetches the blobstore Url and sets
@@ -28,6 +36,8 @@ function fetchBlobstoreUrl() {
         imageUploadForm.action = imageUploadUrl;
       });
 }
+
+// RETRIEVE ANALYZED IMAGES
 
 /**
  * This function interfaces with the back-end to get the user's photo upload
@@ -63,6 +73,8 @@ function getAnalyzedImages() {
         }
       });
 }
+
+// CREATE LOADING ELEMENT
 
 /**
  * Helper function to format the image and backstory combination into one
@@ -103,8 +115,8 @@ function createBackstoryLoadingElement() {
 
   const backstoryLoadingParagraphDiv = document.createElement('div');
   const backstoryLoadingParagraph = document.createElement('p');
-  const backstoryLoadingText = document.createTextNode(
-      'Your backstory is loading, please be patient :)');
+  const backstoryLoadingText =
+      document.createTextNode('Your backstory is loading! Please be patient.');
   backstoryLoadingParagraph.appendChild(backstoryLoadingText);
   backstoryLoadingParagraphDiv.appendChild(backstoryLoadingParagraph);
   backstoryLoadingParagraphDiv.classList.add('backstory-paragraph');
@@ -120,5 +132,24 @@ function createBackstoryLoadingElement() {
         backstoryLoadingElement, storyDisplayElement.childNodes[0]);
   } else {
     storyDisplayElement.appendChild(backstoryLoadingElement);
+  }
+}
+
+// UPDATE FILE UPLOAD LABEL
+
+/**
+ * Updates the text of the file upload label to match the uploaded file
+ * or {number of files uploaded} files selected, if multiple files.
+ */
+function updateFileName() {
+  const fileInput = document.getElementById('image-upload');
+  const label = document.getElementById('upload-label');
+
+  if (fileInput.files) {
+    if (fileInput.files.length > 1) {
+      label.innerText = `${fileInput.files.length} files selected`;
+    } else {
+      label.innerText = fileInput.files.item(0).name;
+    }
   }
 }
