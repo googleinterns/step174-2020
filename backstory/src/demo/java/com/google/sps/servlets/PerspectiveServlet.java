@@ -79,9 +79,15 @@ public final class PerspectiveServlet extends HttpServlet {
     }
 
     // generate a PerspectiveDecision with that manager
-    PerspectiveDecision perspectiveDecision = manager.generatePerspectiveDecision(text);
+    PerspectiveDecision perspectiveDecision;
+    try {
+      perspectiveDecision = manager.generatePerspectiveDecision(text);
+    } catch (NoAppropriateStoryException e) {
+      perspectiveDecision = null;
+    }
 
-    Boolean isAppropriateStory = perspectiveDecision.hasAppropriateStory();
+    // if perspectiveDecision is null, then it means the decision is not appropriate (should be false)
+    Boolean isAppropriateStory = (perspectiveDecision != null);
     PerspectiveValues values = perspectiveDecision.getValues();
 
     // objects to write back on the respones

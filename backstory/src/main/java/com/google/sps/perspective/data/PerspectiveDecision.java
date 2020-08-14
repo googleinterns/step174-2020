@@ -19,8 +19,6 @@ package com.google.sps.perspective.data;
  * appropriate story) but the values used to make that decision.
  */
 public class PerspectiveDecision extends StoryDecision {
-  /** whether or not this decision has an appropriate story */
-  private final boolean hasAppropriateStory;
   /** the values of the story  */
   private final PerspectiveValues values;
 
@@ -31,21 +29,11 @@ public class PerspectiveDecision extends StoryDecision {
    * @param values the values used to make the decision
    * @throws IllegalArgumentException if story is null
    */
-  public PerspectiveDecision(String story, boolean hasAppropriateStory, PerspectiveValues values)
+  public PerspectiveDecision(String story, PerspectiveValues values)
       throws IllegalArgumentException {
     super(story);
 
-    this.hasAppropriateStory = hasAppropriateStory;
     this.values = values;
-  }
-
-  /**
-   * Returns whether there was an appropriate story
-   *
-   * @return true, if there was an appropriate story, false otherwise
-   */
-  public boolean hasAppropriateStory() {
-    return hasAppropriateStory;
   }
 
   /**

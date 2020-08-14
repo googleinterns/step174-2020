@@ -110,14 +110,22 @@ public class PerspectiveStoryAnalysisManager implements StoryAnalysisManager {
    * as a PerspectiveDecision object (for demo purposes).
    *
    * @param story The story to be analyzed
-   * @return An object describing the recommendation resulting from the analysis. If the
-   *    the PerspectiveDecision story field is null, it's not an appropriate story.
+   * @return An object describing the recommendation resulting from the analysis.
+   * @throws NoAppropriateStoryException if story is not considered appropriate
    */
-  public PerspectiveDecision generatePerspectiveDecision(String story) {
+  public PerspectiveDecision generatePerspectiveDecision(String story)
+      throws NoAppropriateStoryException {
     PerspectiveAPIClient apiClient = new PerspectiveAPIClient(perspectiveAPI);
     PerspectiveValues storyValues = apiClient.analyze(Arrays.asList(REQUESTED_ATTRIBUTES), story);
     boolean isStoryAppropriate = ContentDecisions.makeDecision(storyValues);
 
-    return new PerspectiveDecision(story, isStoryAppropriate, storyValues);
+    // if content decisions returns that it's appropriate
+    // then return a StoryDecision object with this story
+    if (isStoryAppropriate) {
+      return new PerspectiveDecision(story, storyValues);
+    }
+
+    // otherwise throw the NoAppropriateStoryException
+    throw new NoAppropriateStoryException("The story passed in was not appropriate.");
   }
 }
