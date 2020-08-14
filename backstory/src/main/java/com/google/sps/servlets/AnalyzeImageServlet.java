@@ -198,7 +198,18 @@ public class AnalyzeImageServlet extends HttpServlet {
 
       // Tentative story parameterizations for the MVP
       createStoryManager(prompt, 200, .7);
-      String rawBackstory = storyManager.generateText();
+
+      String rawBackstory = "";
+      Boolean generateTextFailed = true;
+      while (generateTextFailed) {
+        try {
+          rawBackstory = storyManager.generateText();
+          generateTextFailed = false;
+        } catch (RuntimeException exception) {
+          System.err.println(exception);
+          generateTextFailed = true;
+        }
+      }
 
       // Filtration Check
       Text backstory = new Text("");
