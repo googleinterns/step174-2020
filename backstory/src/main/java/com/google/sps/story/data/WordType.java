@@ -19,5 +19,10 @@ package com.google.sps.story.data;
  * syntactical category) of labels returned by Cloud Vision
  */
 public enum WordType {
-  NOUN, PROPER_NOUN, MULTIWORD_NOUN, GERUND, ADJECTIVE, UNUSABLE;
+  NOUN,
+  PROPER_NOUN,
+  MULTIWORD_NOUN,
+  GERUND,
+  ADJECTIVE,
+  UNUSABLE;
 }

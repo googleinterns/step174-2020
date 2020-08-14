@@ -33,13 +33,12 @@ import java.util.Map;
  * Service client for Cloud Natural Language API
  */
 public class NLServiceClient {
-
   /** holds the language service client instance for this service client */
   private LanguageServiceClient client;
 
-  /** 
+  /**
    * Constructs a default object of client service class.
-   * 
+   *
    * @throws IOException if an instance of LanguageServiceClient could not be created
    */
   public NLServiceClient() throws IOException {
@@ -60,9 +59,9 @@ public class NLServiceClient {
 
     this.client = client;
   }
-  
+
   /**
-   * Takes a list of words and sorts them by word type. 
+   * Takes a list of words and sorts them by word type.
    * Returns a map which has word types as keys and then words
    * in a list linked to their relevant word type (e.g. "Mary" would
    * be sorted into the PROPER_NOUN list and "calm" would be sorted
@@ -78,7 +77,7 @@ public class NLServiceClient {
     List<String> singleWords = new ArrayList<String>();
 
     // remove multi-word inputs first and store as multiword nouns
-    for (String text: words) {
+    for (String text : words) {
       if (text.contains(" ")) {
         if (map.containsKey(WordType.MULTIWORD_NOUN)) {
           List<String> wordList = map.get(WordType.MULTIWORD_NOUN);
@@ -93,7 +92,7 @@ public class NLServiceClient {
       }
     }
 
-    for (String word: singleWords) {
+    for (String word : singleWords) {
       Document doc = buildDocumentFromText(word);
 
       AnalyzeSyntaxResponse response = client.analyzeSyntax(doc);
@@ -103,14 +102,14 @@ public class NLServiceClient {
 
       WordType type = WordType.UNUSABLE;
 
-      switch(partOfSpeech.getTag()) {
+      switch (partOfSpeech.getTag()) {
         case VERB:
-          if(isGerund(word)) {
+          if (isGerund(word)) {
             type = WordType.GERUND;
           }
           break;
         case NOUN:
-          if(isGerund(word)) {
+          if (isGerund(word)) {
             type = WordType.GERUND;
             break;
           }
@@ -122,7 +121,7 @@ public class NLServiceClient {
           }
           break;
 
-        case ADJ: 
+        case ADJ:
           type = WordType.ADJECTIVE;
           break;
       }
@@ -136,13 +135,13 @@ public class NLServiceClient {
         map.put(type, wordList);
       }
     }
-    
+
     return map;
   }
 
   /**
    * Build and return a document from the given test.
-   * 
+   *
    * @param text the text to build a document from
    * @return a Document that holds the current text
    */
@@ -151,7 +150,7 @@ public class NLServiceClient {
 
     return doc;
   }
-  
+
   /**
    * Checks if a word is a gerund using heuristics (ending in "ing) and NL API
    *
@@ -165,7 +164,7 @@ public class NLServiceClient {
     }
 
     String ending = word.substring(word.length() - 3);
-    if (! ending.equals("ing")) {
+    if (!ending.equals("ing")) {
       return false;
     }
 
