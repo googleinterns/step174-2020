@@ -14,23 +14,15 @@
 
 package com.google.sps.story.data;
 
-
 /**
- * Static methods to help end a story naturally 
+ * Static methods to help end a story naturally
  */
 public class StoryEndingTools {
-  
   /** the endings to add to the story */
-  private static String[] ENDINGS = {
-    "The End.",
-    "And they lived happily ever after.",
-    "Then, everything went horribly wrong.",
-    "And--- that's a wrap.",
-    "Goodbye!",
-    "Then the director screamed \"CUT!\"",
-    "With that, our story draws to a close.",
-    "We'll never know what happened next."
-  };
+  private static String[] ENDINGS = {"The End.", "And they lived happily ever after.",
+      "Then, everything went horribly wrong.", "And--- that's a wrap.", "Goodbye!",
+      "Then the director screamed \"CUT!\"", "With that, our story draws to a close.",
+      "We'll never know what happened next."};
 
   /**
    * Overrides default constructor to ensure class can't be instantiated.
@@ -43,7 +35,7 @@ public class StoryEndingTools {
    * Takes a story from GPT-2 and returns onee with a more natural ending.
    *
    * @param story the story to return with a natural ending
-   * @return story with ending 
+   * @return story with ending
    * @throws IllegalArgumentException if story is null
    */
   public static String endStory(String story) {
@@ -84,7 +76,7 @@ public class StoryEndingTools {
 
   /**
    * Add one of a list of pre-written endings to the story, and return
-   * the story with that ending. 
+   * the story with that ending.
    *
    * @param story the story to add an ending to
    * @return story + ending
