@@ -18,8 +18,8 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import java.util.Map;
 
 /**
- * Provides tools to make decision on whether or not the story (or content)
- * is appropriate using analysis from Perspective API.
+ * Makes a decision on whether or not the story (or content) is appropriate
+ * using analysis from Perspective API.
  */
 public class ContentDecisions {
   /**
@@ -33,18 +33,16 @@ public class ContentDecisions {
    * Makes decision on whether or not text in perspective value
    * is considered appropriate based on the analysis scores from Perspective API
    * stored in PerspectiveValues object. Returns this decision as a boolean.
-   * Decision is currently based on scores of toxicity, sexual explicitness,
-   * profanity, offensivity, and obscenity.
+   * Current decision logic is based off whether text considered toxic.
    *
    * @param PerspectiveValues the object containing text to be decided on
    *     & the requested analysis from Perspective API to use in making decision.
    * @return true, if content considered appropriate; false, otherwise
    */
   public static boolean makeDecision(PerspectiveValues values) {
-    Map<AttributeType, Float> scores = values.getAttributeTypesToScores();
+    // currently decision is entirely based on whether content is considered toxic
 
-    return !isToxic(scores) && !isSexuallyExplicit(scores) && !isProfane(scores)
-        && !isOffensive(scores) && !isObscene(scores);
+    return !isToxic(values.getAttributeTypesToScores());
   }
 
   /**
@@ -54,7 +52,7 @@ public class ContentDecisions {
    *
    * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
    *     API
-   * @return true, if toxicity score >= 70%; false, if not
+   * @return true, if toxicity score (in attributeTypesToScores) >= 70% toxic; false, if not
    * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
    *     toxicity score
    */
@@ -70,105 +68,5 @@ public class ContentDecisions {
     float toxicity = attributeTypesToScores.get(AttributeType.TOXICITY);
 
     return toxicity >= .7f;
-  }
-
-  /**
-   * Private helper method to check if content is considered sexually explicit.
-   * Threshold for sexually explicit content is a score greater than or equal to 60%
-   * after experimenting with Perspective API
-   *
-   * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
-   *     API
-   * @return true, if sexually explicit score >= 60%; false, if not
-   * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
-   *     sexually explicit score
-   */
-  private static boolean isSexuallyExplicit(Map<AttributeType, Float> attributeTypesToScores)
-      throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.SEXUALLY_EXPLICIT)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain a sexually explicit score");
-    }
-
-    float sexuallyExplicit = attributeTypesToScores.get(AttributeType.SEXUALLY_EXPLICIT);
-
-    return sexuallyExplicit >= .6f;
-  }
-
-  /**
-   * Private helper method to check if content is considered profane.
-   * Threshold for profane content is a score greater than or equal to 80%
-   * after experimenting with Perspective API
-   *
-   * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
-   *     API
-   * @return true, if profanity score >= 80%; false, if not
-   * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
-   *     profanity score
-   */
-  private static boolean isProfane(Map<AttributeType, Float> attributeTypesToScores)
-      throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.PROFANITY)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain a profanity score");
-    }
-
-    float profanity = attributeTypesToScores.get(AttributeType.PROFANITY);
-
-    return profanity >= .8f;
-  }
-
-  /**
-   * Private helper method to check if content is considered offensive.
-   * Threshold for offensive content is an identity attack score greater than or equal to 80%
-   * after experimenting with Perspective API
-   *
-   * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
-   *     API
-   * @return true, if identity attack score >= 80%; false, if not
-   * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
-   *     identity attack score
-   */
-  private static boolean isOffensive(Map<AttributeType, Float> attributeTypesToScores)
-      throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.IDENTITY_ATTACK)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain an identity attack score");
-    }
-
-    float identityAttack = attributeTypesToScores.get(AttributeType.IDENTITY_ATTACK);
-
-    return identityAttack >= .8f;
-  }
-
-  /**
-   * Private helper method to check if content is considered obscene.
-   * Threshold for obscene content is an obscenity score greater than or equal to 80%
-   * after experimenting with Perspective API
-   *
-   * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
-   *     API
-   * @return true, if obscenity score >= 80%; false, if not
-   * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
-   *     obscenity score
-   */
-  private static boolean isObscene(Map<AttributeType, Float> attributeTypesToScores)
-      throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.OBSCENE)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain an obscenity score");
-    }
-
-    float obscenity = attributeTypesToScores.get(AttributeType.OBSCENE);
-
-    return obscenity >= .8f;
   }
 }
