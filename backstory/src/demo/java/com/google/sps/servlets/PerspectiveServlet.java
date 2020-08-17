@@ -16,9 +16,9 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
 import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;

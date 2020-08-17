@@ -16,7 +16,7 @@ package com.google.sps.perspective;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
-import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.ContentDecisions;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
