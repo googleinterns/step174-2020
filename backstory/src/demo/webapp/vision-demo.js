@@ -107,10 +107,10 @@ function formatLabelsAsTable(labels) {
   const table = document.createElement('table');
   table.classList.add('labels-table');
 
-  let index = 0;
+  let rowNumber = 0;
   
   // add headers
-  const header = table.insertRow(index);
+  const header = table.insertRow(rowNumber);
   const labelHeader = document.createElement('th');
   labelHeader.innerText = 'Label';
   labelHeader.classList.add('labels-table-cell');
@@ -121,12 +121,13 @@ function formatLabelsAsTable(labels) {
   header.appendChild(labelHeader);
   header.appendChild(scoreHeader);
 
-  index++;
 
   for (let i = 0; i < labels.length; i++) {
+    rowNumber++;
+
     const label = labels[i];
 
-    const row = table.insertRow(index);
+    const row = table.insertRow(rowNumber);
 
     const labelData = row.insertCell(0);
     labelData.innerText = label.description;
@@ -135,8 +136,6 @@ function formatLabelsAsTable(labels) {
     const scoreData = row.insertCell(1);
     scoreData.innerText = `${(label.score * 100).toFixed(2)}%`;
     scoreData.classList.add('labels-table-cell');
-
-    index++;
   }
   
   return table;
