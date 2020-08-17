@@ -19,10 +19,16 @@ package com.google.sps.story.data;
  */
 public class StoryEndingTools {
   /** the endings to add to the story */
-  private static String[] ENDINGS = {"The End.", "And they lived happily ever after.",
-      "Then, everything went horribly wrong.", "And--- that's a wrap.", "Goodbye!",
-      "Then the director screamed \"CUT!\"", "With that, our story draws to a close.",
-      "We'll never know what happened next."};
+  private static String[] ENDINGS = {
+      "The End.",
+      "And they lived happily ever after.",
+      "Then, everything went horribly wrong.",
+      "And--- that's a wrap.",
+      "Goodbye!",
+      "Then the director screamed \"CUT!\"",
+      "With that, our story draws to a close.",
+      "We'll never know what happened next.",
+  };
 
   /**
    * Overrides default constructor to ensure class can't be instantiated.

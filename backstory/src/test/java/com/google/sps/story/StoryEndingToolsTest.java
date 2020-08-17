@@ -32,6 +32,18 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public final class StoryEndingToolsTest {
 
+  // TODO: test that it always ends in a period for the story one
+
+  // TODO: test chopped off method with: 
+  // - empty string 
+  // - sentence fragment at end
+  // - full sentence at the end 
+
+  // test both method with 
+  // - empty string 
+  // - sentence fragment 
+  // - full sentence at end 
+
   @Test
   public void tryIt() {
     String story = "Once upon a time a girl walked in a forest. She was attacked by a wolf. The wolf was ";
