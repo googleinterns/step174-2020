@@ -18,14 +18,14 @@ package com.google.sps.story.data;
  * Static methods to help end a story naturally
  */
 public class StoryEndingTools {
-  /** the endings to add to the story */
+  /** the endings to add to the story (should be one sentence) */
   private static String[] ENDINGS = {
       "The End.",
-      "And they lived happily ever after.",
+      "They lived happily ever after.",
       "Then, everything went horribly wrong.",
       "And--- that's a wrap.",
       "Goodbye!",
-      "Then the director screamed \"CUT!\"",
+      "Then the director screamed \"CUT!\".",
       "With that, our story draws to a close.",
       "We'll never know what happened next.",
   };
@@ -58,7 +58,8 @@ public class StoryEndingTools {
   /**
    * Remove a sentence fragment at the end of the story (if there is one)
    * as that commonly occurs with GPT2-generated text. Returns the story
-   * up to the last period.
+   * up to the last sentence-ending punctuation (period, exclamation point,
+   * or question mark).
    *
    * @param story to remove the sentence fragment from
    * @return the passed-in story without the last sentence fragment
@@ -70,14 +71,21 @@ public class StoryEndingTools {
     }
 
     int lastPeriodIndex = story.lastIndexOf(".");
+    int lastExclamationPointIndex = story.lastIndexOf("!");
+    int lastQuestionMarkIndex = story.lastIndexOf("?");
+
+    // find the last sentence-ending punctuation by finding the max number
+    // amongst all the sentence-ending types indices
+    int lastSentenceEnder = Math.max(lastPeriodIndex, lastExclamationPointIndex);
+    lastSentenceEnder = Math.max(lastSentenceEnder, lastQuestionMarkIndex);
 
     // if last period coincides with end of story, then return story as is
-    if (lastPeriodIndex == story.length() - 1) {
+    if (lastSentenceEnder == story.length() - 1) {
       return story;
     }
 
-    // else, chop off story after last period
-    return story.substring(0, lastPeriodIndex + 1);
+    // else, chop off story after last period 
+    return story.substring(0, lastSentenceEnder + 1);
   }
 
   /**
