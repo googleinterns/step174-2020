@@ -36,43 +36,6 @@ body {
   flex-direction: column;
 }
 
-.backstory-element {
-  margin: 25px auto;
-  text-align: center;
-  width: 40vw;
-}
-
-.backstory-element img {
-  box-shadow:
-    0 0 0 2px var(--dark-cornflower-blue),
-    0 0 0 4px var(--saffron),
-    0 0 0 6px var(--congo-pink),
-    0 0 0 8px var(--bittersweet),
-    0 0 0 10px var(--blue-yonder);
-  width: 100%;
-}
-
-.backstory-paragraph {
-  margin-top: 15px;
-}
-
-@keyframes loading {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.backstory-loading {
-  animation: loading 2s linear infinite;
-  border-bottom: 16px solid var(--congo-pink);
-  border-left: 16px solid var(--bittersweet);
-  border-radius: 50%;
-  border-right: 16px solid var(--saffron);
-  border-top: 16px solid var(--dark-cornflower-blue);
-  height: 120px;
-  margin: 0 auto;
-  width: 120px;
-}
-
 button {
   font-family: 'Lato', sans-serif; /* override Arial for buttons */
   letter-spacing: 0.08em; /* give more space between Roboto letters */
@@ -80,6 +43,21 @@ button {
 
 textarea {
   font-family: 'Roboto', sans-serif;
+}
+
+/** Make the image upload input invisible */
+.file-input {
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 0.1px;
+  z-index: -1;
+}
+
+/** Make visible label pressable */
+.file-input + label {
+  cursor: pointer;
 }
 
 /* Headers */
@@ -159,8 +137,10 @@ textarea {
 
 .logo {
   font-family: 'Open Sans', sans-serif;
-  font-size: 45px;
+  font-size: 50px;
+  font-weight: bold;
   letter-spacing: 0.04em;
+  padding: 20px 0 10px;
 }
 
 #home-content #photo-upload {
@@ -174,9 +154,7 @@ textarea {
   color: var(--oxford-blue) !important;
   font-size: 16px;
   font-weight: bold;
-  height: 50px;
-  margin: 0 10px 25px;
-  width: 200px;
+  padding: 0 0 10px;
 }
 
 #submit-button {
@@ -193,6 +171,43 @@ textarea {
 
 #story-display {
   color: var(--oxford-blue);
+}
+
+.backstory-element {
+  margin: 25px auto;
+  text-align: center;
+  width: 40vw;
+}
+
+.backstory-element img {
+  box-shadow:
+    0 0 0 3px var(--dark-cornflower-blue),
+    0 0 0 6px var(--saffron),
+    0 0 0 9px var(--congo-pink),
+    0 0 0 12px var(--bittersweet),
+    0 0 0 15px var(--blue-yonder);
+  width: 100%;
+}
+
+.backstory-paragraph {
+  margin-top: 40px;
+}
+
+@keyframes loading {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.backstory-loading {
+  animation: loading 2s linear infinite;
+  border-bottom: 16px solid var(--congo-pink);
+  border-left: 16px solid var(--bittersweet);
+  border-radius: 50%;
+  border-right: 16px solid var(--saffron);
+  border-top: 16px solid var(--dark-cornflower-blue);
+  height: 120px;
+  margin: 0 auto;
+  width: 120px;
 }
 
 /* Demos Page */
@@ -271,21 +286,6 @@ textarea {
 #image-upload-form {
   text-align: center;
   width: 100%;
-}
-
-/** Make the image upload input invisible */
-.file-input {
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  width: 0.1px;
-  z-index: -1;
-}
-
-/** Make visible label pressable */
-.file-input + label {
-  cursor: pointer;
 }
 
 #image-upload-form label {
