@@ -84,7 +84,7 @@ public class StoryEndingTools {
       return story;
     }
 
-    // else, chop off story after last period 
+    // else, chop off story after last period
     return story.substring(0, lastSentenceEnder + 1);
   }
 
