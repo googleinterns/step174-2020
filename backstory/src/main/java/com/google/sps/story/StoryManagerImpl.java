@@ -45,6 +45,15 @@ public final class StoryManagerImpl implements StoryManager {
   /** requestFactory - Builds and facilitates authenticated post requests. */
   private StoryManagerRequestFactory requestFactory;
 
+  /** serviceUrls - URLs for each story generation container */
+  private String[] serviceUrls = {"https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
+
+  private int selectedUrlIndex;
+
   /**
    * Instantiate StoryManager.
    *
@@ -58,6 +67,7 @@ public final class StoryManagerImpl implements StoryManager {
     this.maxTextLength = maxLength;
     this.temperature = temperature;
     requestFactory = new StoryManagerRequestFactoryImpl();
+    selectedUrlIndex = 0;
 
     if (prefix == null) {
       throw new IllegalArgumentException("Prefix cannot be null.");
@@ -84,7 +94,7 @@ public final class StoryManagerImpl implements StoryManager {
     String requestBody = makeRequestBody(prefix, maxTextLength, temperature);
 
     // Build Request with Adapter and JSON Input
-    HttpRequest request = requestFactory.newInstance(requestBody);
+    HttpRequest request = requestFactory.newInstance(requestBody, serviceUrls[selectedUrlIndex]);
     request.getHeaders().setContentType("application/json");
 
     // Wait until response received
@@ -143,5 +153,16 @@ public final class StoryManagerImpl implements StoryManager {
 
     String convertedMap = gson.toJson(requestMap);
     return convertedMap;
+  }
+
+  /**
+   * Cycles selectedUrlIndex to a backup url.
+   */
+  public void cycleUrl() {
+    if (selectedUrlIndex < 4) {
+      selectedUrlIndex++;
+    } else {
+      selectedUrlIndex = 0;
+    }
   }
 }

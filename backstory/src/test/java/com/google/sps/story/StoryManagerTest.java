@@ -85,6 +85,19 @@ public final class StoryManagerTest {
     storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, 1000.0);
   }
 
+  @Test
+  public void cyclePastBounds() {
+    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, TEMPERATURE_SAMPLE);
+    try{
+      for(int index = 0; index < 10; index++) {
+          storyManager.cycleUrl();
+      }
+    }
+    catch(ArrayIndexOutOfBoundsException indexException){
+      Assert.fail("Should not have thrown any exception");
+    }
+  }
+
   /**
    * Ensure the method configures a proper POST request and receives
    *  proper output translation.

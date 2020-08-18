@@ -30,4 +30,9 @@ public interface StoryManager {
    * @param factory StoryManagerRequestFactory to use for HttpRequests.
    */
   public void setRequestFactory(StoryManagerRequestFactory factory);
+
+  /**
+   * Cycles selectedUrlIndex to a backup url.
+   */
+  public void cycleUrl();
 }

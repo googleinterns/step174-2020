@@ -36,5 +36,6 @@ public interface StoryManagerRequestFactory {
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest newInstance(String requestBody) throws IllegalStateException, IOException;
+  public HttpRequest newInstance(String requestBody, String serviceUrl)
+      throws IllegalStateException, IOException;
 }

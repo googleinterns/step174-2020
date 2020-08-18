@@ -46,7 +46,7 @@ public class StoryManagerRequestFactoryFakeImpl implements StoryManagerRequestFa
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest newInstance(String requestBody) {
+  public HttpRequest newInstance(String requestBody, String serviceUrl) {
     this.lastRequestBody = requestBody;
     return request;
   }
