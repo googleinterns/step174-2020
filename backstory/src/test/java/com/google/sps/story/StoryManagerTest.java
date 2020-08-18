@@ -94,7 +94,7 @@ public final class StoryManagerTest {
       }
     }
     catch(ArrayIndexOutOfBoundsException indexException){
-      Assert.fail("Should not have thrown any exception");
+      Assert.fail("cycleUrl went out of bounds.");
     }
   }
 
