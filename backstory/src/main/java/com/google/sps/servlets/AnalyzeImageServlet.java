@@ -14,7 +14,6 @@
 
 package com.google.sps.servlets;
 
-import com.google.sps.servlets.data.BlobstoreManager;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -31,6 +30,7 @@ import com.google.sps.perspective.StoryAnalysisManagerFactory;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
+import com.google.sps.servlets.data.BlobstoreManager;
 import com.google.sps.servlets.data.BlobstoreManagerFactory;
 import com.google.sps.servlets.data.DatastoreServiceFactorySps;
 import com.google.sps.servlets.data.EntityFactory;
@@ -82,7 +82,7 @@ public class AnalyzeImageServlet extends HttpServlet {
       return new PerspectiveStoryAnalysisManager();
     };
     entityFactory = (String entityName) -> {
-      return new Entity(String entityName);
+      return new Entity(entityName);
     };
   }
 

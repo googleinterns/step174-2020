@@ -19,27 +19,43 @@ import com.google.appengine.api.blobstore.BlobInfoFactory;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.sps.servlets.data.BlobstoreServiceConstantFields;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 /**
- * Wrapper class for the blobstore service.
+ * Wrapper class for the blobstore service and all related operations.
  */
 public class BlobstoreManager {
   private BlobstoreService blobstoreService;
+  private BlobstoreServiceConstantFields blobstoreServiceConstantFields;
+  private BlobInfoFactory blobInfoFactory;
 
   /**
    * Creates a blobstore manager object by calling the blobstore service factory
    */
-  public VisionImagesManager() throws IOException {
-    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();;
+  public BlobstoreManager() throws IOException {
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
     this.blobstoreService = blobstoreService;
+    this.blobstoreServiceConstantFields = new BlobstoreServiceConstantFields(blobstoreService);
+    this.blobInfoFactory = new BlobInfoFactory();
   }
 
   /**
    * Injection code for testing.
    * Creates a blobstore manager using a mock blobstoreService.
    */
-  public VisionImagesManager(BlobstoreService blobstoreService) {
+  public BlobstoreManager(BlobstoreService blobstoreService,
+      BlobstoreServiceConstantFields blobstoreServiceConstantFields,
+      BlobInfoFactory blobInfoFactory) {
     this.blobstoreService = blobstoreService;
+    this.blobstoreServiceConstantFields = blobstoreServiceConstantFields;
+    this.blobInfoFactory = blobInfoFactory;
   }
 
   /**
@@ -63,7 +79,7 @@ public class BlobstoreManager {
     BlobKey blobKey = blobKeys.get(0);
 
     // User submitted form without selecting a file, so we can't get a URL. (live server)
-    BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
+    BlobInfo blobInfo = blobInfoFactory.loadBlobInfo(blobKey);
     if (blobInfo.getSize() == 0) {
       blobstoreService.delete(blobKey);
       return null;
@@ -94,17 +110,14 @@ public class BlobstoreManager {
     BlobKey blobKey = blobKeys.get(0);
 
     // User submitted form without selecting a file, so we can't get a URL. (live server)
-    if (!useMockBlobstoreService) {
-      BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
-      if (blobInfo.getSize() == 0) {
-        blobstoreService.delete(blobKey);
-        return null;
-      }
+    BlobInfo blobInfo = blobInfoFactory.loadBlobInfo(blobKey);
+    if (blobInfo.getSize() == 0) {
+      blobstoreService.delete(blobKey);
+      return null;
     }
 
     ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
-
-    int fetchSize = blobstoreService.MAX_BLOB_FETCH_SIZE;
+    int fetchSize = blobstoreServiceConstantFields.getMaxBlobFetchSize();
     long currentByteIndex = 0;
     boolean continueReading = true;
     while (continueReading) {
