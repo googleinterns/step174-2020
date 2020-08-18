@@ -45,6 +45,21 @@ textarea {
   font-family: 'Roboto', sans-serif;
 }
 
+/** Make the image upload input invisible */
+.file-input {
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 0.1px;
+  z-index: -1;
+}
+
+/** Make visible label pressable */
+.file-input + label {
+  cursor: pointer;
+}
+
 /* Headers */
 
 .header {
@@ -113,21 +128,6 @@ textarea {
   padding: 10px 16px;
 }
 
-/** Make the image upload input invisible */
-.file-input {
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  width: 0.1px;
-  z-index: -1;
-}
-
-/** Make visible label pressable */
-.file-input + label {
-  cursor: pointer;
-}
-
 /* Home Page */
 
 #home-content {
@@ -143,17 +143,16 @@ textarea {
   padding: 20px 0 10px;
 }
 
-#photo-upload {
+#home-content #photo-upload {
   text-align: center;
 }
 
-#photo-upload-div {
-  align-items: center;
-}
-
-#upload-label {
-  cursor: pointer;
-  font-size: 18px;
+#home-content #image-upload {
+  background-color: white;
+  border: solid thick var(--saffron);
+  border-radius: 5px;
+  color: var(--oxford-blue) !important;
+  font-size: 16px;
   font-weight: bold;
   padding: 0 0 10px;
 }
@@ -276,6 +275,53 @@ textarea {
   color: white;
   font-size: 16px;
   font-weight: bold;
+}
+
+/* Vision Demo Page */
+#upload-form-div {
+  align-items: center;
+  width: 80%;
+}
+
+#image-upload-form {
+  text-align: center;
+  width: 100%;
+}
+
+#image-upload-form label {
+  color: var(--oxford-blue);
+  font-size: 17px;
+  font-weight: bold;
+  margin: 10px;
+}
+
+#image-upload-form button {
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
+  height: 45px;
+  margin: 20px;
+  width: 100px;
+}
+
+.row {
+  align-items: center;
+  color: var(--oxford-blue);
+  margin: 20px;
+}
+
+.row .image {
+  margin: 0 20px;
+  width: 250px;
+}
+
+#labels-table {
+  border: 1px solid var(--oxford-blue);
+  margin: 5px;
+}
+
+.labels-table-cell {
+  border: 1px solid var(--oxford-blue);
+  padding: 5px;
 }
 
 /* GPT-2 Demo Page */
