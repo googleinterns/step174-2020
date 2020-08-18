@@ -35,4 +35,9 @@ public interface StoryManager {
    * Cycles selectedUrlIndex to a backup url.
    */
   public void cycleUrl();
+
+  /**
+   * Sets prompt for text generation.
+   */
+  public void setPrefix(String prefix);
 }

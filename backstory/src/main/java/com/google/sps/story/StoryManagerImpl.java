@@ -46,11 +46,13 @@ public final class StoryManagerImpl implements StoryManager {
   private StoryManagerRequestFactory requestFactory;
 
   /** serviceUrls - URLs for each story generation container */
-  private String[] serviceUrls = {"https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
+  private String[] serviceUrls = {
+    "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
+    "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
+    "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
+    "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
+    "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"
+  };
 
   private int selectedUrlIndex;
 
@@ -164,5 +166,12 @@ public final class StoryManagerImpl implements StoryManager {
     } else {
       selectedUrlIndex = 0;
     }
+  }
+
+  /**
+   * Sets prompt for text generation.
+   */
+  public void setPrefix(String prefix){
+    this.prefix = prefix;
   }
 }
