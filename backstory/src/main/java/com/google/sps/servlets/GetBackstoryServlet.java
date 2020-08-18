@@ -22,6 +22,11 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.sps.servlets.data.Backstory;
@@ -42,26 +47,42 @@ import javax.servlet.http.HttpServletResponse;
 public class GetBackstoryServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Query to find all analyzed image entities.
-    Query query = new Query("analyzed-image").addSort("timestamp", SortDirection.DESCENDING);
-    // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
-    // Thus displaying the most recent story uploaded.
-    int onlyShowMostRecentStoryUploaded = 1;
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+      String urlToRedirectToAfterUserLogsIn = "/backstory";
+      String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
+      response.sendRedirect(loginUrl);
 
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery results = datastore.prepare(query);
+    } else {
+      // Get user identification
+      String userEmail = userService.getCurrentUser().getEmail();
 
-    List<Backstory> backstories = new ArrayList<>();
-    for (Entity entity :
-        results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
-      Backstory backstory =
-          new Backstory((String) ((Text) entity.getProperty("backstory")).getValue());
-      backstories.add(backstory);
+      // Query to find all analyzed image entities.
+      Filter onlyShowUserBackstories =
+          new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
+
+      Query query = new Query("analyzed-image")
+          .setFilter(onlyShowUserBackstories).addSort("timestamp", SortDirection.DESCENDING);
+      // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
+      // Thus displaying the most recent story uploaded.
+      int onlyShowMostRecentStoryUploaded = 1;
+
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      PreparedQuery results = datastore.prepare(query);
+
+      List<Backstory> backstories = new ArrayList<>();
+      for (Entity entity :
+          results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
+        Backstory backstory =
+            new Backstory((String) ((Text) entity.getProperty("backstory")).getValue());
+        backstories.add(backstory);
+      }
+
+      response.setContentType("application/json;");
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      String backstoriesJsonArray = gson.toJson(backstories);
+      System.out.println(backstoriesJsonArray);
+      response.getWriter().println(backstoriesJsonArray);
     }
-
-    response.setContentType("application/json;");
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    String backstoriesJsonArray = gson.toJson(backstories);
-    response.getWriter().println(backstoriesJsonArray);
   }
 }

@@ -24,7 +24,12 @@ import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
@@ -46,29 +51,45 @@ import javax.servlet.http.HttpServletResponse;
 public class GetAnalyzedImagesServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+      String urlToRedirectToAfterUserLogsIn = "/analyzed-images";
+      String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
+      response.sendRedirect(loginUrl);
 
-    // Query to find all analyzed image entities.
-    Query query = new Query("analyzed-image").addSort("timestamp", SortDirection.DESCENDING);
-    // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
-    // Thus displaying the most recent story uploaded.
-    int onlyShowMostRecentStoryUploaded = 1;
+    } else {
+      // Get user identification
+      String userEmail = userService.getCurrentUser().getEmail();
 
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery results = datastore.prepare(query);
+      BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
-    BlobKey blobKey = null;
-    for (Entity entity :
-        results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
-      blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
+      // Query to find all analyzed image entities. We will filter to only return the current 
+      // user's backstories.
+      Filter onlyShowUserBackstories =
+          new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
+
+      Query query = new Query("analyzed-image")
+          .setFilter(onlyShowUserBackstories).addSort("timestamp", SortDirection.DESCENDING);
+      // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
+      // Thus displaying the most recent story uploaded.
+      int onlyShowMostRecentStoryUploaded = 1;
+
+      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+      PreparedQuery results = datastore.prepare(query);
+
+      BlobKey blobKey = null;
+      for (Entity entity :
+          results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
+        blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
+      }
+
+      // Validation to make sure that empty images are not getting uploaded to permanent storage.
+      if (blobKey == null) {
+        throw new NullPointerException(
+            "No image(s) were uploaded, this servlet should not have been called.");
+      }
+
+      blobstoreService.serve(blobKey, response);
     }
-
-    // Validation to make sure that empty images are not getting uploaded to permanent storage.
-    if (blobKey == null) {
-      throw new NullPointerException(
-          "No image(s) were uploaded, this servlet should not have been called.");
-    }
-
-    blobstoreService.serve(blobKey, response);
   }
 }

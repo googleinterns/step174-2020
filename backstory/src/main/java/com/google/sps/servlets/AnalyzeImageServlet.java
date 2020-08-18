@@ -23,6 +23,8 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.protobuf.ByteString;
 import com.google.sps.images.ImagesManager;
 import com.google.sps.images.VisionImagesManager;
@@ -171,68 +173,81 @@ public class AnalyzeImageServlet extends HttpServlet {
    * if it passes, is sent to permanent storage, along with the uploaded image's blob key.
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    // Get the input from the form: the image uploaded.
-    // Get the image as a string representation of its blob key.
-    final String blobKeyString = getUploadedFileBlobKeyString(request, "image-upload");
-    // Get the raw byte array representing the image.
-    final byte[] bytes = getBlobBytes(request, "image-upload");
-
-    // Validate than  an image was uploaded
-    if (bytes == null || blobKeyString == null) {
-      // Redirect back to the HTML page.
-      response.sendError(400, "Please upload a valid image.");
+    // Check to see if the user is currently logged in
+    UserService userService = UserServiceFactory.getUserService();
+    if (!userService.isUserLoggedIn()) {
+      String urlToRedirectToAfterUserLogsIn = "/analyze-image";
+      String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
+      response.sendRedirect(loginUrl);
 
     } else {
-      // Gets the full label information from the image byte array by calling Images Manager.
-      List<byte[]> imagesAsByteArrays = new ArrayList<>();
-      imagesAsByteArrays.add(bytes);
-      List<AnnotatedImage> annotatedImages =
-          imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
-      // There wil only be one image uploaded at a time for the demo
-      AnnotatedImage annotatedImage = annotatedImages.get(0);
-      List<String> descriptions = annotatedImage.getLabelDescriptions();
+      // Get user identification
+      String userEmail = userService.getCurrentUser().getEmail();
 
-      PromptManager promptManager = new PromptManager(descriptions);
-      // The delimiter for the MVP will be tentatively be "and"
-      String prompt = promptManager.generatePrompt(" and ");
+      // Get the input from the form: the image uploaded.
+      // Get the image as a string representation of its blob key.
+      final String blobKeyString = getUploadedFileBlobKeyString(request, "image-upload");
+      // Get the raw byte array representing the image.
+      final byte[] bytes = getBlobBytes(request, "image-upload");
 
-      // Tentative story parameterizations for the MVP
-      createStoryManager(prompt, 200, .7);
-
-      String rawBackstory = "";
-      Boolean generateTextFailed = true;
-      while (generateTextFailed) {
-        try {
-          rawBackstory = storyManager.generateText();
-          generateTextFailed = false;
-        } catch (RuntimeException exception) {
-          System.err.println(exception);
-          generateTextFailed = true;
-        }
-      }
-
-      // Filtration Check
-      Text backstory = new Text("");
-      try {
-        StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
-        backstory = new Text(storyDecision.getStory());
-      } catch (NoAppropriateStoryException exception) {
+      // Validate than  an image was uploaded
+      if (bytes == null || blobKeyString == null) {
+        // Redirect back to the HTML page.
         response.sendError(400, "Please upload a valid image.");
+
+      } else {
+        // Gets the full label information from the image byte array by calling Images Manager.
+        List<byte[]> imagesAsByteArrays = new ArrayList<>();
+        imagesAsByteArrays.add(bytes);
+        List<AnnotatedImage> annotatedImages =
+            imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
+        // There wil only be one image uploaded at a time for the demo
+        AnnotatedImage annotatedImage = annotatedImages.get(0);
+        List<String> descriptions = annotatedImage.getLabelDescriptions();
+
+        PromptManager promptManager = new PromptManager(descriptions);
+        // The delimiter for the MVP will be tentatively be "and"
+        String prompt = promptManager.generatePrompt(" and ");
+
+        // Tentative story parameterizations for the MVP
+        createStoryManager(prompt, 200, .7);
+
+        String rawBackstory = "";
+        Boolean generateTextFailed = true;
+        while (generateTextFailed) {
+          try {
+            rawBackstory = storyManager.generateText();
+            generateTextFailed = false;
+          } catch (RuntimeException exception) {
+            System.err.println(exception);
+            generateTextFailed = true;
+          }
+        }
+
+        // Filtration Check
+        Text backstory = new Text("");
+        try {
+          StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
+          backstory = new Text(storyDecision.getStory());
+        } catch (NoAppropriateStoryException exception) {
+          response.sendError(400, "Please upload a valid image.");
+        }
+
+        // Get metadata about the backstory
+        final long timestamp = System.currentTimeMillis();
+
+        // Add the input to datastore
+        Entity analyzedImageEntity = createEntity("analyzed-image");
+        analyzedImageEntity.setProperty("userEmail", userEmail);
+        analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
+        analyzedImageEntity.setProperty("backstory", backstory);
+        analyzedImageEntity.setProperty("timestamp", timestamp);
+
+        datastore.put(analyzedImageEntity);
+
+        // Redirect back to the HTML page.
+        response.sendRedirect("/index.html");
       }
-
-      // Get metadata about the backstory
-      final long timestamp = System.currentTimeMillis();
-
-      // Add the input to datastore
-      Entity analyzedImageEntity = createEntity("analyzed-image");
-      analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
-      analyzedImageEntity.setProperty("backstory", backstory);
-      analyzedImageEntity.setProperty("timestamp", timestamp);
-
-      datastore.put(analyzedImageEntity);
-
-      // Redirect back to the HTML page.
-      response.sendRedirect("/index.html");
     }
   }
 
