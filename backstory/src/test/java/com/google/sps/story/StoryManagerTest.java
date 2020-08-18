@@ -89,9 +89,15 @@ public final class StoryManagerTest {
   public void cyclePastBounds() {
     storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, TEMPERATURE_SAMPLE);
     try{
-      for(int index = 0; index < 10; index++) {
-          storyManager.cycleUrl();
+      boolean firstCycle = true;
+      
+      //Cycle through all URLs in first cycle.
+      while(firstCycle) {
+        firstCycle = storyManager.cycleUrl();
       }
+
+      //Cycle once more.
+      storyManager.cycleUrl();
     }
     catch(ArrayIndexOutOfBoundsException indexException){
       Assert.fail("cycleUrl went out of bounds.");

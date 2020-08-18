@@ -32,9 +32,10 @@ public interface StoryManager {
   public void setRequestFactory(StoryManagerRequestFactory factory);
 
   /**
-   * Cycles selectedUrlIndex to a backup url.
+   * Cycles to next serviceUrl to a backup url.
+   * @return False if called on last URL.
    */
-  public void cycleUrl();
+  public boolean cycleUrl();
 
   /**
    * Sets prompt for text generation.

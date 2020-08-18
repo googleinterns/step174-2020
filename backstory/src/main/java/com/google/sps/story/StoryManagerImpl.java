@@ -46,15 +46,13 @@ public final class StoryManagerImpl implements StoryManager {
   private StoryManagerRequestFactory requestFactory;
 
   /** serviceUrls - URLs for each story generation container */
-  private String[] serviceUrls = {
-    "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
-    "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
-    "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
-    "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
-    "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"
-  };
+  private String[] serviceUrls = {"https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
 
-  private int selectedUrlIndex;
+  private int selectedUrlIndex = 0;
 
   /**
    * Instantiate StoryManager.
@@ -69,7 +67,6 @@ public final class StoryManagerImpl implements StoryManager {
     this.maxTextLength = maxLength;
     this.temperature = temperature;
     requestFactory = new StoryManagerRequestFactoryImpl();
-    selectedUrlIndex = 0;
 
     if (prefix == null) {
       throw new IllegalArgumentException("Prefix cannot be null.");
@@ -158,20 +155,26 @@ public final class StoryManagerImpl implements StoryManager {
   }
 
   /**
-   * Cycles selectedUrlIndex to a backup url.
+   * Cycles to next serviceUrl to a backup url.
+   * @return False if called on last URL.
    */
-  public void cycleUrl() {
-    if (selectedUrlIndex < 4) {
+  public boolean cycleUrl() {
+    boolean isLast = true;
+    if (selectedUrlIndex == serviceUrls.length - 1) {
+      isLast = false;
+    }
+    if (selectedUrlIndex < serviceUrls.length) {
       selectedUrlIndex++;
     } else {
       selectedUrlIndex = 0;
     }
+    return isLast;
   }
 
   /**
    * Sets prompt for text generation.
    */
-  public void setPrefix(String prefix){
+  public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
 }
