@@ -99,6 +99,51 @@ public final class NLServiceClientTest {
   }
 
   /**
+   * Check the number of API calls made. Should be 1 call for every word that is not
+   * a multiword noun (which has 0 calls) and not a gerund (which has 2 calls).
+   */
+  @Test 
+  public void checkAPICalls() {
+    final String ADJECTIVE = "calm";
+    PartOfSpeech adjectivePartOfSpeech = PartOfSpeech.newBuilder().setTag(Tag.ADJ).build();
+
+    final String NOUN = "person";
+    PartOfSpeech nounPartOfSpeech = PartOfSpeech.newBuilder().setTag(Tag.NOUN).build();
+
+    Map<String, PartOfSpeech> desiredReturns = new HashMap<String, PartOfSpeech>();
+    desiredReturns.put(ADJECTIVE, adjectivePartOfSpeech);
+    desiredReturns.put(NOUN, nounPartOfSpeech);
+    
+    LanguageServiceClient mockClient = createMockLSClient(desiredReturns);
+
+    NLServiceClient client = new NLServiceClient(mockClient);
+    client.groupByWordType(Arrays.asList(ADJECTIVE, NOUN));
+
+    // check this method is called 2x (for the two passed-in args - neither of which are gerunds)
+    verify(mockClient, times(2)).analyzeSyntax(any(Document.class));
+  }
+
+  /**
+   * Check the number of API calls made with gerunds, which necessitate extra calls (2 per gerund).
+   */
+  @Test 
+  public void checkAPICallsWithGerund() {
+    Map<String, PartOfSpeech> desiredReturns = new HashMap<String, PartOfSpeech>();
+
+    for (String gerund: GERUNDS) {
+      addGerund(desiredReturns, gerund);
+    }
+    
+    LanguageServiceClient mockClient = createMockLSClient(desiredReturns);
+
+    NLServiceClient client = new NLServiceClient(mockClient);
+    client.groupByWordType(Arrays.asList(GERUNDS));
+
+    // check there are three API calls for each gerund
+    verify(mockClient, times(2 * GERUNDS.length)).analyzeSyntax(any(Document.class));
+  }
+
+  /**
    * Check that all multiword inputs get grouped into multiword nouns list.
    */
   @Test
