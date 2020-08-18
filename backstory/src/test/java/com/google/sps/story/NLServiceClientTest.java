@@ -51,7 +51,7 @@ import org.mockito.stubbing.Answer;
 public final class NLServiceClientTest {
 
   /** array of multiword inputs to use for testing */
-  final String[] MULTIWORD_INPUTS = {"physical exercise", "social group",
+  private final String[] MULTIWORD_INPUTS = {"physical exercise", "social group",
         "urban area", "human leg", "tower block", "metropolitan area"};
   /** array of nouns to use for testing */
   private final String[] NOUNS = { "person", "dog", "skyscraper" };
