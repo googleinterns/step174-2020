@@ -20,11 +20,11 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
@@ -62,9 +62,10 @@ public class GetBackstoryServlet extends HttpServlet {
           new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
 
       Query query = new Query("analyzed-image")
-          .setFilter(onlyShowUserBackstories).addSort("timestamp", SortDirection.DESCENDING);
-      // Will limit the Query (which is sorted from newest to oldest) to only return the first result,
-      // Thus displaying the most recent story uploaded.
+                        .setFilter(onlyShowUserBackstories)
+                        .addSort("timestamp", SortDirection.DESCENDING);
+      // Will limit the Query (which is sorted from newest to oldest) to only return the first
+      // result, Thus displaying the most recent story uploaded.
       int onlyShowMostRecentStoryUploaded = 1;
 
       DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();

@@ -14,11 +14,7 @@
 
 package com.google.sps.servlets;
 
-import com.google.appengine.api.blobstore.BlobInfo;
-import com.google.appengine.api.blobstore.BlobInfoFactory;
-import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.sps.servlets.data.BlobstoreManager;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -31,9 +27,16 @@ import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
+import com.google.sps.perspective.StoryAnalysisManagerFactory;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
+import com.google.sps.servlets.data.BlobstoreManagerFactory;
+import com.google.sps.servlets.data.DatastoreServiceFactorySps;
+import com.google.sps.servlets.data.EntityFactory;
+import com.google.sps.servlets.data.ImagesManagerFactory;
+import com.google.sps.servlets.data.StoryManagerFactory;
+import com.google.sps.servlets.data.UserServiceFactorySps;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
@@ -55,108 +58,43 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/analyze-image")
 public class AnalyzeImageServlet extends HttpServlet {
-  private ImagesManager imagesManager;
-  private Boolean useMockStoryManager;
-  private StoryManager storyManager;
-  private StoryAnalysisManager storyAnalysisManager;
-  private DatastoreService datastore;
-  private Boolean useMockDatastoreService;
-  private BlobstoreService blobstoreService;
-  private Boolean useMockBlobstoreService;
-  private Entity mockAnalyzedImageEntity;
+  private UserServiceFactorySps userServiceFactory;
+  private BlobstoreManager blobstoreManagerFactory;
+  private DatastoreServiceFactorySps datastoreServiceFactory;
+  private ImagesManagerFactory imagesManagerFactory;
+  private StoryManagerFactory storyManagerFactory;
+  private StoryAnalysisManagerFactory storyAnalysisManagerFactory;
+  private EntityFactory entityFactory;
 
   public AnalyzeImageServlet() throws IOException, APINotAvailableException {
-    imagesManager = new VisionImagesManager();
-    useMockStoryManager = false;
-    storyAnalysisManager = new PerspectiveStoryAnalysisManager();
-    useMockDatastoreService = false;
-    datastore = DatastoreServiceFactory.getDatastoreService();
-    useMockBlobstoreService = false;
-    blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    userServiceFactory = UserServiceFactory.getUserService;
+    datastoreServiceFactory = DatastoreServiceFactory.getDatastoreService;
+    blobstoreManagerFactory = () -> {
+      return new BlobstoreManager();
+    };
+    imagesManagerFactory = () -> {
+      return new VisionImagesManager();
+    };
+    storyManagerFactory = (String prompt, int storyLength, double temperature) -> {
+      return new StoryManagerImpl(prompt, storyLength, temperature);
+    };
+    storyAnalysisManagerFactory = () -> {
+      return new PerspectiveStoryAnalysisManager();
+    };
+    entityFactory = (String entityName) -> {
+      return new Entity(String entityName);
+    };
   }
 
   // Injection methods for testing.
 
   /**
-   * Sets an optional images manager.
-   * @param imagesManager an ImagesManager object, real or mock.
+   * Sets the StoryManagerFactory.
+   * @param storyManagerFactory a StoryManagerFactory object set to return either
+   * a real storyManager or a mock.
    */
-  public void setToUseMockImagesManager(ImagesManager imagesManager) {
-    this.imagesManager = imagesManager;
-  }
-
-  /**
-   * Sets an optional storyAnalysisManager.
-   * @param storyAnalysisManager an StoryAnalysisManager object, real or mock.
-   */
-  public void setToUseMockStoryAnalysisManager(StoryAnalysisManager storyAnalysisManager) {
-    this.storyAnalysisManager = storyAnalysisManager;
-  }
-
-  /**
-   * Sets optional Datastore services and entities.
-   * @param datastore a datastore service object, real or mock.
-   * @param mockAnalyzedImageEntity an entity object, real or mock.
-   */
-  public void setToUseMockDatastoreService(
-      DatastoreService datastore, Entity mockAnalyzedImageEntity) {
-    useMockDatastoreService = true;
-    this.datastore = datastore;
-    this.mockAnalyzedImageEntity = mockAnalyzedImageEntity;
-  }
-
-  /**
-   * Sets optional Blobstore services.
-   * @param blobstoreService a Blobstore service object, real or mock.
-   */
-  public void setToUseMockBlobstoreService(BlobstoreService blobstoreService) {
-    useMockBlobstoreService = true;
-    this.blobstoreService = blobstoreService;
-  }
-
-  /**
-   * Sets an optional StoryManager.
-   * @param storyManager a StoryManager object, real or mock.
-   */
-  public void setToUseMockStoryManager(StoryManager storyManager) {
-    useMockStoryManager = true;
-    this.storyManager = storyManager;
-  }
-
-  /**
-   * Helper method to set a real story manager object, if a mock is not being used.
-   * @param prompt the small prompt used to generate a larger story.
-   * @param storyLength number of words to be in the backstory.
-   * @param temperature 0-1 paramater which determines the freedom of expression given to
-   * the text generation model.
-   */
-  private void createStoryManager(String prompt, int storyLength, double temperature) {
-    if (!useMockStoryManager) {
-      storyManager = new StoryManagerImpl(prompt, storyLength, temperature);
-    }
-  }
-
-  /**
-   * Method which returns the max fetch size for blobstore, or returns a trivial answer of 1 when
-   * using a mock blobstore service.
-   * @return a trivial 1 or the BlobstoreService.MAX_BLOB_FETCH_SIZE, as required.
-   */
-  private int getBlobstoreServiceMaxFetch() {
-    return useMockBlobstoreService ? 1 : BlobstoreService.MAX_BLOB_FETCH_SIZE;
-  }
-
-  /**
-   * Method to return a real or mock Entity object to put into datastore, as required.
-   * @param entityName the type of the entity to be used, if a real entity is required.
-   * @return a real or mock Entity object as required.
-   */
-  private Entity createEntity(String entityName) {
-    if (useMockDatastoreService) {
-      return mockAnalyzedImageEntity;
-    } else {
-      Entity analyzedImageEntity = new Entity(entityName);
-      return analyzedImageEntity;
-    }
+  public void setStoryManagerFactory(StoryManagerFactory storyManagerFactory) {
+    this.storyManagerFactory = storyManagerFactory;
   }
 
   /**
@@ -249,89 +187,5 @@ public class AnalyzeImageServlet extends HttpServlet {
         response.sendRedirect("/index.html");
       }
     }
-  }
-
-  /**
-   * Given a request and the form input element name get the image uploaded in the form as
-   * a Blob Key in String form. This key is used to serve the picture back to the front-end.
-   * @param request the HTTP request sent from the front-end form.
-   * @param formInputElementName the name of the input element in the front-end form.
-   * @return the image uploaded in the front-end input form, as a Blob Key in String form.
-   */
-  private String getUploadedFileBlobKeyString(
-      HttpServletRequest request, String formInputElementName) {
-    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get(formInputElementName);
-
-    // User submitted form without selecting a file, so we can't get a URL. (dev server)
-    if (blobKeys == null || blobKeys.isEmpty()) {
-      return null;
-    }
-
-    // Our form only contains a single file input, so get the first index.
-    BlobKey blobKey = blobKeys.get(0);
-
-    // User submitted form without selecting a file, so we can't get a URL. (live server)
-    if (!useMockBlobstoreService) {
-      BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
-      if (blobInfo.getSize() == 0) {
-        blobstoreService.delete(blobKey);
-        return null;
-      }
-    }
-
-    String blobKeyString = blobKey.getKeyString();
-    return blobKeyString;
-  }
-
-  /**
-   * Given a request and the form input element name get the image uploaded in the form as
-   * a byte array.
-   * @param request the HTTP request sent from the front-end form.
-   * @param formInputElementName the name of the input element in the front-end form.
-   * @return the image uploaded in the front-end input form, as a byte array.
-   */
-  private byte[] getBlobBytes(HttpServletRequest request, String formInputElementName)
-      throws IOException {
-    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get(formInputElementName);
-
-    // User submitted form without selecting a file, so we can't get a URL. (dev server)
-    if (blobKeys == null || blobKeys.isEmpty()) {
-      return null;
-    }
-
-    // Our form only contains a single file input, so get the first index.
-    BlobKey blobKey = blobKeys.get(0);
-
-    // User submitted form without selecting a file, so we can't get a URL. (live server)
-    if (!useMockBlobstoreService) {
-      BlobInfo blobInfo = new BlobInfoFactory().loadBlobInfo(blobKey);
-      if (blobInfo.getSize() == 0) {
-        blobstoreService.delete(blobKey);
-        return null;
-      }
-    }
-
-    ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
-
-    int fetchSize = getBlobstoreServiceMaxFetch();
-    long currentByteIndex = 0;
-    boolean continueReading = true;
-    while (continueReading) {
-      // end index is inclusive, so we have to subtract 1 to get fetchSize bytes
-      byte[] bytesFromImage =
-          blobstoreService.fetchData(blobKey, currentByteIndex, currentByteIndex + fetchSize - 1);
-      outputBytes.write(bytesFromImage);
-
-      // if we read fewer bytes than we requested, then we reached the end
-      if (bytesFromImage.length < fetchSize) {
-        continueReading = false;
-      }
-
-      currentByteIndex += fetchSize;
-    }
-
-    return outputBytes.toByteArray();
   }
 }
