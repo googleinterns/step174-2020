@@ -68,28 +68,29 @@ public class AnalyzeImageServlet extends HttpServlet {
     if (bytes == null || imageUrl == null) {
       // Redirect back to the HTML page.
       response.sendError(400, "Please upload a valid image.");
+      return;
+    } 
+    
+    // Gets the full label information from the image byte array by calling Images Manager.
+    ImagesManager demoImagesManager = new VisionImagesManager();
+    List<byte[]> imagesAsByteArrays = new ArrayList<byte[]>();
+    imagesAsByteArrays.add(bytes);
 
-    } else {
-      // Gets the full label information from the image byte array by calling Images Manager.
-      ImagesManager demoImagesManager = new VisionImagesManager();
-      List<byte[]> imagesAsByteArrays = new ArrayList<>();
-      imagesAsByteArrays.add(bytes);
-      List<AnnotatedImage> annotatedImages = demoImagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
-      // There wil only be one image uploaded at a time for the demo
-      AnnotatedImage demoAnnotatedImage = annotatedImages.get(0);
-      Text labelsJsonArray = new Text(demoAnnotatedImage.getLabelsAsJson());
+    List<AnnotatedImage> annotatedImages = demoImagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
+    // There wil only be one image uploaded at a time for the demo
+    AnnotatedImage demoAnnotatedImage = annotatedImages.get(0);
+    Text labelsJsonArray = new Text(demoAnnotatedImage.getLabelsAsJson());
 
-      // Add the input to datastore
-      Entity analyzedImageEntity = new Entity("analyzed-image");
-      analyzedImageEntity.setProperty("imageUrl", imageUrl);
-      analyzedImageEntity.setProperty("labelsJsonArray", labelsJsonArray);
+    // Add the input to datastore
+    Entity analyzedImageEntity = new Entity("analyzed-image");
+    analyzedImageEntity.setProperty("imageUrl", imageUrl);
+    analyzedImageEntity.setProperty("labelsJsonArray", labelsJsonArray);
 
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      datastore.put(analyzedImageEntity);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(analyzedImageEntity);
 
-      // Redirect back to the HTML page.
-      response.sendRedirect("vision-demo.html#image-upload");
-    }
+    // Redirect back to the HTML page.
+    response.sendRedirect("vision-demo.html#image-upload");
   }
 
   /** Returns a URL that points to the uploaded file, or null if the user didn't upload a file. */
@@ -156,12 +157,12 @@ public class AnalyzeImageServlet extends HttpServlet {
     boolean continueReading = true;
     while (continueReading) {
       // end index is inclusive, so we have to subtract 1 to get fetchSize bytes
-      byte[] b =
+      byte[] blobstoreData =
           blobstoreService.fetchData(blobKey, currentByteIndex, currentByteIndex + fetchSize - 1);
-      outputBytes.write(b);
+      outputBytes.write(blobstoreData);
 
       // if we read fewer bytes than we requested, then we reached the end
-      if (b.length < fetchSize) {
+      if (blobstoreData.length < fetchSize) {
         continueReading = false;
       }
 

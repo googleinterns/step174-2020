@@ -151,12 +151,14 @@ function updateFileName() {
   const fileInput = document.getElementById('image-upload');
   const label = document.getElementById('upload-visual');
 
-  if (fileInput.files) {
-    if (fileInput.files.length > 1)  {
-      label.innerText = `${fileInput.files.length} files selected`;
-    }
-    else {
-      label.innerText = fileInput.files.item(0).name;
+  const files = fileInput.files;
+
+  if (files) {
+    const length = files.length;
+    if (length > 1)  {
+      label.innerText = `${length} files selected`;
+    } else {
+      label.innerText = files.item(0).name;
     }
   }
 }
