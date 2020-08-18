@@ -93,6 +93,8 @@ public class NLServiceClient {
       }
     }
 
+    // TODO: Parallelize requests to Cloud Natural Language API
+    
     for (String word : singleWords) {
       Document doc = buildDocumentFromText(word);
 
