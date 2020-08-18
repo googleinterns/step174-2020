@@ -36,12 +36,12 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Tests for the blobstore service wrapper: BlobstoreManager
+ * Tests for the blobstore service wrapper, BlobstoreManager
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class BlobstoreManagerTest {
   /**
-   *
+   * Tests the getUploadedFileBlobKeyString method of BlobstoreManager
    */
   @Test
   public void testGetUploadedFileBlobKeyString() {
@@ -73,7 +73,7 @@ public final class BlobstoreManagerTest {
   }
 
   /**
-   *
+   * Tests the getBlobBytes method of BlobstoreManager
    */
   @Test
   public void testGetBlobBytes() throws IOException {

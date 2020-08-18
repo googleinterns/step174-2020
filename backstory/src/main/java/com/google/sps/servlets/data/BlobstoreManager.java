@@ -20,13 +20,13 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.sps.servlets.data.BlobstoreServiceConstantFields;
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
-import java.util.Map;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Wrapper class for the blobstore service and all related operations.
@@ -50,7 +50,9 @@ public class BlobstoreManager {
    * Injection code for testing.
    * Creates a blobstore manager using a mock blobstoreService.
    */
-  public BlobstoreManager(BlobstoreService blobstoreService, BlobstoreServiceConstantFields blobstoreServiceConstantFields, BlobInfoFactory blobInfoFactory) {
+  public BlobstoreManager(BlobstoreService blobstoreService,
+      BlobstoreServiceConstantFields blobstoreServiceConstantFields,
+      BlobInfoFactory blobInfoFactory) {
     this.blobstoreService = blobstoreService;
     this.blobstoreServiceConstantFields = blobstoreServiceConstantFields;
     this.blobInfoFactory = blobInfoFactory;

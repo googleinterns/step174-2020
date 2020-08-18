@@ -1,6 +1,5 @@
 import com.google.sps.servlets.data.BlobstoreManager;
 
-
 /**
  * Factory pattern for object/mock creation.
  */
