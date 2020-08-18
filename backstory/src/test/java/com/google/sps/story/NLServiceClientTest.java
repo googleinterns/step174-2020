@@ -217,9 +217,9 @@ public final class NLServiceClientTest {
     List<String> inputs = new ArrayList<String>();
     
     final String[] GERUNDS = { "baking", "jogging", "running"};
-    // have one that doesn't and in ing & one that won't be classified as a verb
-    // when called with 'is'
-    final String[] NOT_GERUNDS = { "hello", "swing" };
+    // have one that doesn't end in ing & one that won't be classified as a verb
+    // when called with 'is' & one that is two words
+    final String[] NOT_GERUNDS = { "hello", "swing", "vigorous jogging" };
     
     for (String gerund: GERUNDS) {
       addGerund(desiredReturns, gerund);
@@ -237,12 +237,17 @@ public final class NLServiceClientTest {
     desiredReturns.put(NOT_GERUNDS[1], buildPartOfSpeech(WordType.NOUN));
     inputs.add(NOT_GERUNDS[1]);
 
+    // check that a word that would usually be a gerund (jogging) isn't 
+    // when it's passed in as multiple words 
+    addGerund(desiredReturns, NOT_GERUNDS[0]);
+    inputs.add(NOT_GERUNDS[2]);
+
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
 
     Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
-    // should be 3 keys (noun, verb, unusable) based off input we gave
-    Assert.assertEquals(3, groupedWords.keySet().size());
+    // should be 4 keys (multiword noun, noun, verb, unusable) based off input we gave
+    Assert.assertEquals(4, groupedWords.keySet().size());
     Assert.assertEquals(Arrays.asList(GERUNDS), groupedWords.get(WordType.GERUND));
   }
 

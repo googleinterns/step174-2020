@@ -161,10 +161,15 @@ public class NLServiceClient {
    * @return true, if it's a gerund; false, otherwise
    */
   private boolean isGerund(String word) {
+    // first, check it's one word
+    if (word.contains(" ")) {
+      return false;
+    }
+
     String suffix = "ing";
     int suffixLength = suffix.length();
     
-    // first, check if ends in "ing" 
+    // second, check if ends in "ing" 
     // (check it's long enough then check actual ending)
     if (word.length() < suffixLength) {
       return false;
@@ -175,7 +180,7 @@ public class NLServiceClient {
       return false;
     }
 
-    // check if when paired with "is", it's identified as a verb
+    // third, check if when paired with "is", it's identified as a verb
     Document doc = buildDocumentFromText("is " + word);
 
     AnalyzeSyntaxResponse response = client.analyzeSyntax(doc);
