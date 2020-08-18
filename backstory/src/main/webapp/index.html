@@ -3,7 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <title>Home</title>
+
+    <!-- Bootstrap Stylesheet (https://github.com/twbs/bootstrap/blob/main/LICENSE) -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+
     <link rel="stylesheet" href="style.css" />
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
@@ -21,7 +31,7 @@
     </script>
   </head>
 
-  <body>
+  <body onload="fetchBlobstoreUrl(); getAnalyzedImages();">
     <div id="nav-bar"></div>
 
     <div class="content vertical-flex-container" id="home-content">
@@ -31,22 +41,27 @@
         ><span class="yellow-header">o</span><span class="pink-header">r</span><span class="red-header">y</span>
       </h1>
 
-      <form id="photo-upload" action="/backstory" method="post">
-        <button type="button" id="image-upload" name="image-upload">Upload Your Image</button><br />
-        <button type="submit" id="submit-button">Submit</button>
+      <form id="photo-upload" method="post" enctype="multipart/form-data">
+        <div class="vertical-flex-container" id="photo-upload-div">
+          <label id="upload-label" for="image-upload">Upload Your Image...</label>
+          <input class="file-input" type="file" id="image-upload" name="image-upload" onchange="updateFileName()" />
+          <button type="submit" id="submit-button" onclick="createBackstoryLoadingElement()">Submit</button>
+        </div>
       </form>
 
-      <div id="story-display">
-        <p>
-          Lorem ipsum dolor sit amet, putent convenire ne vel, his at putent perfecto. Liber admodum per cu, eu sea
-          paulo alienum. Per ea iisque consequuntur mediocritatem, alii fastidii ut vel. Ius no nulla aeque dicunt, usu
-          inani volumus at, duo quidam epicuri appareat et. Modo natum accusam in pri, cum eius percipit scripserit an.
-          <br /><br />
-          Per ea consulatu pertinacia. In atqui facete qui. Usu aeterno democritum id, sea aeque animal hendrerit at,
-          his viris corpora id. Mei vitae luptatum cu, id pro luptatum conceptam liberavisse. Wisi docendi mentitum te
-          his, eos et detracto perpetua. Vis nemore latine maiestatis at, tollit homero scribentur has an.
-        </p>
-      </div>
+      <div id="story-display" class="container-fluid"></div>
     </div>
+
+    <!-- Bootstrap Javascript -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
