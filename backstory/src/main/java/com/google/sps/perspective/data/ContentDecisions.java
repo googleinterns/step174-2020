@@ -22,6 +22,21 @@ import java.util.Map;
  * is appropriate using analysis from Perspective API.
  */
 public class ContentDecisions {
+  
+  // threshold here means that score must be below this threshold 
+  // in order to be considered appropriate.
+
+  /** the threshold for appropriateness for toxicity score */
+  public static final float TOXICITY_THRESHOLD = .7f;
+  /** the threshold for appropriateness for sexually explicit score */
+  public static final float SEXUALLY_EXPLICIT_THRESHOLD = .6f;
+  /** the threshold for appropriateness for profanity score */
+  public static final float PROFANITY_THRESHOLD = .8f;
+  /** the threshold for appropriateness for offensiveness (identity attack) score */
+  public static final float OFFENSIVE_THRESHOLD = .8f;
+  /** the threshold for appropriateness for obscenity score */
+  public static final float OBSCENITY_THRESHOLD = .8f;
+
   /**
    * Overrides default constructor to ensure class can't be instantiated.
    */
@@ -46,6 +61,24 @@ public class ContentDecisions {
     return !isToxic(scores) && !isSexuallyExplicit(scores) && !isProfane(scores)
         && !isOffensive(scores) && !isObscene(scores);
   }
+  
+  /**
+   * Validate both that the map isn't null and that the map has a score.
+   * 
+   * @param attributeTypesToScores the map to be validating
+   * @param attributeType the type to check it has a score for
+   * @throws IllegalArgumentException if the map is null or doesn't have the score
+   */
+  private static void validateMapHasScore(Map<AttributeType, Float> attributeTypesToScores, 
+    AttributeType attributeType) throws IllegalArgumentException {
+
+    if (attributeTypesToScores == null) {
+      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
+    } else if (!attributeTypesToScores.containsKey(attributeType)) {
+      throw new IllegalArgumentException(
+          "Map (attributeTypesToScores) does not contain a score for " + attributeType);
+    }
+  }
 
   /**
    * Private helper method to check if content is considered toxic.
@@ -60,16 +93,10 @@ public class ContentDecisions {
    */
   private static boolean isToxic(Map<AttributeType, Float> attributeTypesToScores)
       throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.TOXICITY)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain a toxicity score");
-    }
+    validateMapHasScore(attributeTypesToScores, AttributeType.TOXICITY);
 
     float toxicity = attributeTypesToScores.get(AttributeType.TOXICITY);
-
-    return toxicity >= .7f;
+    return toxicity >= TOXICITY_THRESHOLD;
   }
 
   /**
@@ -85,16 +112,10 @@ public class ContentDecisions {
    */
   private static boolean isSexuallyExplicit(Map<AttributeType, Float> attributeTypesToScores)
       throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.SEXUALLY_EXPLICIT)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain a sexually explicit score");
-    }
+    validateMapHasScore(attributeTypesToScores, AttributeType.SEXUALLY_EXPLICIT);
 
     float sexuallyExplicit = attributeTypesToScores.get(AttributeType.SEXUALLY_EXPLICIT);
-
-    return sexuallyExplicit >= .6f;
+    return sexuallyExplicit >= SEXUALLY_EXPLICIT_THRESHOLD;
   }
 
   /**
@@ -110,16 +131,10 @@ public class ContentDecisions {
    */
   private static boolean isProfane(Map<AttributeType, Float> attributeTypesToScores)
       throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.PROFANITY)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain a profanity score");
-    }
+    validateMapHasScore(attributeTypesToScores, AttributeType.PROFANITY);
 
     float profanity = attributeTypesToScores.get(AttributeType.PROFANITY);
-
-    return profanity >= .8f;
+    return profanity >= PROFANITY_THRESHOLD;
   }
 
   /**
@@ -135,16 +150,10 @@ public class ContentDecisions {
    */
   private static boolean isOffensive(Map<AttributeType, Float> attributeTypesToScores)
       throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.IDENTITY_ATTACK)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain an identity attack score");
-    }
+    validateMapHasScore(attributeTypesToScores, AttributeType.IDENTITY_ATTACK);
 
     float identityAttack = attributeTypesToScores.get(AttributeType.IDENTITY_ATTACK);
-
-    return identityAttack >= .8f;
+    return identityAttack >= OFFENSIVE_THRESHOLD;
   }
 
   /**
@@ -160,15 +169,9 @@ public class ContentDecisions {
    */
   private static boolean isObscene(Map<AttributeType, Float> attributeTypesToScores)
       throws IllegalArgumentException {
-    if (attributeTypesToScores == null) {
-      throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
-    } else if (!attributeTypesToScores.containsKey(AttributeType.OBSCENE)) {
-      throw new IllegalArgumentException(
-          "Map (attributeTypesToScores) does not contain an obscenity score");
-    }
+    validateMapHasScore(attributeTypesToScores, AttributeType.OBSCENE);
 
     float obscenity = attributeTypesToScores.get(AttributeType.OBSCENE);
-
-    return obscenity >= .8f;
+    return obscenity >= OBSCENITY_THRESHOLD;
   }
 }
