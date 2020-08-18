@@ -139,7 +139,7 @@ public final class NLServiceClientTest {
     NLServiceClient client = new NLServiceClient(mockClient);
     client.groupByWordType(Arrays.asList(GERUNDS));
 
-    // check there are three API calls for each gerund
+    // check there are two API calls for each gerund
     verify(mockClient, times(2 * GERUNDS.length)).analyzeSyntax(any(Document.class));
   }
 
