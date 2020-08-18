@@ -61,17 +61,17 @@ public class NLServiceClient {
   }
 
   /**
-   * Takes a list of words and sorts them by word type.
+   * Takes a list of words and groups them by word type.
    * Returns a map which has word types as keys and then words
    * in a list linked to their relevant word type (e.g. "Mary" would
-   * be sorted into the PROPER_NOUN list and "calm" would be sorted
+   * be grouped into the PROPER_NOUN list and "calm" would be grouped
    * into the adjective list).
    *
-   * @param words the words to sort by word type
-   * @return a map with lists of words sorted by their word type and with their
+   * @param words the words to group by word type
+   * @return a map with lists of words grouped by their word type and with their
    *    word type as a key
    */
-  public Map<WordType, List<String>> sortByWordType(List<String> words) {
+  public Map<WordType, List<String>> groupByWordType(List<String> words) {
     Map<WordType, List<String>> map = new HashMap<WordType, List<String>>();
 
     List<String> singleWords = new ArrayList<String>();
@@ -79,14 +79,15 @@ public class NLServiceClient {
     // remove multi-word inputs first and store as multiword nouns
     for (String text : words) {
       if (text.contains(" ")) {
-        if (map.containsKey(WordType.MULTIWORD_NOUN)) {
-          List<String> wordList = map.get(WordType.MULTIWORD_NOUN);
-          wordList.add(text);
-        } else {
-          ArrayList<String> wordList = new ArrayList<String>();
-          wordList.add(text);
+        List<String> wordList = map.get(WordType.MULTIWORD_NOUN);
+
+        if (wordList == null) {
+          wordList = new ArrayList<String>();
           map.put(WordType.MULTIWORD_NOUN, wordList);
         }
+
+        wordList.add(text);
+
       } else {
         singleWords.add(text);
       }
@@ -126,14 +127,14 @@ public class NLServiceClient {
           break;
       }
 
-      if (map.containsKey(type)) {
-        List<String> wordList = map.get(type);
-        wordList.add(word);
-      } else {
-        ArrayList<String> wordList = new ArrayList<String>();
-        wordList.add(word);
+      List<String> wordList = map.get(type);
+
+      if (wordList == null) {
+        wordList = new ArrayList<String>();
         map.put(type, wordList);
       }
+        
+      wordList.add(word);
     }
 
     return map;
@@ -152,19 +153,25 @@ public class NLServiceClient {
   }
 
   /**
-   * Checks if a word is a gerund using heuristics (ending in "ing) and NL API
+   * Checks if a word is a gerund using heuristics (ending in "ing)
+   * and then making a call to the NL API if the word passes
+   * the heuristic test.
    *
    * @param word the word to check if it's a gerund
    * @return true, if it's a gerund; false, otherwise
    */
   private boolean isGerund(String word) {
-    // first check if ends in "ing"
-    if (word.length() < 3) {
+    String suffix = "ing";
+    int suffixLength = suffix.length();
+    
+    // first, check if ends in "ing" 
+    // (check it's long enough then check actual ending)
+    if (word.length() < suffixLength) {
       return false;
     }
 
-    String ending = word.substring(word.length() - 3);
-    if (!ending.equals("ing")) {
+    String ending = word.substring(word.length() - suffixLength);
+    if (!ending.equals(suffix)) {
       return false;
     }
 
@@ -176,10 +183,6 @@ public class NLServiceClient {
     // get the second token (the potential gerund)
     Token token = response.getTokens(1);
 
-    if (token.getPartOfSpeech().getTag() == Tag.VERB) {
-      return true;
-    } else {
-      return false;
-    }
+    return token.getPartOfSpeech().getTag() == Tag.VERB;
   }
 }

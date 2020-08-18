@@ -19,7 +19,7 @@ package com.google.sps.story.data;
  * syntactical category) of labels returned by Cloud Vision.
  * Unusable means that the word falls into a category of words
  * that the prompt creation suite is not equipped to put into
- * sentences. Almos no words should fall into unusable
+ * sentences. Almost no words should fall into unusable
  * because the WordType enum contains all word types of labels
  * returned by Cloud Vision.
  */

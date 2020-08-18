@@ -86,7 +86,7 @@ public final class NLServiceClientTest {
     LanguageServiceClient mockClient = createMockLSClient(desiredReturns);
 
     NLServiceClient client = new NLServiceClient(mockClient);
-    client.sortByWordType(Arrays.asList(TEXT));
+    client.groupByWordType(Arrays.asList(TEXT));
 
     // capture the passed-in document
     ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
@@ -99,7 +99,7 @@ public final class NLServiceClientTest {
   }
 
   /**
-   * Check that all multiword inputs get sorted into multiword nouns list.
+   * Check that all multiword inputs get grouped into multiword nouns list.
    */
   @Test
   public void checkMultiwordInput() {
@@ -108,15 +108,15 @@ public final class NLServiceClientTest {
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
     List<String> multiwordInputs = Arrays.asList(MULTIWORD_INPUTS);
 
-    Map<WordType, List<String>> sortedWords = client.sortByWordType(multiwordInputs);
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(multiwordInputs);
 
-    // all should be sorted as multiword inputs (should only be one key)
-    Assert.assertEquals(1, sortedWords.keySet().size());
-    Assert.assertEquals(multiwordInputs, sortedWords.get(WordType.MULTIWORD_NOUN));
+    // all should be grouped as multiword inputs (should only be one key)
+    Assert.assertEquals(1, groupedWords.keySet().size());
+    Assert.assertEquals(multiwordInputs, groupedWords.get(WordType.MULTIWORD_NOUN));
   }
 
   /**
-   * Check that all nouns get sorted into the list of nouns.
+   * Check that all nouns get grouped into the list of nouns.
    */
   @Test
   public void checkNouns() {
@@ -140,11 +140,11 @@ public final class NLServiceClientTest {
 
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
 
-    Map<WordType, List<String>> sortedWords = client.sortByWordType(inputs);
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
     // should be 3 keys (noun, adjective & unusable [the verb])
-    Assert.assertEquals(3, sortedWords.keySet().size());
-    Assert.assertEquals(Arrays.asList(NOUNS), sortedWords.get(WordType.NOUN));
+    Assert.assertEquals(3, groupedWords.keySet().size());
+    Assert.assertEquals(Arrays.asList(NOUNS), groupedWords.get(WordType.NOUN));
   }
 
   /**
@@ -170,15 +170,15 @@ public final class NLServiceClientTest {
 
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
 
-    Map<WordType, List<String>> sortedWords = client.sortByWordType(inputs);
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
     // should be 2 keys (proper nouns and nouns)
-    Assert.assertEquals(2, sortedWords.keySet().size());
-    Assert.assertEquals(Arrays.asList(PROPER_NOUNS), sortedWords.get(WordType.PROPER_NOUN));
+    Assert.assertEquals(2, groupedWords.keySet().size());
+    Assert.assertEquals(Arrays.asList(PROPER_NOUNS), groupedWords.get(WordType.PROPER_NOUN));
   }
 
   /**
-   * Check that all adjectives get sorted into the list of adjectives.
+   * Check that all adjectives get grouped into the list of adjectives.
    */
   @Test
   public void checkAdjectives() {
@@ -201,11 +201,11 @@ public final class NLServiceClientTest {
 
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
 
-    Map<WordType, List<String>> sortedWords = client.sortByWordType(inputs);
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
     // should be 3 keys (adjective, noun & unusable [the verb])
-    Assert.assertEquals(3, sortedWords.keySet().size());
-    Assert.assertEquals(Arrays.asList(ADJECTIVES), sortedWords.get(WordType.ADJECTIVE));
+    Assert.assertEquals(3, groupedWords.keySet().size());
+    Assert.assertEquals(Arrays.asList(ADJECTIVES), groupedWords.get(WordType.ADJECTIVE));
   }
 
   /**
@@ -239,11 +239,11 @@ public final class NLServiceClientTest {
 
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
 
-    Map<WordType, List<String>> sortedWords = client.sortByWordType(inputs);
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
     // should be 3 keys (noun, verb, unusable) based off input we gave
-    Assert.assertEquals(3, sortedWords.keySet().size());
-    Assert.assertEquals(Arrays.asList(GERUNDS), sortedWords.get(WordType.GERUND));
+    Assert.assertEquals(3, groupedWords.keySet().size());
+    Assert.assertEquals(Arrays.asList(GERUNDS), groupedWords.get(WordType.GERUND));
   }
 
   /**
@@ -286,16 +286,16 @@ public final class NLServiceClientTest {
 
     NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
 
-    Map<WordType, List<String>> sortedWords = client.sortByWordType(inputs);
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
     // all types of word types present 
-    Assert.assertEquals(6, sortedWords.keySet().size());
-    Assert.assertEquals(Arrays.asList(MULTIWORD_INPUTS), sortedWords.get(WordType.MULTIWORD_NOUN));
-    Assert.assertEquals(Arrays.asList(NOUNS), sortedWords.get(WordType.NOUN));
-    Assert.assertEquals(Arrays.asList(PROPER_NOUNS), sortedWords.get(WordType.PROPER_NOUN));
-    Assert.assertEquals(Arrays.asList(ADJECTIVES), sortedWords.get(WordType.ADJECTIVE));
-    Assert.assertEquals(Arrays.asList(GERUNDS), sortedWords.get(WordType.GERUND));
-    Assert.assertEquals(Arrays.asList(UNUSABLE), sortedWords.get(WordType.UNUSABLE));
+    Assert.assertEquals(6, groupedWords.keySet().size());
+    Assert.assertEquals(Arrays.asList(MULTIWORD_INPUTS), groupedWords.get(WordType.MULTIWORD_NOUN));
+    Assert.assertEquals(Arrays.asList(NOUNS), groupedWords.get(WordType.NOUN));
+    Assert.assertEquals(Arrays.asList(PROPER_NOUNS), groupedWords.get(WordType.PROPER_NOUN));
+    Assert.assertEquals(Arrays.asList(ADJECTIVES), groupedWords.get(WordType.ADJECTIVE));
+    Assert.assertEquals(Arrays.asList(GERUNDS), groupedWords.get(WordType.GERUND));
+    Assert.assertEquals(Arrays.asList(UNUSABLE), groupedWords.get(WordType.UNUSABLE));
   }
 
   /** 
