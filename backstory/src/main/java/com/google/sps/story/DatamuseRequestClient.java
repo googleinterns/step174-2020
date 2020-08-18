@@ -29,7 +29,6 @@ import org.json.JSONObject;
  * A class to make requests of the Datamuse API.
  */
 public class DatamuseRequestClient {
-
   /** the url to access the Datamuse database we're querying */
   private static final String DATAMUSE_URL = "http://api.datamuse.com/words?";
 
@@ -67,32 +66,33 @@ public class DatamuseRequestClient {
    * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
    *    or does not have objects of type JSON (ClassCastException)
    */
-  public String[] getRelatedAdjectives(String noun, int cap) 
+  public String[] getRelatedAdjectives(String noun, int cap)
       throws IllegalArgumentException, APINotAvailableException, RuntimeException {
     if (noun.contains(" ")) {
       throw new IllegalArgumentException("Noun must be one word.");
     }
-    
+
     // put together a query asking for adjectives related to the noun (rel_jjb=noun)
     // and capping the number of results at 10 (max=10)
     String query = queryUrl + "rel_jjb=" + noun + "&max=" + cap;
     String jsonResponse = querySite(query);
 
     // there are two try statements b/c there's a possibility for more than one JSONException to be
-    // thrown in this method so specifying what went wrong with that exact JSON exception 
+    // thrown in this method so specifying what went wrong with that exact JSON exception
     // will be more helpful hence a try block for each JSONException that needs a customized message
     JSONArray jsonArray;
 
     try {
       jsonArray = new JSONArray(jsonResponse);
     } catch (JSONException exception) {
-      throw new RuntimeException("Could not parse the JSON received back from the Datamuse Query.", exception);
+      throw new RuntimeException(
+          "Could not parse the JSON received back from the Datamuse Query.", exception);
     }
 
     try {
       int length = jsonArray.length();
       String[] adjectives = new String[length];
-    
+
       for (int i = 0; i < length; i++) {
         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
         adjectives[i] = jsonObject.getString("word");
@@ -102,14 +102,15 @@ public class DatamuseRequestClient {
     } catch (ClassCastException exception) {
       throw new RuntimeException("JSON array received was not of JSON objects.", exception);
     } catch (JSONException exception) {
-      throw new RuntimeException("JSON Object did not have a String value for the key \"word\".", exception);
+      throw new RuntimeException(
+          "JSON Object did not have a String value for the key \"word\".", exception);
     }
   }
 
   /**
-   * Query the site at the given url and retrieve the content (likely JSON) from that 
+   * Query the site at the given url and retrieve the content (likely JSON) from that
    * site. If there's nothing at that site, return null. This code was
-   * adapted from the DatamuseQuery class in the Datamuse4J repo 
+   * adapted from the DatamuseQuery class in the Datamuse4J repo
    * (https://github.com/sjblair/Datamuse4J/blob/master/src/datamuse/DatamuseQuery.java).
    *
    * @param url the url to query
@@ -117,7 +118,8 @@ public class DatamuseRequestClient {
    * @throws APINotAvailableException if the method can't retrieve the content at the site
    */
   private String querySite(String url) throws APINotAvailableException {
-    final String ERROR_MESSAGE = "This query could not successfully retrieve content from Datamuse API.\n";
+    final String ERROR_MESSAGE =
+        "This query could not successfully retrieve content from Datamuse API.\n";
 
     try {
       URL site = new URL(url);
@@ -127,16 +129,17 @@ public class DatamuseRequestClient {
         throw new APINotAvailableException(ERROR_MESSAGE + "URLConnection was null");
       }
 
-      BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+      BufferedReader in =
+          new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 
       StringBuilder content = new StringBuilder();
-      
-      // build a StringBuilder from the content present at the site 
+
+      // build a StringBuilder from the content present at the site
       String inputLine;
       while ((inputLine = in.readLine()) != null) {
         content.append(inputLine);
       }
-      
+
       in.close();
 
       return content.toString();
