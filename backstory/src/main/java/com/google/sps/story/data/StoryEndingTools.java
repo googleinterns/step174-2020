@@ -31,7 +31,7 @@ public class StoryEndingTools {
   };
 
   /** an array of sentence enders */
-  private static final String[] SENTENCE_ENDERS = {".", "?", "!"};
+  public static final String[] SENTENCE_ENDERS = {".", "?", "!"};
 
   /**
    * Overrides default constructor to ensure class can't be instantiated.
@@ -45,9 +45,9 @@ public class StoryEndingTools {
    *
    * @param story the story to return with a natural ending
    * @return story with ending
-   * @throws IllegalArgumentException if story is null or just whitespace
+   * @throws IllegalArgumentException if story is null
    */
-  public static String endStory(String story) throws IllegalArgumentException {
+  public static String endStory(String story) {
     validateStory(story);
 
     story = removeSentenceFragmentAtEnd(story);
@@ -64,13 +64,14 @@ public class StoryEndingTools {
    *
    * @param story to remove the sentence fragment from
    * @return the passed-in story without the last sentence fragment
-   * @throws IllegalArgumentException if story is null or whitespace
+   * @throws IllegalArgumentException if story is null 
    */
-  public static String removeSentenceFragmentAtEnd(String story) throws IllegalArgumentException {
+  public static String removeSentenceFragmentAtEnd(String story) {
     validateStory(story);
 
     // find the last sentence-ending punctuation
-    int lastSentenceEnder = -1;
+    final int NOT_FOUND = -1;
+    int lastSentenceEnder = NOT_FOUND;
 
     for (String ender : SENTENCE_ENDERS) {
       int lastIndex = story.lastIndexOf(ender);
@@ -80,8 +81,8 @@ public class StoryEndingTools {
       }
     }
 
-    // if last period coincides with end of story, then return story as is
-    if (lastSentenceEnder == story.length() - 1) {
+    // if sentence-ending punctuation coincides with end of story, then return story as is
+    if (lastSentenceEnder != NOT_FOUND && lastSentenceEnder == story.length() - 1) {
       return story;
     }
 
@@ -95,24 +96,24 @@ public class StoryEndingTools {
    *
    * @param story the story to add an ending to
    * @return story + ending
-   * @throws IllegalArgumentException if story is null or whitespace
+   * @throws IllegalArgumentException if story is null 
    */
-  public static String addEnding(String story) throws IllegalArgumentException {
+  public static String addEnding(String story) {
     validateStory(story);
 
     return story + " " + ENDINGS[(int) (Math.random() * ENDINGS.length)];
   }
 
   /**
-   * Helper method to validate that a story is null or a whitespace String.
+   * Helper method to validate that a story is null.
    * Throws IllegalArgumentException if it's not valid.
    *
    * @param story the story to validate
-   * @throws IllegalArgumentException if story is null or an empty String
+   * @throws IllegalArgumentException if story is null 
    */
   private static void validateStory(String story) throws IllegalArgumentException {
-    if (story == null || story.trim().length() == 0) {
-      throw new IllegalArgumentException("Story should not be null or empty/whitespace");
+    if (story == null) {
+      throw new IllegalArgumentException("Story should not be null.");
     }
   }
 }
