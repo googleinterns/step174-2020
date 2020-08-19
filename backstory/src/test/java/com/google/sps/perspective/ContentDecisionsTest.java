@@ -52,7 +52,7 @@ public final class ContentDecisionsTest {
   @Before 
   public void setUp() {
     inputScores = new HashMap<AttributeType, Float>();
-    
+
     // set all criteria to 0 at the moment (so default is it's appropriate)
     for (AttributeType type: CRITERIA) {
       inputScores.put(type, 0f);
@@ -129,6 +129,7 @@ public final class ContentDecisionsTest {
     input = new PerspectiveValues(DEFAULT_TEXT, inputScores); 
     ContentDecisions.makeDecision(input); // should be the line causing the error
   }
+  
 
   /**
    * Check that ContentDecisions makeDecision returns that PerspectiveValues

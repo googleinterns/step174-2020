@@ -18,8 +18,8 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import java.util.Map;
 
 /**
- * Makes a decision on whether or not the story (or content) is appropriate
- * using analysis from Perspective API.
+ * Provides tools to make decision on whether or not the story (or content)
+ * is appropriate using analysis from Perspective API.
  */
 public class ContentDecisions {
   
@@ -48,16 +48,18 @@ public class ContentDecisions {
    * Makes decision on whether or not text in perspective value
    * is considered appropriate based on the analysis scores from Perspective API
    * stored in PerspectiveValues object. Returns this decision as a boolean.
-   * Current decision logic is based off whether text considered toxic.
+   * Decision is currently based on scores of toxicity, sexual explicitness,
+   * profanity, offensivity, and obscenity.
    *
    * @param PerspectiveValues the object containing text to be decided on
    *     & the requested analysis from Perspective API to use in making decision.
    * @return true, if content considered appropriate; false, otherwise
    */
   public static boolean makeDecision(PerspectiveValues values) {
-    // currently decision is entirely based on whether content is considered toxic
+    Map<AttributeType, Float> scores = values.getAttributeTypesToScores();
 
-    return !isToxic(values.getAttributeTypesToScores());
+    return !isToxic(scores) && !isSexuallyExplicit(scores) && !isProfane(scores)
+        && !isOffensive(scores) && !isObscene(scores);
   }
   
   /**
@@ -85,7 +87,7 @@ public class ContentDecisions {
    *
    * @param attributeTypesToScores a map with attribute types mapped to scores from the Perspective
    *     API
-   * @return true, if toxicity score (in attributeTypesToScores) >= 70% toxic; false, if not
+   * @return true, if toxicity score >= 70%; false, if not
    * @throws IllegalArgumentException, if attributeTypesToScores is null or does not contain a
    *     toxicity score
    */
