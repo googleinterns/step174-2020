@@ -17,8 +17,16 @@ package com.google.sps.servlets.data;
 import com.google.sps.story.StoryManager;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for StoryManager.
  */
 public interface StoryManagerFactory {
+  /**
+   * Create a new instance of StoryManager with the specified prompt, story length, and temperature.
+   * 
+   * @param prompt the prompt to be used in generation.
+   * @param storyLength the length of the story to be generated.
+   * @param temperature the temperature of the story to be generated.
+   * @return an instance of StoryManager.
+   */
   public StoryManager newInstance(String prompt, int storyLength, double temperature);
 }

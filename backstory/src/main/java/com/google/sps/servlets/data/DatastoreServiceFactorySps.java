@@ -17,6 +17,13 @@ package com.google.sps.servlets.data;
 import com.google.appengine.api.datastore.DatastoreService;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for DatastoreService.
  */
-public interface DatastoreServiceFactorySps { public DatastoreService newInstance(); }
+public interface DatastoreServiceFactorySps {
+  /**
+   * Create a new instance of DatastoreService.
+   *
+   * @return an instance of DatastoreService.
+   */
+  public DatastoreService newInstance();
+}

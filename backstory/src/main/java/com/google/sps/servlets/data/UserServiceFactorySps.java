@@ -17,6 +17,13 @@ package com.google.sps.servlets.data;
 import com.google.appengine.api.users.UserService;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for UserService.
  */
-public interface UserServiceFactorySps { public UserService newInstance(); }
+public interface UserServiceFactorySps {
+  /**
+   * Create a new instance of UserService.
+   *
+   * @return an instance of UserService.
+   */
+  public UserService newInstance();
+}

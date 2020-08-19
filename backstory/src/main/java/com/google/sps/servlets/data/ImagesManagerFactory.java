@@ -17,6 +17,13 @@ package com.google.sps.servlets.data;
 import com.google.sps.images.ImagesManager;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for ImagesManager.
  */
-public interface ImagesManagerFactory { public ImagesManager newInstance(); }
+public interface ImagesManagerFactory {
+  /**
+   * Create a new instance of ImagesManager.
+   *
+   * @return an instance of ImagesManager.
+   */
+  public ImagesManager newInstance();
+}
