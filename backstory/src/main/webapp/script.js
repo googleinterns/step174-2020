@@ -22,16 +22,14 @@
 // VALIDATE FORM WITH IMAGE UPLOAD
 
 /**
- * Check the form by validating image upload 
+ * Check the form by validating image upload
  * and if it's valid return true and add
- * the loading graphic. 
+ * the loading graphic.
  *
  * @return true, if image is valid, false otherwise
  */
 function checkForm() {
-  let validImageUploaded = validateImageUpload();
-
-  if (! validImageUploaded) {
+  if (! validateImageUpload()) {
     return false;
   }
 
@@ -44,7 +42,7 @@ function checkForm() {
  * is an accepted image. Alert user to upload a new file if not.
  *
  * @return true, if valid image uploaded; false, if no image uploaded
- *      or if no valid image uploaded  
+ *      or if no valid image uploaded
  */
 function validateImageUpload() {
   const imageUpload = document.getElementById('image-upload');
@@ -54,17 +52,18 @@ function validateImageUpload() {
     alert('No file has been uploaded. Please upload a file.');
     return false;
   }
-  
-  if (! validImage(files.item(0))) {
-    alert('Only PNGs and JPGs are accepted image upload types. ' 
-        + 'Please upload a PNG or JPG.');
+
+  if (!validImage(files.item(0))) {
+    alert(
+        'Only PNGs and JPGs are accepted image upload types. ' +
+        'Please upload a PNG or JPG.');
     return false;
   }
 
   return true;
 }
 
-/** 
+/**
  * Validate that the passed-in file is an
  * accepted image type (jpg or png).
  *
