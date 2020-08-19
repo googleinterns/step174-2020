@@ -22,8 +22,7 @@ import java.util.Map;
  * is appropriate using analysis from Perspective API.
  */
 public class ContentDecisions {
-  
-  // threshold here means that score must be below this threshold 
+  // threshold here means that score must be below this threshold
   // in order to be considered appropriate.
 
   /** the threshold for appropriateness for toxicity score */
@@ -61,17 +60,16 @@ public class ContentDecisions {
     return !isToxic(scores) && !isSexuallyExplicit(scores) && !isProfane(scores)
         && !isOffensive(scores) && !isObscene(scores);
   }
-  
+
   /**
    * Validate both that the map isn't null and that the map has a score.
-   * 
+   *
    * @param attributeTypesToScores the map to be validating
    * @param attributeType the type to check it has a score for
    * @throws IllegalArgumentException if the map is null or doesn't have the score
    */
-  private static void validateMapHasScore(Map<AttributeType, Float> attributeTypesToScores, 
-    AttributeType attributeType) throws IllegalArgumentException {
-
+  private static void validateMapHasScore(Map<AttributeType, Float> attributeTypesToScores,
+      AttributeType attributeType) throws IllegalArgumentException {
     if (attributeTypesToScores == null) {
       throw new IllegalArgumentException("Map (attributeTypesToScores) cannot be null.");
     } else if (!attributeTypesToScores.containsKey(attributeType)) {
