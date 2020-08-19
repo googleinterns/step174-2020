@@ -34,27 +34,35 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.Before;
 
 /**
  * Tests for the blobstore service wrapper, BlobstoreManager
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class BlobstoreManagerTest {
+  // All necessary mocks and objects for the test calls themselves
+  private BlobstoreService mockBlobstoreService;
+  private BlobstoreServiceConstantFields mockBlobstoreServiceConstantFields;
+  private BlobInfoFactory mockBlobInfoFactory;
+  private HttpServletRequest mockRequest;
+  private String formInputElementName;
+  private String mockBlobkey;
+
   /**
-   * Tests the getUploadedFileBlobKeyString method of BlobstoreManager
+   * Sets up the shared mocks and objects for the two tests.
    */
-  @Test
-  public void testGetUploadedFileBlobKeyString() {
-    // Creates the required mocks for an HTTP request/response.
-    HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+  @Before
+  public void setUp() {
+    mockRequest = mock(HttpServletRequest.class);
 
-    BlobstoreService mockBlobstoreService = mock(BlobstoreService.class);
-    BlobstoreServiceConstantFields mockBlobstoreServiceConstantFields = mock(BlobstoreServiceConstantFields.class);
-    BlobInfoFactory mockBlobInfoFactory = mock(BlobInfoFactory.class);
+    mockBlobstoreService = mock(BlobstoreService.class);
+    mockBlobstoreServiceConstantFields = mock(BlobstoreServiceConstantFields.class);
+    mockBlobInfoFactory = mock(BlobInfoFactory.class);
+    formInputElementName = "image-upload";
+    mockBlobkey = "mockBlobkey";
+
     BlobInfo mockBlobInfo = mock(BlobInfo.class);
-
-    String formInputElementName = "image-upload";
-    String mockBlobkey = "mockBlobkey";
     Map<String, List<BlobKey>> mockInputToBlobkey = new HashMap<>();
     List<BlobKey> mockBlobKeys = new ArrayList<>();
     mockBlobKeys.add(new BlobKey(mockBlobkey));
@@ -67,7 +75,13 @@ public final class BlobstoreManagerTest {
     when(mockBlobInfo.getSize()).thenReturn(new Long(1));
     when(mockBlobInfoFactory.loadBlobInfo(any(BlobKey.class)))
         .thenReturn(mockBlobInfo);
+  }
 
+  /**
+   * Tests the getUploadedFileBlobKeyString method of BlobstoreManager
+   */
+  @Test
+  public void testGetUploadedFileBlobKeyString() throws IOException {
     BlobstoreManager blobstoreManager = new BlobstoreManager(mockBlobstoreService, mockBlobstoreServiceConstantFields, mockBlobInfoFactory);
     Assert.assertEquals(mockBlobkey, blobstoreManager.getUploadedFileBlobKeyString(mockRequest, formInputElementName));
   }
@@ -77,14 +91,6 @@ public final class BlobstoreManagerTest {
    */
   @Test
   public void testGetBlobBytes() throws IOException {
-    // Creates the required mocks for an HTTP request/response.
-    HttpServletRequest mockRequest = mock(HttpServletRequest.class);
-
-    BlobstoreService mockBlobstoreService = mock(BlobstoreService.class);
-    BlobstoreServiceConstantFields mockBlobstoreServiceConstantFields = mock(BlobstoreServiceConstantFields.class);
-    BlobInfoFactory mockBlobInfoFactory = mock(BlobInfoFactory.class);
-    BlobInfo mockBlobInfo = mock(BlobInfo.class);
-
     byte[] mockImageByteArray = new byte[0];
     // Mock a max blob fetch size of 1
     when(mockBlobstoreServiceConstantFields.getMaxBlobFetchSize())
@@ -92,21 +98,6 @@ public final class BlobstoreManagerTest {
     when(mockBlobstoreService.fetchData(
       any(BlobKey.class), anyLong(), anyLong()
     )).thenReturn(mockImageByteArray);
-
-    String formInputElementName = "image-upload";
-    String mockBlobkey = "mockBlobkey";
-    Map<String, List<BlobKey>> mockInputToBlobkey = new HashMap<>();
-    List<BlobKey> mockBlobKeys = new ArrayList<>();
-    mockBlobKeys.add(new BlobKey(mockBlobkey));
-    mockInputToBlobkey.put(formInputElementName, mockBlobKeys);
-
-    when(mockBlobstoreService.getUploads(any(HttpServletRequest.class)))
-        .thenReturn(mockInputToBlobkey);
-
-    // Mock at least one image getting uploaded
-    when(mockBlobInfo.getSize()).thenReturn(new Long(1));
-    when(mockBlobInfoFactory.loadBlobInfo(any(BlobKey.class)))
-        .thenReturn(mockBlobInfo);
 
     BlobstoreManager blobstoreManager = new BlobstoreManager(mockBlobstoreService, mockBlobstoreServiceConstantFields, mockBlobInfoFactory);
     Assert.assertEquals(0, blobstoreManager.getBlobBytes(mockRequest, formInputElementName).length);

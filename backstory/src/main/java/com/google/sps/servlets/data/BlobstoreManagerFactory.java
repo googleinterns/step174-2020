@@ -17,6 +17,13 @@ package com.google.sps.servlets.data;
 import com.google.sps.servlets.data.BlobstoreManager;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for BlobstoreManager.
  */
-public interface BlobstoreManagerFactory { public BlobstoreManager newInstance(); }
+public interface BlobstoreManagerFactory {
+  /**
+   * Create a new instance of BlobstoreManager.
+   *
+   * @return an instance of BlobstoreManager.
+   */
+  public BlobstoreManager newInstance();
+}

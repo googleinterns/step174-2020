@@ -21,16 +21,24 @@ import com.google.appengine.api.blobstore.BlobstoreService;
  * any and all constant fields.
  */
 public class BlobstoreServiceConstantFields {
+  // This is the blobstore service connected to this wrapper class.
   private BlobstoreService blobstoreService;
 
   /**
-   * Creates a  wrapper connected to a Blobstore Service or mock.
+   * Creates a  wrapper connected to a Blobstore Service.
+   *
+   * @param blobstoreService the blobstore service connected to this wrapper.
    */
   public BlobstoreServiceConstantFields(BlobstoreService blobstoreService) {
     this.blobstoreService = blobstoreService;
   }
 
-  /** Returns the max blob fetch size for the blobstore service */
+  /**
+   * Gets the max blob fetch size for this blobstore service.
+   *
+   * @return the max blob fetch size for the blobstore service, which is the max number
+   * of bytes which we can fetch from any blob at once using this blobstore service.
+   */
   public int getMaxBlobFetchSize() {
     return blobstoreService.MAX_BLOB_FETCH_SIZE;
   }
