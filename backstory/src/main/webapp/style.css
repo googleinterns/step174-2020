@@ -144,13 +144,13 @@ textarea {
 }
 
 #photo-upload-div {
- align-items: center;
+  align-items: center;
 }
 
 #upload-label {
   cursor: pointer;
   font-weight: bold;
-  padding: 0px 0px 10px;
+  padding: 0 0 10px;
 }
 
 #submit-button {

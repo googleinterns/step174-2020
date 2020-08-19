@@ -18,7 +18,7 @@
  */
 
 /* exported fetchBlobstoreUrl getAnalyzedImages
-   createBackstoryLoadingElement updateFileName */
+   createBackstoryLoadingElement uploadFileUpdates */
 
 // FETCH BLOBSTORE URL
 
@@ -137,7 +137,7 @@ function createBackstoryLoadingElement() {
 
 // UPLOAD FILE CHANGES
 
-/** 
+/**
  * Updates the text of the file upload when a file is uploaded
  * and enables the submit button (starts as
  * a disabled button in HTML).
@@ -165,7 +165,7 @@ function updateFileName() {
 }
 
 /**
- * Enables the submit button if there's a file in 
+ * Enables the submit button if there's a file in
  * the image-upload field.
  */
 function enableSubmitButton() {
