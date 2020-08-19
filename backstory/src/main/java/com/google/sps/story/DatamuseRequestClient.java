@@ -114,13 +114,13 @@ public class DatamuseRequestClient {
   }
 
   /**
-   * Query the given url and retrieve the input stream at the site (likely JSON) from that
-   * site. If there's nothing at that site, return null. This code was
+   * Makes a GET request to given url and retrieve info at that site.
+   * If there's nothing at that site, return null. This code was
    * adapted from the DatamuseQuery class in the Datamuse4J repo
    * (https://github.com/sjblair/Datamuse4J/blob/master/src/datamuse/DatamuseQuery.java).
    *
    * @param url the url to query
-   * @return the content at the site.
+   * @return the response body of the GET request
    * @throws APINotAvailableException if the method can't retrieve the content at the site
    */
   private String queryUrl(String url) throws APINotAvailableException {
