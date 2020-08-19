@@ -14,7 +14,7 @@
 
 /* JS for Home page
  * features: get blobstore url, retrieve analyzed images,
- * create loading element, and update file upload label
+ * create loading element, and change CSS/HTML when file is uploaded.
  */
 
 /* exported fetchBlobstoreUrl getAnalyzedImages
@@ -135,7 +135,17 @@ function createBackstoryLoadingElement() {
   }
 }
 
-// UPDATE FILE UPLOAD LABEL
+// UPLOAD FILE CHANGES
+
+/** 
+ * Updates the text of the file upload when a file is uploaded
+ * and enables the submit button (starts as
+ * a disabled button in HTML).
+ */
+function uploadFileUpdates() {
+  updateFileName();
+  enableSubmitButton();
+}
 
 /**
  * Updates the text of the file upload label to match the uploaded file
@@ -151,5 +161,18 @@ function updateFileName() {
     } else {
       label.innerText = fileInput.files.item(0).name;
     }
+  }
+}
+
+/**
+ * Enables the submit button if there's a file in 
+ * the image-upload field.
+ */
+function enableSubmitButton() {
+  const fileInput = document.getElementById('image-upload');
+  const submitButton = document.getElementById('submit-button');
+
+  if (fileInput.files.length > 0) {
+    submitButton.disabled = false;
   }
 }

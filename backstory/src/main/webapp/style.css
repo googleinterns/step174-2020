@@ -143,18 +143,14 @@ textarea {
   padding: 20px 0 10px;
 }
 
-#home-content #photo-upload {
-  text-align: center;
+#photo-upload-div {
+ align-items: center;
 }
 
-#home-content #image-upload {
-  background-color: white;
-  border: solid thick var(--saffron);
-  border-radius: 5px;
-  color: var(--oxford-blue) !important;
-  font-size: 16px;
+#upload-label {
+  cursor: pointer;
   font-weight: bold;
-  padding: 0 0 10px;
+  padding: 0px 0px 10px;
 }
 
 #submit-button {
@@ -167,6 +163,10 @@ textarea {
   height: 40px;
   margin: 0 10px 25px;
   width: 100px;
+}
+
+#submit-button:disabled {
+  visibility: hidden;
 }
 
 #story-display {

@@ -43,9 +43,9 @@
 
       <form id="photo-upload" method="post" enctype="multipart/form-data">
         <div class="vertical-flex-container" id="photo-upload-div">
-          <label id="upload-label" for="image-upload">Upload Your Image...</label>
-          <input class="file-input" type="file" id="image-upload" name="image-upload" onchange="updateFileName()" />
-          <button type="submit" id="submit-button" onclick="createBackstoryLoadingElement()">Submit</button>
+          <label id="upload-label" for="image-upload">Upload Your Image Here...</label>
+          <input class="file-input" type="file" id="image-upload" name="image-upload" onchange="uploadFileUpdates()" />
+          <button type="submit" id="submit-button" onclick="createBackstoryLoadingElement()" disabled>Submit</button>
         </div>
       </form>
 
