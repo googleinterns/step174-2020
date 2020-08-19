@@ -30,6 +30,9 @@ public class StoryEndingTools {
       "We'll never know what happened next.",
   };
 
+  /** an array of sentence enders */
+  private static final String[] SENTENCE_ENDERS = {".", "?", "!"};
+
   /**
    * Overrides default constructor to ensure class can't be instantiated.
    */
@@ -38,7 +41,7 @@ public class StoryEndingTools {
   }
 
   /**
-   * Takes a story from GPT-2 and returns onee with a more natural ending.
+   * Takes a story from GPT-2 and returns ones with a more natural ending.
    *
    * @param story the story to return with a natural ending
    * @return story with ending
@@ -70,14 +73,16 @@ public class StoryEndingTools {
       throw new IllegalArgumentException("Story should not be null");
     }
 
-    int lastPeriodIndex = story.lastIndexOf(".");
-    int lastExclamationPointIndex = story.lastIndexOf("!");
-    int lastQuestionMarkIndex = story.lastIndexOf("?");
+    // find the last sentence-ending punctuation
+    int lastSentenceEnder = -1;
 
-    // find the last sentence-ending punctuation by finding the max number
-    // amongst all the sentence-ending types indices
-    int lastSentenceEnder = Math.max(lastPeriodIndex, lastExclamationPointIndex);
-    lastSentenceEnder = Math.max(lastSentenceEnder, lastQuestionMarkIndex);
+    for (String ender: SENTENCE_ENDERS) {
+      int lastIndex = story.lastIndexOf(ender);
+
+      if (lastIndex > lastSentenceEnder) {
+        lastSentenceEnder = lastIndex;
+      }
+    }
 
     // if last period coincides with end of story, then return story as is
     if (lastSentenceEnder == story.length() - 1) {
