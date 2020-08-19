@@ -70,7 +70,6 @@ public class DatamuseRequestClient {
    */
   public String[] fetchRelatedAdjectives(String noun, int cap)
       throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-
     // check for whitespace
     Pattern pattern = Pattern.compile("\\s");
     Matcher matcher = pattern.matcher(noun);
@@ -126,7 +125,8 @@ public class DatamuseRequestClient {
    */
   private String queryUrl(String url) throws APINotAvailableException {
     final String ERROR_MESSAGE =
-        "This query could not successfully retrieve content from Datamuse API." + System.lineSeparator();
+        "This query could not successfully retrieve content from Datamuse API."
+        + System.lineSeparator();
 
     try {
       URL site = new URL(url);
