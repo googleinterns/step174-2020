@@ -33,24 +33,24 @@ import org.junit.runners.JUnit4;
 public final class StoryEndingToolsTest {
 
   // strings to use in testing story ending tools
-  private final String EMPTY_TEXT = "";
-  private final String SENTENCE_FRAGMENT = "This story is not ";
-  private final String COMPLETE_SENTENCE = "This story is not incomplete.";
-  private final String QUESTION_FRAGMENT = "What is this? I don't ";
-  private final String COMPLETE_QUESTION = "I didn't realize. What's happening here?";
-  private final String EXCLAMATION_FRAGMENT = "Oh no! This isn't ";
-  private final String COMPLETE_EXCLAMATION = "I had no idea. Oh no!";
+  private final static String EMPTY_TEXT = "";
+  private final static String SENTENCE_FRAGMENT = "This story is not ";
+  private final static String COMPLETE_SENTENCE = "This story is not incomplete.";
+  private final static String QUESTION_FRAGMENT = "What is this? I don't ";
+  private final static String COMPLETE_QUESTION = "I didn't realize. What's happening here?";
+  private final static String EXCLAMATION_FRAGMENT = "Oh no! This isn't ";
+  private final static String COMPLETE_EXCLAMATION = "I had no idea. Oh no!";
 
   // aggregate all of these into one input array
-  private final String[] INPUTS = { EMPTY_TEXT, SENTENCE_FRAGMENT, COMPLETE_SENTENCE, 
+  private final static String[] INPUTS = { EMPTY_TEXT, SENTENCE_FRAGMENT, COMPLETE_SENTENCE, 
                                     QUESTION_FRAGMENT, COMPLETE_QUESTION, 
                                     EXCLAMATION_FRAGMENT, COMPLETE_EXCLAMATION };
   // aggregate by other categories
-  private final String[] FRAGMENTS = { SENTENCE_FRAGMENT, QUESTION_FRAGMENT, EXCLAMATION_FRAGMENT };
-  private final String[] COMPLETE_SENTENCES = { COMPLETE_SENTENCE, COMPLETE_QUESTION, COMPLETE_EXCLAMATION };
+  private final static String[] FRAGMENTS = { SENTENCE_FRAGMENT, QUESTION_FRAGMENT, EXCLAMATION_FRAGMENT };
+  private final static String[] COMPLETE_SENTENCES = { COMPLETE_SENTENCE, COMPLETE_QUESTION, COMPLETE_EXCLAMATION };
 
   // array of sentence enders
-  private final String[] SENTENCE_ENDERS = {".", "?", "!"};
+  private final static String[] SENTENCE_ENDERS = {".", "?", "!"};
 
   /**
    * Check that sending in null input to endStory() 
@@ -81,28 +81,35 @@ public final class StoryEndingToolsTest {
   }
 
   /**
+   * Private helper method to check if text ends in punctuation.
+   * 
+   * @param text the text to check ending for
+   * @return true, if it's empty or if the char at the last index is in SENTENCE_ENDERS
+   *
+   */
+  private static boolean endsInSentenceEndingPunctuation(String text) {
+    if (text.equals("")) {
+      return true;
+    }
+
+    String endCharacter = text.substring(text.length() - 1);
+
+    List<String> sentenceEnders = Arrays.asList(SENTENCE_ENDERS);
+
+    return sentenceEnders.contains(endCharacter);
+  }
+
+  /**
    * Check that output from addEnding ends
    * with correct punctuation.
    */
   @Test
   public void addEndingAlwaysEndsProperly() {
-    // go through all inputs and check that all end properly 
-    // after adding an ending from story ending 
-    // (if ending not added, then this will fail)
+    // go through all inputs and check that all have
+    // a proper punctuation at end 
 
     for (String input: INPUTS) {
-      int lastSentenceEnder = -1;
-      String inputWithEnding = StoryEndingTools.addEnding(input);
-
-      for (String ender: SENTENCE_ENDERS) {
-        int lastIndex = inputWithEnding.lastIndexOf(ender);
-
-        if (lastIndex > lastSentenceEnder) {
-          lastSentenceEnder = lastIndex;
-        }
-      }
-
-      Assert.assertEquals(inputWithEnding.length() - 1, lastSentenceEnder);
+      Assert.assertTrue(endsInSentenceEndingPunctuation(StoryEndingTools.addEnding(input)));
     }
   }
   
@@ -120,43 +127,45 @@ public final class StoryEndingToolsTest {
 
   /**
    * Check that output from removeSentenceFragmentAtEnd
-   * with empty string as input is the right length.
+   * with empty string is correct
    */
   @Test
   public void emptyInputForRemoveFragment() {
-    Assert.assertEquals(0, StoryEndingTools.removeSentenceFragmentAtEnd(EMPTY_TEXT).length());
+    Assert.assertEquals("", StoryEndingTools.removeSentenceFragmentAtEnd(EMPTY_TEXT));
   }  
 
   /**
    * Check that output from removeSentenceFragmentAtEnd
-   * with sentence fragments as input is the right length.
+   * with sentence fragments as input is correct.
    */
   @Test
   public void fragmentInputForRemoveFragment() {
-    for (String inputWithFragment: FRAGMENTS) {
-      int lastSentenceEnder = -1;
+    String expectedForSentenceFragment = "";
+    String actualForSentenceFragment = StoryEndingTools.removeSentenceFragmentAtEnd(SENTENCE_FRAGMENT);
 
-      for (String ender: SENTENCE_ENDERS) {
-        int lastIndex = inputWithFragment.lastIndexOf(ender);
+    Assert.assertEquals(expectedForSentenceFragment, actualForSentenceFragment);
 
-        if (lastIndex > lastSentenceEnder) {
-          lastSentenceEnder = lastIndex;
-        }
-      }
+    String expectedForQuestionFragment = "What is this?";
+    String actualForQuestionFragment = StoryEndingTools.removeSentenceFragmentAtEnd(QUESTION_FRAGMENT);
 
-      Assert.assertEquals(lastSentenceEnder + 1, StoryEndingTools.removeSentenceFragmentAtEnd(inputWithFragment).length());
-    }
+    Assert.assertEquals(expectedForQuestionFragment, actualForQuestionFragment);
+
+    String expectedForExclamationFragment = "Oh no!";
+    String actualForExclamationFragment = StoryEndingTools.removeSentenceFragmentAtEnd(EXCLAMATION_FRAGMENT);
+
+    Assert.assertEquals(expectedForExclamationFragment, actualForExclamationFragment);
   }  
 
   /**
    * Check that output from removeSentenceFragmentAtEnd
-   * with complete sentences as input is the right length.
+   * with complete sentences as input is correct.
+   * (shouldn't remove anything)
    */
   @Test
   public void sentenceInputWithRemoveFragment() {
-    for (String sentence: COMPLETE_SENTENCES) {
-      Assert.assertEquals(sentence.length(), StoryEndingTools.removeSentenceFragmentAtEnd(sentence).length());
-    }
+    Assert.assertEquals(COMPLETE_SENTENCE, StoryEndingTools.removeSentenceFragmentAtEnd(COMPLETE_SENTENCE));
+    Assert.assertEquals(COMPLETE_QUESTION, StoryEndingTools.removeSentenceFragmentAtEnd(COMPLETE_QUESTION));
+    Assert.assertEquals(COMPLETE_EXCLAMATION, StoryEndingTools.removeSentenceFragmentAtEnd(COMPLETE_EXCLAMATION));
   }
 
   /**
@@ -166,44 +175,58 @@ public final class StoryEndingToolsTest {
   @Test
   public void endStoryAlwaysEndsProperly() {
     for (String input: INPUTS) {
-      int lastSentenceEnder = -1;
-      String inputEnded = StoryEndingTools.endStory(input);
-
-      for (String ender: SENTENCE_ENDERS) {
-        int lastIndex = inputEnded.lastIndexOf(ender);
-
-        if (lastIndex > lastSentenceEnder) {
-          lastSentenceEnder = lastIndex;
-        }
-      }
-
-      Assert.assertEquals(inputEnded.length() - 1, lastSentenceEnder);
+      Assert.assertTrue(endsInSentenceEndingPunctuation(StoryEndingTools.endStory(input)));
     }
   }
 
   /**
-   * Check that output from endStory removes sentence fragments if
-   * there are any.
+   * Check that output from endStory removes sentence fragments
+   * from the inputs with fragments.
    */
-  public void ensureFragmentRemoved() {    
-    // if it's a fragment, then with the ending removed, it should
-    // be shorter than it was before
-    for (String inputWithFragment: FRAGMENTS) {
-      String output = StoryEndingTools.endStory(inputWithFragment);
-      // remove last sentence by removing punctuation then calling remove fragment
-      String outputWithoutEnding = StoryEndingTools.removeSentenceFragmentAtEnd(output.substring(0, output.length() - 1));
+  public void ensureFragmentRemovedForInputWithFragment() {    
+    // check this by making sure that the complete sentence
+    // part is still present at zero, but the fragment isn't 
+    // present at all.
+    
+    // check for sentence fragment
+    String completePartOfSentence = "";
+    String fragmentPartOfSentence = "This story is not";
+    String outputForSentenceFragment = StoryEndingTools.endStory(SENTENCE_FRAGMENT);
+    
+    Assert.assertEquals(0, outputForSentenceFragment.indexOf(completePartOfSentence));
+    Assert.assertEquals(-1, outputForSentenceFragment.indexOf(fragmentPartOfSentence));
 
-      Assert.assertTrue(inputWithFragment.length() > outputWithoutEnding.length());    
-    }
+    // check for question fragment
+    String completePartOfQuestion = "What is this?";
+    String fragmentPartOfQuestion = "I don't";
+    String outputForQuestionFragment = StoryEndingTools.endStory(QUESTION_FRAGMENT);
+    
+    Assert.assertEquals(0, outputForQuestionFragment.indexOf(completePartOfQuestion));
+    Assert.assertEquals(-1, outputForQuestionFragment.indexOf(fragmentPartOfQuestion));
 
-    // if it's a sentence, then with the ending removed, it should
-    // be same length as it was before
-    for (String sentence: COMPLETE_SENTENCES) {
-      String output = StoryEndingTools.endStory(sentence);
-      // remove last sentence by removing punctuation then calling remove fragment
-      String outputWithoutEnding = StoryEndingTools.removeSentenceFragmentAtEnd(output.substring(0, output.length() - 1));
+    // check for exlamation fragment
+    String completePartOfExclamation = "Oh no!";
+    String fragmentPartOfExclamation = "This isn't";
+    String outputForExclamationFragment = StoryEndingTools.endStory(EXCLAMATION_FRAGMENT);
+    
+    Assert.assertEquals(0, outputForExclamationFragment.indexOf(completePartOfExclamation));
+    Assert.assertEquals(-1, outputForExclamationFragment.indexOf(fragmentPartOfExclamation));
+  }
 
-      Assert.assertEquals(sentence.length(), outputWithoutEnding.length());
-    }
+  /**
+   * Check that output from endStory still have whole sentences
+   * in output for inputs without fragments.
+   */
+  public void ensureNothingRemovedForInputWithoutFragment() {  
+    // check this by checking complete sentences are still at index 0 
+
+    String outputForSentence = StoryEndingTools.endStory(COMPLETE_SENTENCE);
+    Assert.assertEquals(0, outputForSentence.indexOf(COMPLETE_SENTENCE));
+
+    String outputForQuestion = StoryEndingTools.endStory(COMPLETE_QUESTION);
+    Assert.assertEquals(0, outputForQuestion.indexOf(COMPLETE_QUESTION));
+
+    String outputForExclamation = StoryEndingTools.endStory(COMPLETE_EXCLAMATION);
+    Assert.assertEquals(0, outputForExclamation.indexOf(COMPLETE_EXCLAMATION));
   }
 }
