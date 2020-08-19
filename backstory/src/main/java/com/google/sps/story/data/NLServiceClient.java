@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Service client for Cloud Natural Language API
  */
@@ -81,7 +80,7 @@ public class NLServiceClient {
 
     // remove multi-word inputs first and store as multiword nouns
     // also remove any words containing whitespace that's not spaces
-    // and store as unusable 
+    // and store as unusable
     for (String text : words) {
       Pattern pattern = Pattern.compile("\\s");
       Matcher matcher = pattern.matcher(text);
@@ -115,7 +114,7 @@ public class NLServiceClient {
     }
 
     // TODO: Parallelize requests to Cloud Natural Language API
-    
+
     for (String word : singleWords) {
       Document doc = buildDocumentFromText(word);
 
@@ -156,7 +155,7 @@ public class NLServiceClient {
         wordList = new ArrayList<String>();
         map.put(type, wordList);
       }
-        
+
       wordList.add(word);
     }
 
@@ -188,12 +187,12 @@ public class NLServiceClient {
     // (if it has whitespace it's not one word)
     Pattern pattern = Pattern.compile("\\s");
     Matcher matcher = pattern.matcher(word);
-    
+
     if (matcher.find()) {
       return false;
     }
 
-    // second, check if ends in "ing" 
+    // second, check if ends in "ing"
     // (check it's long enough then check actual ending)
     String suffix = "ing";
     int suffixLength = suffix.length();
