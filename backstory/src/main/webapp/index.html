@@ -41,11 +41,11 @@
         ><span class="yellow-header">o</span><span class="pink-header">r</span><span class="red-header">y</span>
       </h1>
 
-      <form id="photo-upload" method="post" enctype="multipart/form-data">
+      <form id="photo-upload" onsubmit="return checkForm();" method="post" enctype="multipart/form-data">
         <div class="vertical-flex-container" id="photo-upload-div">
           <label id="upload-label" for="image-upload">Upload Your Image Here...</label>
           <input class="file-input" type="file" id="image-upload" name="image-upload" onchange="uploadFileUpdates()" />
-          <button type="submit" id="submit-button" onclick="createBackstoryLoadingElement()" disabled>Submit</button>
+          <button type="submit" id="submit-button" disabled=>Submit</button>
         </div>
       </form>
 

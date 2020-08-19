@@ -13,12 +13,69 @@
 // limitations under the License.
 
 /* JS for Home page
- * features: get blobstore url, retrieve analyzed images,
- * create loading element, and change CSS/HTML when file is uploaded.
+ * features: validate form, get blobstore url, retrieve analyzed images,
+ * create loading element, and updates to front end when file uploaded.
  */
 
-/* exported fetchBlobstoreUrl getAnalyzedImages
-   createBackstoryLoadingElement uploadFileUpdates */
+/* exported checkForm fetchBlobstoreUrl getAnalyzedImages uploadFileUpdates*/
+
+// VALIDATE FORM WITH IMAGE UPLOAD
+
+/**
+ * Check the form by validating image upload 
+ * and if it's valid return true and add
+ * the loading graphic. 
+ *
+ * @return true, if image is valid, false otherwise
+ */
+function checkForm() {
+  let validImageUploaded = validateImageUpload();
+
+  if (! validImageUploaded) {
+    return false;
+  }
+
+  createBackstoryLoadingElement();
+  return true;
+}
+
+/**
+ * Validate that the file uploaded to image upload
+ * is an accepted image. Alert user to upload a new file if not.
+ *
+ * @return true, if valid image uploaded; false, if no image uploaded
+ *      or if no valid image uploaded  
+ */
+function validateImageUpload() {
+  const imageUpload = document.getElementById('image-upload');
+  const files = imageUpload.files;
+
+  if (files.length === 0) {
+    alert('No file has been uploaded. Please upload a file.');
+    return false;
+  }
+  
+  if (! validImage(files.item(0))) {
+    alert('Only PNGs and JPGs are accepted image upload types. ' 
+        + 'Please upload a PNG or JPG.');
+    return false;
+  }
+
+  return true;
+}
+
+/** 
+ * Validate that the passed-in file is an
+ * accepted image type (jpg or png).
+ *
+ * @param file - the file to validate
+ * @return true, if file exists & is a valid image, false otherwise
+ */
+function validImage(file) {
+  const acceptedImageTypes = ['image/jpeg', 'image/png'];
+
+  return file && acceptedImageTypes.includes(file['type']);
+}
 
 // FETCH BLOBSTORE URL
 
@@ -74,8 +131,6 @@ function getAnalyzedImages() {
       });
 }
 
-// CREATE LOADING ELEMENT
-
 /**
  * Helper function to format the image and backstory combination into one
  * element. This element and it's components have classes added to them for
@@ -104,10 +159,13 @@ function createBackstoryElement(imageUrl, backstory) {
   return backstoryElement;
 }
 
+// CREATE LOADING ELEMENT
+
 /**
  * Helper function to create and set a loading element to display after the
  * photo-upload form is submitted, while image is being analyzed and the
- * backstory is being created.
+ * backstory is being created. Only execute this function if valid
+ * image uploaded.
  */
 function createBackstoryLoadingElement() {
   const backstoryLoadingIcon = document.createElement('div');
