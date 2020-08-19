@@ -33,8 +33,7 @@ import org.junit.runners.JUnit4;
 public final class StoryEndingToolsTest {
 
   // strings to use in testing story ending tools
-  private final static String EMPTY_TEXT = "";
-  private final static String SENTENCE_FRAGMENT = "This story is not ";
+  private final static String SENTENCE_FRAGMENT = "This story isn't done. This story isn't ";
   private final static String COMPLETE_SENTENCE = "This story is not incomplete.";
   private final static String QUESTION_FRAGMENT = "What is this? I don't ";
   private final static String COMPLETE_QUESTION = "I didn't realize. What's happening here?";
@@ -42,9 +41,11 @@ public final class StoryEndingToolsTest {
   private final static String COMPLETE_EXCLAMATION = "I had no idea. Oh no!";
 
   // aggregate all of these into one input array
-  private final static String[] INPUTS = { EMPTY_TEXT, SENTENCE_FRAGMENT, COMPLETE_SENTENCE, 
+  private final static String[] INPUTS = {
+                                    SENTENCE_FRAGMENT, COMPLETE_SENTENCE, 
                                     QUESTION_FRAGMENT, COMPLETE_QUESTION, 
-                                    EXCLAMATION_FRAGMENT, COMPLETE_EXCLAMATION };
+                                    EXCLAMATION_FRAGMENT, COMPLETE_EXCLAMATION 
+                                  };
 
   // array of sentence enders
   private final static String[] SENTENCE_ENDERS = {".", "?", "!"};
@@ -59,9 +60,8 @@ public final class StoryEndingToolsTest {
   }
 
   /**
-   * Check that sending in null input to 
-   * removeSentenceFragmentAtEnd() to make sure
-   * it throws an IllegalArgumentException.
+   * Check that sending in null input to removeSentenceFragmentAtEnd() 
+   * causes an IllegalArgumentException.
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullInputToRemoveSentenceFragment() {
@@ -69,12 +69,39 @@ public final class StoryEndingToolsTest {
   }
 
   /**
-   * Check that sending in null input to addEnding()
-   * to make sure it throws an IllegalArgumentException.
+   * Check that sending in null input to addEnding() 
+   * causes an IllegalArgumentException.
    */
   @Test (expected = IllegalArgumentException.class)
   public void nullInputToAddEnding() {
     StoryEndingTools.addEnding(null);
+  }
+
+  /**
+   * Check that sending in whitespace to endStory() 
+   * causes an IllegalArgumentException.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void whitespaceInputToEndStory() {
+    StoryEndingTools.endStory(" ");
+  }
+
+  /**
+   * Check IllegalArgumentException is thrown  
+   * if empty string passed in to removeSentenceFragmentAtEnd().
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void whitespaceInputToRemoveSentenceFragment() {
+    StoryEndingTools.removeSentenceFragmentAtEnd(" ");
+  }
+
+  /**
+   * Check that sending in empty string to addEnding()
+   * leads to an IllegalArgumentException.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void whitespaceInputToAddEnding() {
+    StoryEndingTools.addEnding(" ");
   }
 
   /**
@@ -124,20 +151,11 @@ public final class StoryEndingToolsTest {
 
   /**
    * Check that output from removeSentenceFragmentAtEnd
-   * with empty string is correct
-   */
-  @Test
-  public void emptyInputForRemoveFragment() {
-    Assert.assertEquals("", StoryEndingTools.removeSentenceFragmentAtEnd(EMPTY_TEXT));
-  }  
-
-  /**
-   * Check that output from removeSentenceFragmentAtEnd
    * with sentence fragments as input is correct.
    */
   @Test
   public void fragmentInputForRemoveFragment() {
-    String expectedForSentenceFragment = "";
+    String expectedForSentenceFragment = "This story isn't done.";
     String actualForSentenceFragment = StoryEndingTools.removeSentenceFragmentAtEnd(SENTENCE_FRAGMENT);
 
     Assert.assertEquals(expectedForSentenceFragment, actualForSentenceFragment);
@@ -186,7 +204,7 @@ public final class StoryEndingToolsTest {
     // present at all.
     
     // check for sentence fragment
-    String completePartOfSentence = "";
+    String completePartOfSentence = "This story isn't done.";
     String fragmentPartOfSentence = "This story is not";
     String outputForSentenceFragment = StoryEndingTools.endStory(SENTENCE_FRAGMENT);
     

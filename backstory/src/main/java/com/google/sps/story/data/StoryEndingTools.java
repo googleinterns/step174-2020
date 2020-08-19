@@ -45,12 +45,10 @@ public class StoryEndingTools {
    *
    * @param story the story to return with a natural ending
    * @return story with ending
-   * @throws IllegalArgumentException if story is null
+   * @throws IllegalArgumentException if story is null or just whitespace
    */
-  public static String endStory(String story) {
-    if (story == null) {
-      throw new IllegalArgumentException("Story should not be null");
-    }
+  public static String endStory(String story) throws IllegalArgumentException {
+    validateStory(story);
 
     story = removeSentenceFragmentAtEnd(story);
     story = addEnding(story);
@@ -66,12 +64,10 @@ public class StoryEndingTools {
    *
    * @param story to remove the sentence fragment from
    * @return the passed-in story without the last sentence fragment
-   * @throws IllegalArgumentException if story is null
+   * @throws IllegalArgumentException if story is null or whitespace
    */
-  public static String removeSentenceFragmentAtEnd(String story) {
-    if (story == null) {
-      throw new IllegalArgumentException("Story should not be null");
-    }
+  public static String removeSentenceFragmentAtEnd(String story) throws IllegalArgumentException {
+    validateStory(story);
 
     // find the last sentence-ending punctuation
     int lastSentenceEnder = -1;
@@ -99,13 +95,24 @@ public class StoryEndingTools {
    *
    * @param story the story to add an ending to
    * @return story + ending
-   * @throws IllegalArgumentException if story is null
+   * @throws IllegalArgumentException if story is null or whitespace
    */
-  public static String addEnding(String story) {
-    if (story == null) {
-      throw new IllegalArgumentException("Story should not be null");
-    }
+  public static String addEnding(String story) throws IllegalArgumentException {
+    validateStory(story);
 
     return story + " " + ENDINGS[(int) (Math.random() * ENDINGS.length)];
+  }
+
+  /**
+   * Helper method to validate that a story is null or a whitespace String.
+   * Throws IllegalArgumentException if it's not valid.
+   *
+   * @param story the story to validate
+   * @throws IllegalArgumentException if story is null or an empty String
+   */
+  private static void validateStory(String story) throws IllegalArgumentException {
+    if (story == null || story.trim().length() == 0) {
+      throw new IllegalArgumentException("Story should not be null or empty/whitespace");
+    }
   }
 }
