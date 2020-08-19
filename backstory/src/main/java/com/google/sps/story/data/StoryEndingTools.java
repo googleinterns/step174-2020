@@ -64,7 +64,7 @@ public class StoryEndingTools {
    *
    * @param story to remove the sentence fragment from
    * @return the passed-in story without the last sentence fragment
-   * @throws IllegalArgumentException if story is null 
+   * @throws IllegalArgumentException if story is null
    */
   public static String removeSentenceFragmentAtEnd(String story) {
     validateStory(story);
@@ -96,7 +96,7 @@ public class StoryEndingTools {
    *
    * @param story the story to add an ending to
    * @return story + ending
-   * @throws IllegalArgumentException if story is null 
+   * @throws IllegalArgumentException if story is null
    */
   public static String addEnding(String story) {
     validateStory(story);
@@ -109,7 +109,7 @@ public class StoryEndingTools {
    * Throws IllegalArgumentException if it's not valid.
    *
    * @param story the story to validate
-   * @throws IllegalArgumentException if story is null 
+   * @throws IllegalArgumentException if story is null
    */
   private static void validateStory(String story) throws IllegalArgumentException {
     if (story == null) {
