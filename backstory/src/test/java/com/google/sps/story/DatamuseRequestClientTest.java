@@ -97,7 +97,30 @@ public final class DatamuseRequestClientTest {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
     try {
-      client.getRelatedAdjectives(MULTIWORD_NOUN, DEFAULT_MAX);
+      client.fetchRelatedAdjectives(MULTIWORD_NOUN, DEFAULT_MAX);
+    } catch (IllegalArgumentException exception) {
+      return; // test should pass if this exception is thrown
+    } catch (APINotAvailableException | RuntimeException exception) {
+      // we dont' want these to be thrown
+      Assert.fail(exception.toString());
+    }
+
+    Assert.fail("IllegalArgumentException was not thrown.");
+  }
+
+  /** 
+   * Check that IllegalArgumentException thrown
+   * for a noun with whitespace.
+   */
+  @Test
+  public void nounWithWhitespace() {
+    final String WHITESPACE_NOUN = "noun\n";
+    final int DEFAULT_MAX = 5;
+
+    DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
+
+    try {
+      client.fetchRelatedAdjectives(WHITESPACE_NOUN, DEFAULT_MAX);
     } catch (IllegalArgumentException exception) {
       return; // test should pass if this exception is thrown
     } catch (APINotAvailableException | RuntimeException exception) {
@@ -121,19 +144,17 @@ public final class DatamuseRequestClientTest {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
     try {
-      client.getRelatedAdjectives(NOUN, DEFAULT_MAX);
+      client.fetchRelatedAdjectives(NOUN, DEFAULT_MAX);
     } catch (APINotAvailableException exception) {
       return; // test should pass if this exception is thrown
     } catch (RuntimeException exception) {
       // we don't want these to be thrown
       Assert.fail(exception.toString());
     }
-
-    Assert.fail("APINotAvailableException was not thrown.");
   }
 
   /** 
-   * Check that getRelatedAdjectives() throws a RuntimeException
+   * Check that fetchRelatedAdjectives() throws a RuntimeException
    * when the JSON can't be parsed with the correct message signaling
    * it's an issue with the JSON.
    */
@@ -150,7 +171,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, INPUT);
 
     try {
-      String[] actualOutput = client.getRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
     } catch (IllegalArgumentException | APINotAvailableException exception) {
       Assert.fail(exception.toString());
     } catch (RuntimeException exception) {
@@ -165,7 +186,7 @@ public final class DatamuseRequestClientTest {
   }   
 
   /** 
-   * Check that getRelatedAdjectives() throws a RunTimeException
+   * Check that fetchRelatedAdjectives() throws a RunTimeException
    * when the JSON array that it gets back from the server does not
    * contain JSON objects.
    */
@@ -182,7 +203,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, Arrays.toString(INPUT));
 
     try {
-      String[] actualOutput = client.getRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
     } catch (IllegalArgumentException | APINotAvailableException exception) {
       Assert.fail(exception.toString());
     } catch (RuntimeException exception) {
@@ -197,7 +218,7 @@ public final class DatamuseRequestClientTest {
   }
 
   /** 
-   * Check that getRelatedAdjectives() throws a RuntimeException
+   * Check that fetchRelatedAdjectives() throws a RuntimeException
    * when the JSON objects in the JSON array do not have a String
    * value for "word".
    */
@@ -216,7 +237,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, input.toString());
 
     try {
-      String[] actualOutput = client.getRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
     } catch (IllegalArgumentException | APINotAvailableException exception) {
       Assert.fail(exception.toString());
     } catch (RuntimeException exception) {
@@ -231,7 +252,7 @@ public final class DatamuseRequestClientTest {
   }   
 
   /** 
-   * Check that getRelatedAdjectives() works for when less
+   * Check that fetchRelatedAdjectives() works for when less
    * adjectives are present than were requested by the method.
    */
   @Test 
@@ -247,7 +268,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, jsonOutput.toString());
 
     try {
-      String[] actualOutput = client.getRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
       Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
     } catch (IllegalArgumentException exception) {
       Assert.fail(exception.toString());
@@ -257,7 +278,7 @@ public final class DatamuseRequestClientTest {
   }  
   
   /** 
-   * Check that getRelatedAdjectives() works for the standard case
+   * Check that fetchRelatedAdjectives() works for the standard case
    * which is five adjectives requested and five adjectives present.
    */
   @Test 
@@ -273,7 +294,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, jsonOutput.toString());
 
     try {
-      String[] actualOutput = client.getRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
       Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
     } catch (APINotAvailableException | RuntimeException exception) {
       Assert.fail(exception.toString());

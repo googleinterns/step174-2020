@@ -21,6 +21,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +35,7 @@ public class DatamuseRequestClient {
   private static final String DATAMUSE_URL = "http://api.datamuse.com/words?";
 
   /** holds the base url to query */
-  private final String queryUrl;
+  private final String url;
 
   /**
    * Constructs a request client with the default Datamuse url.
@@ -44,16 +46,16 @@ public class DatamuseRequestClient {
 
   /**
    * Constructs a request client that will query
-   * the given URL (for testing purposes)
+   * the given URL.
    *
-   * @param queryUrl the url to instantiate this request client with
+   * @param url the url to instantiate this request client with
    */
-  public DatamuseRequestClient(String queryUrl) {
-    this.queryUrl = queryUrl;
+  public DatamuseRequestClient(String url) {
+    this.url = url;
   }
 
   /**
-   * Gets an array of adjectives related to the passed-in noun, which will have
+   * Fetches an array of adjectives related to the passed-in noun, which will have
    * a passed-in cap on its size (array returned might be smaller if database
    * does not have enough related adjectives). Fetches these adjectives
    * by querying the Datamuse database.
@@ -61,21 +63,26 @@ public class DatamuseRequestClient {
    * @param noun the noun to get adjectives related to (must be one word)
    * @param cap the maximum number of adjectives to retrieve
    * @return an array of adjectives related to the noun
-   * @throws IllegalArgumentException if noun is more than one word (has a space in it)
+   * @throws IllegalArgumentException if noun is more than one word (has whitespace)
    * @throws APINotAvailableException if Datamuse API cannot be reached
    * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
    *    or does not have objects of type JSON (ClassCastException)
    */
-  public String[] getRelatedAdjectives(String noun, int cap)
+  public String[] fetchRelatedAdjectives(String noun, int cap)
       throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-    if (noun.contains(" ")) {
-      throw new IllegalArgumentException("Noun must be one word.");
+
+    // check for whitespace
+    Pattern pattern = Pattern.compile("\\s");
+    Matcher matcher = pattern.matcher(noun);
+
+    if (matcher.find()) {
+      throw new IllegalArgumentException("Noun cannot contain whitespace (must be one word).");
     }
 
     // put together a query asking for adjectives related to the noun (rel_jjb=noun)
     // and capping the number of results at 10 (max=10)
-    String query = queryUrl + "rel_jjb=" + noun + "&max=" + cap;
-    String jsonResponse = querySite(query);
+    String query = url + "rel_jjb=" + noun + "&max=" + cap;
+    String jsonResponse = queryUrl(query);
 
     // there are two try statements b/c there's a possibility for more than one JSONException to be
     // thrown in this method so specifying what went wrong with that exact JSON exception
@@ -108,7 +115,7 @@ public class DatamuseRequestClient {
   }
 
   /**
-   * Query the site at the given url and retrieve the content (likely JSON) from that
+   * Query the given url and retrieve the input stream at the site (likely JSON) from that
    * site. If there's nothing at that site, return null. This code was
    * adapted from the DatamuseQuery class in the Datamuse4J repo
    * (https://github.com/sjblair/Datamuse4J/blob/master/src/datamuse/DatamuseQuery.java).
@@ -117,16 +124,16 @@ public class DatamuseRequestClient {
    * @return the content at the site.
    * @throws APINotAvailableException if the method can't retrieve the content at the site
    */
-  private String querySite(String url) throws APINotAvailableException {
+  private String queryUrl(String url) throws APINotAvailableException {
     final String ERROR_MESSAGE =
-        "This query could not successfully retrieve content from Datamuse API.\n";
+        "This query could not successfully retrieve content from Datamuse API." + System.lineSeparator();
 
     try {
       URL site = new URL(url);
       URLConnection connection = site.openConnection();
 
       if (connection == null) {
-        throw new APINotAvailableException(ERROR_MESSAGE + "URLConnection was null");
+        throw new APINotAvailableException(ERROR_MESSAGE + "URLConnection was null.");
       }
 
       BufferedReader in =
