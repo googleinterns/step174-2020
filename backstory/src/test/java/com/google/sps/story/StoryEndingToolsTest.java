@@ -45,9 +45,6 @@ public final class StoryEndingToolsTest {
   private final static String[] INPUTS = { EMPTY_TEXT, SENTENCE_FRAGMENT, COMPLETE_SENTENCE, 
                                     QUESTION_FRAGMENT, COMPLETE_QUESTION, 
                                     EXCLAMATION_FRAGMENT, COMPLETE_EXCLAMATION };
-  // aggregate by other categories
-  private final static String[] FRAGMENTS = { SENTENCE_FRAGMENT, QUESTION_FRAGMENT, EXCLAMATION_FRAGMENT };
-  private final static String[] COMPLETE_SENTENCES = { COMPLETE_SENTENCE, COMPLETE_QUESTION, COMPLETE_EXCLAMATION };
 
   // array of sentence enders
   private final static String[] SENTENCE_ENDERS = {".", "?", "!"};
