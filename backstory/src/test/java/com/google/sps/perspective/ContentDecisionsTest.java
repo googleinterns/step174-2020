@@ -17,6 +17,7 @@ package com.google.sps.perspective;
 import static org.mockito.Mockito.*;
 
 import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
+import com.google.common.collect.ImmutableList;
 import com.google.sps.perspective.data.ContentDecisions;
 import com.google.sps.perspective.data.PerspectiveValues;
 import java.util.HashMap;
