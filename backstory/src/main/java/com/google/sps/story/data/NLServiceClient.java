@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * Service client for Cloud Natural Language API
@@ -77,17 +80,35 @@ public class NLServiceClient {
     List<String> singleWords = new ArrayList<String>();
 
     // remove multi-word inputs first and store as multiword nouns
+    // also remove any words containing whitespace that's not spaces
+    // and store as unusable 
     for (String text : words) {
-      if (text.contains(" ")) {
-        List<String> wordList = map.get(WordType.MULTIWORD_NOUN);
+      Pattern pattern = Pattern.compile("\\s");
+      Matcher matcher = pattern.matcher(text);
 
-        if (wordList == null) {
-          wordList = new ArrayList<String>();
-          map.put(WordType.MULTIWORD_NOUN, wordList);
+      // check if there was any whitespace in text
+      if (matcher.find()) {
+        // if the whitespace was a space, add to multiword nouns
+        if (text.contains(" ")) {
+          List<String> wordList = map.get(WordType.MULTIWORD_NOUN);
+
+          if (wordList == null) {
+            wordList = new ArrayList<String>();
+            map.put(WordType.MULTIWORD_NOUN, wordList);
+          }
+
+          wordList.add(text);
+        } else {
+          // else add to unusable
+          List<String> wordList = map.get(WordType.UNUSABLE);
+
+          if (wordList == null) {
+            wordList = new ArrayList<String>();
+            map.put(WordType.UNUSABLE, wordList);
+          }
+
+          wordList.add(text);
         }
-
-        wordList.add(text);
-
       } else {
         singleWords.add(text);
       }
@@ -163,16 +184,20 @@ public class NLServiceClient {
    * @return true, if it's a gerund; false, otherwise
    */
   private boolean isGerund(String word) {
-    // first, check it's one word
-    if (word.contains(" ")) {
+    // first, check it's one word by checking for whitespace
+    // (if it has whitespace it's not one word)
+    Pattern pattern = Pattern.compile("\\s");
+    Matcher matcher = pattern.matcher(word);
+    
+    if (matcher.find()) {
       return false;
     }
 
-    String suffix = "ing";
-    int suffixLength = suffix.length();
-    
     // second, check if ends in "ing" 
     // (check it's long enough then check actual ending)
+    String suffix = "ing";
+    int suffixLength = suffix.length();
+
     if (word.length() < suffixLength) {
       return false;
     }

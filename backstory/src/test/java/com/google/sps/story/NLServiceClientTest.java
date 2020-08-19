@@ -51,8 +51,11 @@ import org.mockito.stubbing.Answer;
 public final class NLServiceClientTest {
 
   /** array of multiword inputs to use for testing */
-  private final String[] MULTIWORD_INPUTS = {"physical exercise", "social group",
-        "urban area", "human leg", "tower block", "metropolitan area"};
+  private final String[] MULTIWORD_INPUTS = { "physical exercise", "social group",
+        "urban area", "human leg", "tower block", "metropolitan area" };
+  /** array of inputs with whitespace in them to use for testing */
+  private final String[] WHITESPACE_INPUTS ={ "physical\nexercise", "social\tgroup",
+        "urban\rarea", "tower\fblock" };
   /** array of nouns to use for testing */
   private final String[] NOUNS = { "person", "dog", "skyscraper" };
   /** array of proper nouns to use for testing */
@@ -158,6 +161,23 @@ public final class NLServiceClientTest {
     // all should be grouped as multiword inputs (should only be one key)
     Assert.assertEquals(1, groupedWords.keySet().size());
     Assert.assertEquals(multiwordInputs, groupedWords.get(WordType.MULTIWORD_NOUN));
+  }
+
+  /**
+   * Check that all non-multiword noun whitespace inputs get grouped into unusable
+   */
+  @Test
+  public void checkWhitespaceInput() {
+    Map<String, PartOfSpeech> desiredReturns = new HashMap<String, PartOfSpeech>();
+    
+    NLServiceClient client = new NLServiceClient(createMockLSClient(desiredReturns));
+    List<String> whitespaceInputs = Arrays.asList(WHITESPACE_INPUTS);
+
+    Map<WordType, List<String>> groupedWords = client.groupByWordType(whitespaceInputs);
+
+    // all should be grouped as unusable (one key)
+    Assert.assertEquals(1, groupedWords.keySet().size());
+    Assert.assertEquals(whitespaceInputs, groupedWords.get(WordType.UNUSABLE));
   }
 
   /**
@@ -304,10 +324,14 @@ public final class NLServiceClientTest {
     Map<String, PartOfSpeech> desiredReturns = new HashMap<String, PartOfSpeech>();
     List<String> inputs = new ArrayList<String>();
     
-    final String[] UNUSABLE = { "runs", "jumps", "typo" };  
+    final String[] UNUSABLE = { "runs", "jumps", "typo" }; 
 
     for (String multiwordInput: MULTIWORD_INPUTS) {
       inputs.add(multiwordInput);
+    }
+
+    for (String whitespaceInput: WHITESPACE_INPUTS) {
+      inputs.add(whitespaceInput);
     }
 
     for (String noun: NOUNS) {
@@ -338,6 +362,10 @@ public final class NLServiceClientTest {
 
     Map<WordType, List<String>> groupedWords = client.groupByWordType(inputs);
 
+    List<String> unusableWords = new ArrayList<String>();
+    unusableWords.addAll(Arrays.asList(WHITESPACE_INPUTS));
+    unusableWords.addAll(Arrays.asList(UNUSABLE));
+    
     // all types of word types present 
     Assert.assertEquals(6, groupedWords.keySet().size());
     Assert.assertEquals(Arrays.asList(MULTIWORD_INPUTS), groupedWords.get(WordType.MULTIWORD_NOUN));
@@ -345,7 +373,7 @@ public final class NLServiceClientTest {
     Assert.assertEquals(Arrays.asList(PROPER_NOUNS), groupedWords.get(WordType.PROPER_NOUN));
     Assert.assertEquals(Arrays.asList(ADJECTIVES), groupedWords.get(WordType.ADJECTIVE));
     Assert.assertEquals(Arrays.asList(GERUNDS), groupedWords.get(WordType.GERUND));
-    Assert.assertEquals(Arrays.asList(UNUSABLE), groupedWords.get(WordType.UNUSABLE));
+    Assert.assertEquals(unusableWords, groupedWords.get(WordType.UNUSABLE));
   }
 
   /** 
