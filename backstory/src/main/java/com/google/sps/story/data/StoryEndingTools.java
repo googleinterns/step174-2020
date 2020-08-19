@@ -76,7 +76,7 @@ public class StoryEndingTools {
     // find the last sentence-ending punctuation
     int lastSentenceEnder = -1;
 
-    for (String ender: SENTENCE_ENDERS) {
+    for (String ender : SENTENCE_ENDERS) {
       int lastIndex = story.lastIndexOf(ender);
 
       if (lastIndex > lastSentenceEnder) {
