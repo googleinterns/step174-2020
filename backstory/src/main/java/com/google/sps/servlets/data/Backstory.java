@@ -30,8 +30,8 @@ public final class Backstory {
 
   /**
    * Get the backstory text.
-   * 
-   * @return the generated backstory text held in this wrapper object.   
+   *
+   * @return the generated backstory text held in this wrapper object.
    */
   public String getBackstory() {
     return backstory;

@@ -22,7 +22,7 @@ import com.google.sps.story.StoryManager;
 public interface StoryManagerFactory {
   /**
    * Create a new instance of StoryManager with the specified prompt, story length, and temperature.
-   * 
+   *
    * @param prompt the prompt to be used in generation.
    * @param storyLength the length of the story to be generated.
    * @param temperature the temperature of the story to be generated.
