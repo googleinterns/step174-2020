@@ -55,6 +55,15 @@ public final class DatamuseRequestClientTest {
   /** a default url to test with */
   private static final String DEFAULT_URL = "http://sample-website.com/fake?";
 
+  /** the default noun to use for tests */
+  private static final String DEFAULT_NOUN = "beach";
+
+  /** the default max to use for tests */
+  private static final int DEFAULT_MAX = 5;
+
+  /** the default topic to use for tests */
+  private static final String DEFAULT_TOPIC = "story";
+
   /** the stream handlet to use for tests in this class (necessary to mock URLConnection) */
   private static HttpUrlStreamHandler httpUrlStreamHandler;
  
@@ -92,12 +101,11 @@ public final class DatamuseRequestClientTest {
   @Test
   public void multipleWordNoun() throws Exception {
     final String MULTIWORD_NOUN = "multiword noun";
-    final int DEFAULT_MAX = 5;
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
     try {
-      client.fetchRelatedAdjectives(MULTIWORD_NOUN, DEFAULT_MAX);
+      client.fetchRelatedAdjectives(MULTIWORD_NOUN, DEFAULT_MAX, DEFAULT_TOPIC);
     } catch (IllegalArgumentException exception) {
       return; // test should pass if this exception is thrown
     } 
@@ -112,12 +120,11 @@ public final class DatamuseRequestClientTest {
   @Test
   public void nounWithWhitespace() throws Exception {
     final String WHITESPACE_NOUN = "noun\n";
-    final int DEFAULT_MAX = 5;
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
     try {
-      client.fetchRelatedAdjectives(WHITESPACE_NOUN, DEFAULT_MAX);
+      client.fetchRelatedAdjectives(WHITESPACE_NOUN, DEFAULT_MAX, DEFAULT_TOPIC);
     } catch (IllegalArgumentException exception) {
       return; // test should pass if this exception is thrown
     } 
@@ -132,13 +139,10 @@ public final class DatamuseRequestClientTest {
    */
   @Test 
   public void apiNotAvailable() throws Exception {
-    final String NOUN = "beach";
-    final int DEFAULT_MAX = 5;
-
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
     try {
-      client.fetchRelatedAdjectives(NOUN, DEFAULT_MAX);
+      client.fetchRelatedAdjectives(DEFAULT_NOUN, DEFAULT_MAX, DEFAULT_TOPIC);
     } catch (APINotAvailableException exception) {
       return; // test should pass if this exception is thrown
     }
@@ -153,9 +157,8 @@ public final class DatamuseRequestClientTest {
    */
   @Test 
   public void jsonCannotBeParsed() throws Exception {
-    final String NOUN = "beach";
-    final int MAX_ADJECTIVES = 5;
-    final String QUERIES = "rel_jjb=" + NOUN + "&max=" + MAX_ADJECTIVES;
+    final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + DEFAULT_MAX 
+        + "&topics=" + DEFAULT_TOPIC;
     final String INPUT = "not JSON";
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
@@ -164,7 +167,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, INPUT);
 
     try {
-      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(DEFAULT_NOUN, DEFAULT_MAX, DEFAULT_TOPIC);
     } catch (RuntimeException exception) {
       final String EXPECTED_MESSAGE = "Could not parse the JSON received back from the Datamuse Query.";
     
@@ -183,9 +186,8 @@ public final class DatamuseRequestClientTest {
    */
   @Test 
   public void jsonArrayButNotJsonObjects() throws Exception {
-    final String NOUN = "beach";
-    final int MAX_ADJECTIVES = 5;
-    final String QUERIES = "rel_jjb=" + NOUN + "&max=" + MAX_ADJECTIVES;
+    final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + DEFAULT_MAX 
+        + "&topics=" + DEFAULT_TOPIC;
     final String[] INPUT = { "sandy", "long", "private", "white", "small"}; 
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
@@ -194,7 +196,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, Arrays.toString(INPUT));
 
     try {
-      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(DEFAULT_NOUN, DEFAULT_MAX, DEFAULT_TOPIC);
     } catch (RuntimeException exception) {
       final String EXPECTED_MESSAGE = "JSON array received was not of JSON objects.";
     
@@ -213,9 +215,8 @@ public final class DatamuseRequestClientTest {
    */
   @Test 
   public void noValueForWord() throws Exception {
-    final String NOUN = "beach";
-    final int MAX_ADJECTIVES = 5;
-    final String QUERIES = "rel_jjb=" + NOUN + "&max=" + MAX_ADJECTIVES;
+    final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + DEFAULT_MAX 
+        + "&topics=" + DEFAULT_TOPIC;
     
     JSONArray input = new JSONArray();
     input.put(new JSONObject()); // put in a default object without a "word" field
@@ -226,7 +227,7 @@ public final class DatamuseRequestClientTest {
     injectURLConnectionMock(DEFAULT_URL, QUERIES, input.toString());
 
     try {
-      String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+      String[] actualOutput = client.fetchRelatedAdjectives(DEFAULT_NOUN, DEFAULT_MAX, DEFAULT_TOPIC);
     } catch (RuntimeException exception) {
       final String EXPECTED_MESSAGE = "JSON Object did not have a String value for the key \"word\".";
     
@@ -244,9 +245,9 @@ public final class DatamuseRequestClientTest {
    */
   @Test 
   public void tooFewAdjectives() throws Exception {
-    final String NOUN = "beach";
     final int MAX_ADJECTIVES = 10;
-    final String QUERIES = "rel_jjb=" + NOUN + "&max=" + MAX_ADJECTIVES;
+    final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + MAX_ADJECTIVES 
+        + "&topics=" + DEFAULT_TOPIC;
     final String[] EXPECTED_OUTPUT = { "sandy", "long", "private", "white", "small"};
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
@@ -254,7 +255,7 @@ public final class DatamuseRequestClientTest {
 
     injectURLConnectionMock(DEFAULT_URL, QUERIES, jsonOutput.toString());
 
-    String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+    String[] actualOutput = client.fetchRelatedAdjectives(DEFAULT_NOUN, MAX_ADJECTIVES, DEFAULT_TOPIC);
     Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
   }  
   
@@ -264,9 +265,9 @@ public final class DatamuseRequestClientTest {
    */
   @Test 
   public void exactNumberOfAdjectives() throws Exception {
-    final String NOUN = "beach";
     final int MAX_ADJECTIVES = 5;
-    final String QUERIES = "rel_jjb=" + NOUN + "&max=" + MAX_ADJECTIVES;
+    final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + MAX_ADJECTIVES 
+        + "&topics=" + DEFAULT_TOPIC;
     final String[] EXPECTED_OUTPUT = { "sandy", "long", "private", "white", "small"};
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
@@ -274,7 +275,7 @@ public final class DatamuseRequestClientTest {
 
     injectURLConnectionMock(DEFAULT_URL, QUERIES, jsonOutput.toString());
 
-    String[] actualOutput = client.fetchRelatedAdjectives(NOUN, MAX_ADJECTIVES);
+    String[] actualOutput = client.fetchRelatedAdjectives(DEFAULT_NOUN, MAX_ADJECTIVES, DEFAULT_TOPIC);
     Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
   }  
 
