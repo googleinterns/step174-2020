@@ -14,16 +14,16 @@
 
 package com.google.sps.servlets.data;
 
-import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.datastore.DatastoreService;
 
 /**
- * Factory pattern for UserService.
+ * Factory pattern for DatastoreService.
  */
-public interface UserServiceFactorySps {
+public interface BackstoryDatastoreServiceFactory {
   /**
-   * Create a new instance of UserService.
+   * Create a new instance of DatastoreService.
    *
-   * @return an instance of UserService.
+   * @return an instance of DatastoreService.
    */
-  public UserService newInstance();
+  public DatastoreService newInstance();
 }
