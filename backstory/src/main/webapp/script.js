@@ -29,7 +29,7 @@
  * @return true, if image is valid, false otherwise
  */
 function checkForm() {
-  if (! validateImageUpload()) {
+  if (!validateImageUpload()) {
     return false;
   }
 

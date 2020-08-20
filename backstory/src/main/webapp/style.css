@@ -147,8 +147,8 @@ textarea {
   color: var(--dark-cornflower-blue);
   font-size: 18px;
   font-style: italic;
+  margin: 0 20px;
   padding: 10px;
-  margin: 0px 20px;
   text-align: center;
 }
 
@@ -157,16 +157,16 @@ textarea {
   border: solid medium var(--congo-pink);
   border-radius: 10px;
   color: white;
-  margin: 10px 0px 20px;
+  margin: 10px 0 20px;
   padding: 10px;
   width: 450px;
 }
 
 #description {
-  font-size: 16px;
   font-family: 'Lato', sans-serif;
+  font-size: 16px;
   font-weight: bold;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   text-align: center;
 }
 
