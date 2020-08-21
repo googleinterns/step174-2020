@@ -30,15 +30,4 @@ public interface StoryManager {
    * @param factory StoryManagerRequestFactory to use for HttpRequests.
    */
   public void setRequestFactory(StoryManagerRequestFactory factory);
-
-  /**
-   * Cycles to next serviceUrl to a backup url.
-   * @return False if called on last URL.
-   */
-  public boolean cycleUrl();
-
-  /**
-   * Sets prompt for text generation.
-   */
-  public void setPrefix(String prefix);
 }

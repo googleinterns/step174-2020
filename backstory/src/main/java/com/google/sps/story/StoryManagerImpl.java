@@ -41,18 +41,11 @@ public final class StoryManagerImpl implements StoryManager {
   private int maxTextLength;
   /** The volatility of topics and style in generation. */
   private Double temperature;
+  /** Provider object of serviceURLs*/
+  private StoryManagerURLProvider URLProvider;
 
   /** requestFactory - Builds and facilitates authenticated post requests. */
   private StoryManagerRequestFactory requestFactory;
-
-  /** serviceUrls - URLs for each story generation container */
-  private String[] serviceUrls = {"https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
-
-  private int selectedUrlIndex = 0;
 
   /**
    * Instantiate StoryManager.
@@ -60,9 +53,10 @@ public final class StoryManagerImpl implements StoryManager {
    * @param prefix String to serve as generation prompt.
    * @param maxLength Maximum text character length for generation output. 100-1000 characters.
    * @param temperature Double to hold number 0-1 for text generation volatility.
+   * @param URLProvider Provides service URLs for generation.
    */
-  public StoryManagerImpl(String prefix, int maxLength, Double temperature)
-      throws RuntimeException, IllegalArgumentException {
+  public StoryManagerImpl(String prefix, int maxLength, Double temperature,
+      StoryManagerURLProvider URLProvider) throws RuntimeException, IllegalArgumentException {
     this.prefix = prefix;
     this.maxTextLength = maxLength;
     this.temperature = temperature;
@@ -80,6 +74,7 @@ public final class StoryManagerImpl implements StoryManager {
     if (temperature < 0 || temperature > 1) {
       throw new IllegalArgumentException("Temperature must be between 0 and 1.");
     }
+    this.URLProvider = URLProvider;
   }
 
   /**
@@ -93,7 +88,7 @@ public final class StoryManagerImpl implements StoryManager {
     String requestBody = makeRequestBody(prefix, maxTextLength, temperature);
 
     // Build Request with Adapter and JSON Input
-    HttpRequest request = requestFactory.newInstance(requestBody, serviceUrls[selectedUrlIndex]);
+    HttpRequest request = requestFactory.newInstance(requestBody, URLProvider.getCurrentURL());
     request.getHeaders().setContentType("application/json");
 
     // Wait until response received
@@ -152,29 +147,5 @@ public final class StoryManagerImpl implements StoryManager {
 
     String convertedMap = gson.toJson(requestMap);
     return convertedMap;
-  }
-
-  /**
-   * Cycles to next serviceUrl to a backup url.
-   * @return False if called on last URL.
-   */
-  public boolean cycleUrl() {
-    boolean isLast = true;
-    if (selectedUrlIndex == serviceUrls.length - 1) {
-      isLast = false;
-    }
-    if (selectedUrlIndex < serviceUrls.length) {
-      selectedUrlIndex++;
-    } else {
-      selectedUrlIndex = 0;
-    }
-    return isLast;
-  }
-
-  /**
-   * Sets prompt for text generation.
-   */
-  public void setPrefix(String prefix) {
-    this.prefix = prefix;
   }
 }
