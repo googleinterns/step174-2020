@@ -30,12 +30,15 @@ import java.io.IOException;
  * Object for providing container URLs to StoryManager.
  */
 public class StoryManagerURLProvider {
+    
   /** serviceUrls - URLs for each story generation container */
-  private String[] serviceURLs = {"https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
+  private String[] serviceURLs = {
+      "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
+      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"
+  };
 
   /** Index of URL to provide. */
   private int selectedURLIndex;
@@ -48,7 +51,9 @@ public class StoryManagerURLProvider {
   }
 
   /**
-   * Cycles to next serviceUrl to a backup url.
+   * Cycles to next serviceUrl to an alternate container.
+   * Returns true when not last URL.
+   *
    * @return False if called on last URL.
    */
   synchronized public boolean cycleURL() {
@@ -66,6 +71,7 @@ public class StoryManagerURLProvider {
 
   /**
    * Returns the current URL as cycled.
+   *
    * @return The current url.
    */
   synchronized public String getCurrentURL() {
