@@ -23,7 +23,7 @@ body {
 }
 
 .content {
-  padding-top: 40px;
+  padding-top: 45px;
 }
 
 .horizontal-flex-container {
@@ -97,7 +97,7 @@ textarea {
 
 #nav-list {
   background-color: var(--blue-yonder);
-  height: 40px;
+  height: 45px;
   position: fixed;
   top: 0;
   width: 100%;
