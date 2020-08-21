@@ -1,5 +1,5 @@
 .bottomRow {
-  padding-top: 30px;
+  padding: 15px;
 }
 
 .center {
@@ -9,17 +9,17 @@
 
 .hero-image {
   background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-  url('hero.jpg');
+    url('hero.jpg');
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 50%;
+  height: 30vh;
   position: relative;
 }
 
 .hero-text {
   color: white;
-  font: 40px 'Roboto', sans-serif;
+  font-size: 40px;
   left: 50%;
   position: absolute;
   text-align: center;
@@ -32,43 +32,45 @@
 }
 
 .profile_img {
-  min-height: 600px;
-  height: 600px;    
+  height: 23vw;
 }
 
 .textbox {
-  background: var(--light-color);
-  border: 2px solid var(--light-color);
+  background: #333333;
+  border: 2px solid #333333;
   border-radius: 15px;
 }
 
 .textbox h1 {
-  font-size: 50px;
+  font-size: 2.5vw;
 }
 
 .textbox p {
-  font-size: 30px;
+  font-size: 1.25vw;
 }
 
 .topRow {
-  padding-top: 30px;
+  padding: 15px;
 }
 
-:root {
-  --body-color: #121212;
-  --head-color: #000000;
-  --light-color: #333333;
-  --main-color: #fff;
-  --text-color: #e7e7e7;
+#chart-container {
+  display: block;
+  height: 500px;
+  margin: 0 auto;
+  width: 600px;
 }
 
 #quote-container {
-  margin-top: 20px;
   color: #fff;
+  margin: 20px;
 }
 
-body {
-  background: 100%;
+#map {
+  border: thin solid black;
+  height: 705px;
+  margin: 20px auto;
+  padding: 10px;
+  width: 705px;
 }
 
 div.animate a:after {
@@ -83,7 +85,7 @@ div.animate a:before {
 
 div.animate a:before,
 div.animate a:after {
-  background-color: var(--text-color);
+  background-color: #e7e7e7;
   content: '';
   height: 1px;
   left: 0px;
@@ -100,9 +102,8 @@ div.animate a:hover:after {
 }
 
 div.go {
-  background-color: var(--head-color);
+  background-color: #000000;
   border-radius: 0px 0px 15px 15px;
-  font: 'Roboto', sans-serif;
   margin: 0 auto;
   padding: 2em 2em;
   text-align: center;
@@ -112,7 +113,7 @@ div.go {
 div.go a {
   color: #fff;
   cursor: pointer;
-  font: 30px 'Roboto', sans-serif;
+  font-size: 30px;
   margin: 0px 10px;
   padding: 20px 20px;
   position: relative;
@@ -121,32 +122,40 @@ div.go a {
 }
 
 div.grey {
-  background-color: var(--body-color);
+  background-color: #121212;
 }
 
 div.main-content {
-  background-color: var(--body-color);
-  color: var(--main-color);
-  font: 'Roboto', sans-serif;
-  height: 100%;
+  background-color: #121212;
+  color: #fff;
+  flex-grow: 1;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+iframe {
+  border: 0;
 }
 
 footer {
-  background: var(--head-color);
+  background: #000000;
   bottom: 0;
-  color: var(--text-color);
-  font: 'Roboto', sans-serif;
-  height: 5em;
+  color: #e7e7e7;
+  flex-shrink: 0;
+  height: 3em;
   left: 0;
-  margin: 0 auto;
-  position: fixed;
+  margin: auto;
+  position: relative;
   text-align: center;
   width: 100%;
 }
 
 html,
 body {
-  background-color: var(--body-color);
-  height: 100%;
+  background-color: #121212;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
+  min-height: 100vh;
 }

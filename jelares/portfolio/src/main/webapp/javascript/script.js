@@ -69,7 +69,13 @@ function addRandomText(textChoices, elementId) {
 function addRandomGreeting() {
   addRandomText(
       [
-        'Hola', 'Bonjour', 'Hello', 'Hej', 'Hallo', 'Greetings', 'Hey',
+        'Hola',
+        'Bonjour',
+        'Hello',
+        'Hej',
+        'Hallo',
+        'Greetings',
+        'Hey',
         'Welcome',
       ],
       'greeting-container');
@@ -81,8 +87,17 @@ function addRandomGreeting() {
 function addRandomPhoto() {
   addRandomText(
       [
-        'mountains', 'nature', 'the sea', 'my pets', 'cities', 'people',
-        'the world', 'kindness', 'the crazy', 'the new', 'the unbelievable',
+        'mountains',
+        'nature',
+        'the sea',
+        'my pets',
+        'cities',
+        'people',
+        'the world',
+        'kindness',
+        'the crazy',
+        'the new',
+        'the unbelievable',
       ],
       'photo-subject-container');
 }
@@ -92,7 +107,15 @@ function addRandomPhoto() {
 */
 function addRandomProject() {
   addRandomText(
-      ['us', 'me', 'you', 'humanity', 'friends', 'family', 'fun', 'learning',
+      [
+        'us',
+        'me',
+        'you',
+        'humanity',
+        'friends',
+        'family',
+        'fun',
+        'learning',
       ],
       'project-subject-container');
 }
@@ -103,15 +126,21 @@ function addRandomProject() {
 function addRandomBlog() {
   addRandomText(
       [
-        'my parents', 'my coworkers', 'the fans', 'workers', 'dreamers',
-        'my cat', 'myself',
+        'my parents',
+        'my coworkers',
+        'the fans',
+        'workers',
+        'dreamers',
+        'my cat',
+        'myself',
       ],
       'blog-subject-container');
 }
 
 /**
- * Creates parallax effect in the .parallax-landing elements on the page, according to their attributes
- * direction (either horizontal scrolling or vertical) and rate (how fast the elements will scroll).
+ * Creates parallax effect in the .parallax-landing elements on the page,
+ * according to their attributes direction (either horizontal scrolling or
+ * vertical) and rate (how fast the elements will scroll).
  */
 function parallaxElements() {
   const targets = document.querySelectorAll('.parallax-landing');

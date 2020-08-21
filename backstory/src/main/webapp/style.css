@@ -1,0 +1,320 @@
+/* Color Scheme */
+:root {
+  /* Main Color Palette: Bittersweet, Congo Pink, Blue Yonder, Dark Cornflower Blue & Saffron
+     Light/Dark Highlights: Oxford Blue & Alice Blue
+   */
+  --alice-blue: hsla(206, 100%, 96%, 1);
+  --bittersweet: hsla(5, 91%, 67%, 1);
+  --blue-yonder: hsla(225, 30%, 49%, 1);
+  --congo-pink: hsla(4, 98%, 77%, 1);
+  --dark-cornflower-blue: hsla(225, 40%, 32%, 1);
+  --oxford-blue: hsla(226, 41%, 16%, 1);
+  --saffron: hsla(46, 83%, 52%, 1);
+}
+
+/* General */
+
+html,
+body {
+  font-family: 'Roboto', sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.content {
+  padding-top: 40px;
+}
+
+.horizontal-flex-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.vertical-flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: 'Lato', sans-serif; /* override Arial for buttons */
+  letter-spacing: 0.08em; /* give more space between Roboto letters */
+}
+
+textarea {
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Headers */
+
+.header {
+  font-family: 'Open Sans', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.dark-blue-header {
+  color: var(--dark-cornflower-blue);
+}
+
+.blue-header {
+  color: var(--blue-yonder);
+}
+
+.red-header {
+  color: var(--bittersweet);
+}
+
+.pink-header {
+  color: var(--congo-pink);
+}
+
+.yellow-header {
+  color: var(--saffron);
+}
+
+/* Navigation Bar */
+
+.nav-ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#nav-list {
+  background-color: var(--blue-yonder);
+  height: 40px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.nav-li {
+  float: left;
+  text-align: center;
+}
+
+.nav-li a {
+  border-right: 1px solid white;
+  color: white;
+  display: block;
+  font-weight: bold;
+  padding: 10px 16px;
+  text-decoration: none;
+}
+
+.nav-li a:hover {
+  background-color: var(--alice-blue);
+  color: var(--blue-yonder);
+}
+
+#last-elem {
+  color: white;
+  float: right;
+  padding: 10px 16px;
+}
+
+/* Home Page */
+
+#home-content {
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 45px;
+  letter-spacing: 0.04em;
+}
+
+#photo-upload {
+  text-align: center;
+}
+
+#image-upload {
+  background-color: white;
+  border: solid thick var(--saffron);
+  border-radius: 5px;
+  color: var(--oxford-blue) !important;
+  font-size: 16px;
+  font-weight: bold;
+  height: 50px;
+  margin: 0 10px 25px;
+  width: 200px;
+}
+
+#submit-button {
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  height: 40px;
+  margin: 0 10px 25px;
+  width: 100px;
+}
+
+#story-display {
+  color: var(--oxford-blue);
+  width: 50%;
+}
+
+/* Demos Page */
+
+#demo-content {
+  align-items: center;
+}
+
+#demos-header {
+  font-size: 36px;
+}
+
+#demo-divs a,
+#demo-divs a:visited {
+  color: white;
+  text-decoration: none;
+}
+
+.demo-link {
+  border-radius: 10px;
+  margin: 5px;
+  text-align: center;
+}
+
+.demo-link h3 {
+  padding: 15px 25px;
+}
+
+#vision-demo-div {
+  background-color: var(--bittersweet);
+}
+
+#vision-demo-div h3 {
+  margin-block-start: 0;
+}
+
+#gpt2-demo-div {
+  background-color: var(--saffron);
+}
+
+#perspective-demo-div {
+  background-color: var(--blue-yonder);
+}
+
+/* Demo (Vision, GPT-2, Perspective) Pages Formatting */
+.demo-content {
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-div {
+  align-items: center;
+  width: 50%;
+}
+
+.demo-div textarea {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: medium;
+  width: 100%;
+}
+
+.demo-div button {
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* GPT-2 Demo Page */
+#gpt2-div {
+  align-items: center;
+  width: 100%;
+}
+
+#prompt-label {
+  align-self: flex-start;
+  padding: 0 0 10px;
+}
+
+#gpt2-inputs {
+  align-items: center;
+  height: 50px;
+  margin: 10px;
+}
+
+#gpt2-form label {
+  color: var(--oxford-blue);
+  font-size: 17px;
+  font-weight: bold;
+}
+
+#gpt2-form textarea {
+  height: 60px;
+  margin: 0 10px 10px;
+  padding: 5px;
+}
+
+#gpt2-form input {
+  border: medium solid var(--saffron);
+  border-radius: 5px;
+  margin: 10px 30px 10px 10px;
+  padding: 5px;
+  width: 40px;
+}
+
+#gpt2-form button {
+  background-color: var(--dark-cornflower-blue);
+  border: solid thick var(--dark-cornflower-blue);
+  height: 50px;
+  margin: 10px;
+  width: 150px;
+}
+
+/* Perspective Demo Page */
+
+#perspective-div textarea {
+  border-radius: 5px;
+  border-style: solid;
+  border-width: medium;
+  height: 150px;
+  margin: 0 10px 10px;
+  padding: 10px;
+}
+
+#perspective-div button {
+  background-color: var(--saffron);
+  border: solid thick var(--saffron);
+  height: 50px;
+  margin: 10px;
+  padding-bottom: 0;
+  width: 100px;
+}
+
+#approval-status {
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#attributes {
+  color: var(--oxford-blue);
+  padding-bottom: 35px; /* make sure page doesn't end with table */
+}
+
+#attribute-table,
+#attribute-table th,
+#attribute-table td {
+  border: 1px solid var(--oxford-blue);
+}
+
+#attribute-table th,
+#attribute-table td {
+  padding: 5px;
+  width: 200px;
+}
+
+#attribute-table .score {
+  text-align: center;
+  width: 100px;
+}

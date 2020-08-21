@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Message Manager</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <script src="script.js"></script>
+    <script src="messages.js"></script>
+  </head>
+
+  <body onload="getMessages()">
+    <div class="invisible-content">
+      <button type="button" onclick="location.href='/index.html';">Return Home</button>
+
+      <div class="header" id="message-header">
+        <h1>Current Messages:</h1>
+      </div>
+
+      <div class="flex-container" id="message-content">
+        <div class="flex-container" id="message-display"></div>
+      </div>
+    </div>
+  </body>
+</html>

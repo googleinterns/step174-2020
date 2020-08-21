@@ -26,6 +26,27 @@ import java.util.Map;
  * optional attendees can attend.
  */
 public final class FindMeetingQuery {
+
+  /** An enum to represent the different options for availability at every meeting time */
+  private enum Availability { 
+    ALL_AVAILABLE,
+    MANDATORY_AVAILABLE,
+    UNAVAILABLE;
+  
+    boolean isReplaceableBy(Availability availability) {
+      switch (this) {
+        case ALL_AVAILABLE:
+          return true;
+        case UNAVAILABLE:
+          return false;
+        case MANDATORY_AVAILABLE:
+          return availability == ALL_AVAILABLE;
+        default:
+          throw new IllegalStateException("This statement should not be reachable." +
+              "This switch should have conditions for all possible values of enum.");
+      }
+    }
+  }
    
   /** the number of minutes in a day */
   private static final int MINUTES_IN_DAY = 24 * 60;
@@ -92,7 +113,9 @@ public final class FindMeetingQuery {
 
       // as soon as the times are found return it, bc the number of optional attendees who can't come
       // will only increase after this point
-      if (availableTimes.size() > 0) return availableTimes;
+      if (availableTimes.size() > 0) {
+        return availableTimes;
+      }
     }
 
     // if there are no available times, return an empty array list

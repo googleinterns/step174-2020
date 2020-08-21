@@ -125,7 +125,7 @@ p {
 */
 
 #navbar {
-  padding: .5rem, 0rem, .5rem;
+  padding: 0.5rem, 0rem, 0.5rem;
 }
 
 .gradient-row p {
@@ -341,8 +341,24 @@ p {
 /*
     Blog styling
 */
+label {
+  color: rgb(255, 255, 255);
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+  text-transform: uppercase;
+}
+
 #blog-container {
   background: var(--snowColor1);
+}
+
+#blog-post-content {
+  height: 25vh;
+  width: 50vw;
+}
+
+#blog-post-title {
+  width: 50vw;
 }
 
 /*
@@ -432,7 +448,6 @@ p {
 }
 
 footer {
-  margin-top: -6px;
   background-color: #373a3c;
   padding: 50px 0px;
 }
