@@ -13,6 +13,8 @@
 // limitations under the License.
 package com.google.sps.story;
 
+import com.google.sps.story.data.*;
+import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -21,38 +23,62 @@ import java.util.Scanner;
  * Creates prompt string for text generation using input keyword strings.
  */
 public final class PromptManager {
+  /** Keywords for generation, word processing client, and randomness flag. */
   private List<String> keywords;
+  private PromptManagerWordTools wordTools;
+  boolean chooseRandomly = true;
 
   /**
-   * Initialize labels parameter.
+   * Initialize keywords parameter.
    *
-   * @param labels A list of Strings containing keywords for prompts.
+   * @param keywords A list of Strings containing keywords for prompts.
    */
   public PromptManager(List<String> keywords) {
     this.keywords = keywords;
   }
 
   /**
-   * Generates prompt using labels.
+   * Sets wordTools for word processing API calls.
    *
-   * @param delimiter String for delimiter between appended strings.
+   * @param wordTools PromptManagerWordTools instance.
+   */
+  public void setWordTools(PromptManagerWordTools wordTools) {
+    this.wordTools = wordTools;
+  }
+
+  /**
+   * Sets use of randomness in prompt template selection.
+   *
+   * @param boolean Whether or not to randomly choose output templates..
+   */
+  public void setRandom(boolean chooseRandomly) {
+    this.chooseRandomly = chooseRandomly;
+  }
+
+  /**
+   * Generates prompt using keywords given.
+   *
    * @return A String containing the output prompt.
    */
-  public String generatePrompt(String delimiter) {
-    String prompt = "";
+  public String generatePrompt() {
+    // Prepare story-like prefix.
+    String prompt = "Once upon a time, ";
 
-    // Check if valid.
-    if (keywords.size() == 0) {
-      return "";
+    // Check for null input.
+    if (keywords == null) {
+      throw new IllegalArgumentException("Input list cannot be null.");
     }
 
-    // Append strings.
-    for (int keywordIndex = 0; keywordIndex < keywords.size() - 1; keywordIndex++) {
-      prompt = prompt + keywords.get(keywordIndex) + delimiter;
+    // Initialize bodyFactory to process template construction
+    PromptManagerBodyFactory bodyFactory;
+    if (wordTools == null) {
+      bodyFactory = new PromptManagerBodyFactory(keywords, chooseRandomly);
+    } else {
+      bodyFactory = new PromptManagerBodyFactory(keywords, chooseRandomly, wordTools);
     }
-    prompt += keywords.get(keywords.size() - 1);
-    prompt += ".";
 
+    // Append generated prompt body.
+    prompt += bodyFactory.newInstance();
     return prompt;
   }
 }

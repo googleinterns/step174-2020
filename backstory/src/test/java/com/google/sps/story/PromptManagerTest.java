@@ -13,26 +13,42 @@
 // limitations under the License.
 
 package com.google.sps.story;
+import static org.mockito.Mockito.*;
 
+import com.google.sps.APINotAvailableException;
+import com.google.sps.story.data.*;
+import java.io.IOException;
+import java.lang.Exception;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Test the Prompt Creation Suite
  */
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public final class PromptManagerTest {
-  private static final String FIRST_KEYWORD = "First_Keyword";
-  private static final String SECOND_KEYWORD = "Second_Keyword";
-  private static final String THIRD_KEYWORD = "Third_Keyword";
+  private final String NOUN_DOG = "dog";
+  private final String NOUN_CAT = "cat";
+  private final String NOUN_TREE = "tree";
+  private final String NOUN_BIRD = "bird";
+  private final String GERUND_RUNNING = "running";
+  private final String GERUND_WALKING = "walking";
+  private final String[] SAMPLE_GENERATED_ADJECTIVES = {"happy", "large"};
+
+  private NLServiceClient mockClassifier;
+  private DatamuseRequestClient mockFetcher;
 
   private List<String> inputList;
   @Before
@@ -41,39 +57,201 @@ public final class PromptManagerTest {
   }
 
   @Test
-  /** Ensure the output prompt contains all keywords. */
-  public void verifyContains() {
-    inputList.add(FIRST_KEYWORD);
-    inputList.add(SECOND_KEYWORD);
-    inputList.add(THIRD_KEYWORD);
+  /**
+   * Verifies a non-random prompt generation for an input list satisfying
+   * the full template case(>=3 nouns, >=1 gerund).
+   * Output prompt should use the first template and the first 3 nounds/1 gerund.
+   *
+   * Expected template: Once upon a time, there was a <adjective> <adjective>
+   * <noun> <gerund> alongside a <adjective> <noun>. A <adjective> <noun> was
+   * also present, quite an interesting scene.
+   *
+   */
+  public void descriptiveMethodNonrandom() throws IOException, APINotAvailableException {
+    try {
+      // Prepare input list
+      inputList.add(NOUN_DOG);
+      inputList.add(NOUN_CAT);
+      inputList.add(NOUN_TREE);
+      inputList.add(NOUN_BIRD);
+      inputList.add(GERUND_RUNNING);
+      inputList.add(GERUND_WALKING);
 
-    PromptManager testPromptManager = new PromptManager(inputList);
-    String outputPrompt = testPromptManager.generatePrompt(" ");
+      PromptManager promptManager = new PromptManager(inputList);
 
-    Assert.assertEquals(outputPrompt, "First_Keyword Second_Keyword Third_Keyword.");
+      // Mock word processing APIs
+      PromptManagerWordTools mockedWordTools = mock(PromptManagerWordTools.class);
+
+      // Inject mock and disable randomness
+      promptManager.setWordTools(mockedWordTools);
+      promptManager.setRandom(false);
+
+      // Prepare canned classification of nouns and gerunds
+      Map<WordType, List<String>> classifiedInput = new HashMap<WordType, List<String>>();
+      List<String> gerunds = new ArrayList<String>();
+      gerunds.add(GERUND_RUNNING);
+      inputList.remove(GERUND_RUNNING);
+      classifiedInput.put(WordType.GERUND, gerunds);
+      classifiedInput.put(WordType.NOUN, inputList);
+
+      // Stub API calls with canned classification and adjectives
+      when(mockedWordTools.groupByWordType(anyList())).thenReturn(classifiedInput);
+      when(mockedWordTools.getRelatedAdjectives(anyString(), anyInt()))
+          .thenReturn(SAMPLE_GENERATED_ADJECTIVES);
+
+      // Expected nonrandom template prompt uses first template.
+      String expected = "Once upon a time, there was a happy large dog running "
+          + "alongside a happy cat. A happy tree was also present, quite an interesting scene.";
+
+      String actual = promptManager.generatePrompt();
+      Assert.assertEquals(expected, actual);
+    } catch (Exception exception) {
+      throw exception;
+    }
   }
 
   @Test
-  /** Ensure empty prompt return for empty input. */
-  public void noKeywordInput() {
-    PromptManager testPromptManager = new PromptManager(inputList);
-    String expected = "";
-    String actual = testPromptManager.generatePrompt(" ");
+  /**
+   * Verifies a non-random prompt generation for an input list satisfying
+   * the limited template case(2 nouns). Output prompt should use
+   * the first template and all given nouns.
+   *
+   * Expected Template: Once upon a time, (Listed nouns) were all really quite
+   * interesting.
+   */
+  public void listMethodTwoNounsNonrandom() throws IOException, APINotAvailableException {
+    try {
+      // Prepare input list
+      inputList.add(NOUN_DOG);
+      inputList.add(NOUN_CAT);
 
-    Assert.assertEquals(expected, actual);
+      PromptManager promptManager = new PromptManager(inputList);
+
+      // Disable randomness
+      promptManager.setRandom(false);
+
+      // Expected nonrandom template prompt uses first template.
+      String expected =
+          "Once upon a time, a dog as well as a cat were all really quite interesting.";
+      String actual = promptManager.generatePrompt();
+
+      Assert.assertEquals(expected, actual);
+    } catch (Exception exception) {
+      throw exception;
+    }
   }
 
   @Test
-  /** Ensures period at end of output. */
-  public void endsInPeriod() {
-    inputList.add(FIRST_KEYWORD);
-    inputList.add(SECOND_KEYWORD);
-    inputList.add(THIRD_KEYWORD);
-    PromptManager testPromptManager = new PromptManager(inputList);
-    String expected = ".";
-    String generated = testPromptManager.generatePrompt(" ");
-    String actual = generated.substring(generated.length() - 1);
+  /**
+   * Verifies a non-random prompt generation for an input list satisfying
+   * a limited template case(1 noun). Output prompt should use
+   * the first template and sole given nouns.
+   *
+   * Expected Template: Once upon a time, a (noun) was present.
+   */
+  public void listMethodOneNounNonrandom() throws IOException, APINotAvailableException {
+    try {
+      // Prepare input list
+      inputList.add(NOUN_DOG);
 
-    Assert.assertEquals(expected, actual);
+      PromptManager promptManager = new PromptManager(inputList);
+
+      // Disable randomness
+      promptManager.setRandom(false);
+
+      // Expected nonrandom template prompt uses first template.
+      String expected = "Once upon a time, a dog was present.";
+      String actual = promptManager.generatePrompt();
+
+      Assert.assertEquals(expected, actual);
+    } catch (Exception exception) {
+      throw exception;
+    }
+  }
+
+  @Test
+  /**
+   * Verifies the full input method of prompt generation using
+   * a randomly selected template. Ensure output contains
+   * all keywords as well as "Once upon a time"
+   */
+  public void descriptiveMethodRandomContains() throws IOException, APINotAvailableException {
+    try {
+      // Prepare input list
+      inputList.add(NOUN_DOG);
+      inputList.add(NOUN_CAT);
+      inputList.add(NOUN_TREE);
+      inputList.add(NOUN_BIRD);
+      inputList.add(GERUND_RUNNING);
+      inputList.add(GERUND_WALKING);
+
+      PromptManager promptManager = new PromptManager(inputList);
+
+      // Inject mock APIs into word tools.
+      PromptManagerWordTools mockedWordTools = mock(PromptManagerWordTools.class);
+
+      promptManager.setWordTools(mockedWordTools);
+
+      // Prepare canned output for classification.
+      Map<WordType, List<String>> classifiedInput = new HashMap<WordType, List<String>>();
+      List<String> gerunds = new ArrayList<String>();
+      gerunds.add(GERUND_RUNNING);
+      gerunds.add(GERUND_WALKING);
+      inputList.remove(GERUND_RUNNING);
+      inputList.remove(GERUND_WALKING);
+
+      classifiedInput.put(WordType.GERUND, gerunds);
+      classifiedInput.put(WordType.NOUN, inputList);
+
+      // Stub API calls to output canned classification and adjectives
+      when(mockedWordTools.groupByWordType(anyList())).thenReturn(classifiedInput);
+      when(mockedWordTools.getRelatedAdjectives(anyString(), anyInt()))
+          .thenReturn(SAMPLE_GENERATED_ADJECTIVES);
+
+      String outputPrompt = promptManager.generatePrompt();
+
+      // Prepare list for expected contained elements.
+      List<String> expectedList = new ArrayList<String>();
+      expectedList.add("Once upon a time, ");
+      expectedList.add(NOUN_DOG);
+      expectedList.add(NOUN_CAT);
+      expectedList.add(NOUN_TREE);
+      expectedList.add(GERUND_RUNNING);
+
+      boolean containsCheck = true;
+
+      // Verify contained elements
+      for (String expected : expectedList) {
+        if (!outputPrompt.contains(expected)) {
+          containsCheck = false;
+        }
+      }
+
+      Assert.assertTrue(containsCheck);
+    } catch (Exception exception) {
+      throw exception;
+    }
+  }
+
+  @Test
+  /**
+   * Verifies the case of an empty list input. The output prompt
+   * should use a pre-designated empty case template.
+   *
+   * Expected Template: Once upon a time, a hectic, unrecognizable
+   * scene took place.
+   */
+  public void noKeywordsGiven() throws IOException, APINotAvailableException {
+    try {
+      PromptManager promptManager = new PromptManager(inputList);
+
+      // Expected template should be the default empty template.
+      String expected = "Once upon a time, a hectic, unrecognizable scene took place.";
+      String actual = promptManager.generatePrompt();
+
+      Assert.assertEquals(expected, actual);
+    } catch (Exception exception) {
+      throw exception;
+    }
   }
 }
