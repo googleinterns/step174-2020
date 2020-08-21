@@ -16,8 +16,8 @@ package com.google.sps.story;
 import com.google.sps.story.data.*;
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,7 +25,7 @@ import java.util.Scanner;
  * Creates prompt string for text generation using input keyword strings.
  */
 public final class PromptManager {
-  /** Keywords for generation */ 
+  /** Keywords for generation */
   private List<String> keywords;
   /** Word fetching/processing client */
   private PromptManagerWordTools wordTools;

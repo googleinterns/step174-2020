@@ -153,7 +153,8 @@ public class PromptManagerBodyFactory {
           // Replace double-adjective noun case with first available noun and fetched adjectives.
         } else if (outputBody.contains("<adj> <adj> <noun>")) {
           String doubleAdjectiveNoun = nouns.remove(0);
-          String[] relatedAdjectives = wordTools.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
+          String[] relatedAdjectives =
+              wordTools.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
 
           doubleAdjectiveNoun =
               relatedAdjectives[0] + " " + relatedAdjectives[1] + " " + doubleAdjectiveNoun;
@@ -162,7 +163,8 @@ public class PromptManagerBodyFactory {
           // Replace single-adjective noun case with first available noun and fetched adjective.
         } else if (outputBody.contains("<adj> <noun>")) {
           String singleAdjectiveNoun = nouns.remove(0);
-          String[] relatedAdjectives = wordTools.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
+          String[] relatedAdjectives =
+              wordTools.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
 
           singleAdjectiveNoun = relatedAdjectives[0] + " " + singleAdjectiveNoun;
           outputBody = outputBody.replaceFirst("<adj> <noun>", singleAdjectiveNoun);
