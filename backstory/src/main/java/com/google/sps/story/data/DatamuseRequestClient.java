@@ -177,6 +177,18 @@ public class DatamuseRequestClient {
     }
   }
 
+  /**
+   * Helper method to read in a String array from the jsonResponse and gets the Strings 
+   * in this array from the value for "word" stored in the objects of this response. Throws an error
+   * if json is not formatted as expected (expected format is that of JSON found at a Datamuse query
+   * url) or if it can't be parsed for some reason. Purpose of this method is to read the words
+   * retrieved from a Datamuse query from the JSON they're wrapped in.
+   *
+   * @param jsonResponse the json to parse the word array from
+   * @return a String array that consists of the String stored in the "word" field
+   *    of the JSON objects stored in the jsonResponse (which should be a JSON array)
+   * @throws RuntimeException if the word array cannot be successfully parsed
+   */
   private String[] parseWordArrayFromJson(String jsonResponse) throws RuntimeException {
     // there are two try statements b/c there's a possibility for more than one JSONException to be
     // thrown in this method so specifying what went wrong with that exact JSON exception
