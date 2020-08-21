@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.servlets.data;
-
-import com.google.sps.servlets.data.BlobstoreManager;
+package com.google.sps.story.data;
 
 /**
- * Factory pattern for BlobstoreManager.
+ * Enum to represent types (by part of speech and other
+ * syntactical category) of labels returned by Cloud Vision.
+ * Unusable means that the word falls into a category of words
+ * that the prompt creation suite is not equipped to put into
+ * sentences. Almost no words should fall into unusable
+ * because the WordType enum contains all word types of labels
+ * returned by Cloud Vision.
  */
-public interface BlobstoreManagerFactory {
-  /**
-   * Create a new instance of BlobstoreManager.
-   *
-   * @return an instance of BlobstoreManager.
-   */
-  public BlobstoreManager newInstance();
+public enum WordType {
+  NOUN,
+  PROPER_NOUN,
+  MULTIWORD_NOUN,
+  GERUND,
+  ADJECTIVE,
+  UNUSABLE;
 }

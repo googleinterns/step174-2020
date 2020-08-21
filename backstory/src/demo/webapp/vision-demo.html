@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Perspective Demo</title>
+    <title>Vision Demo</title>
 
     <!-- Stylesheets and Fonts API -->
     <link rel="stylesheet" href="style.css" />
@@ -10,10 +10,10 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
-    
+
     <!-- Script Calls -->
-    <script src="perspective.js"></script>
-    
+    <script src="vision-demo.js"></script>
+
     <script
       src="https://code.jquery.com/jquery-3.3.1.js"
       integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -25,19 +25,24 @@
       })
     </script>
   </head>
+  </head>
 
-  <body>
+  <body onload="fetchBlobstoreUrl(); getAnalyzedImages();">
     <div id="nav-bar"></div>
 
-    <div class="content demo-content vertical-flex-container" id="perspective-content">
-      <h1 class="header blue-header">Perspective Demo</h1>
+    <div class="content demo-content vertical-flex-container" id="vision-content">
+      <h1 class="header red-header">Vision Demo</h1>
 
-      <div class="demo-div vertical-flex-container" id="perspective-div">
-        <textarea id="text-for-analysis" name="text"></textarea>
-        <button type="button" onclick="displayAnalysis()">Analyze</button>
+      <div class="vertical-flex-container" id="upload-form-div">
+        <form class="vertical-flex-container demo-div" id="image-upload-form" method="post" enctype="multipart/form-data">
+          <input type="file" name="image-upload" id="image-upload" class="file-input" onchange="updateFileName()"/>
+          <label id="upload-visual" for="image-upload">Select an image...</label>
 
-        <div id="attributes"></div>
+          <button type="submit">Submit</button>
+        </form>
       </div>
+      
+      <div id="image-list"></div>
     </div>
   </body>
 </html>

@@ -47,8 +47,12 @@ public class BlobstoreManager {
   }
 
   /**
-   * Injection code for testing.
-   * Creates a blobstore manager using a mock blobstoreService.
+   * Creates a blobstore manager using a specified BlobstoreService.
+   *
+   * @param blobstoreService the blobstore service linked to this blobstore manager.
+   * @param blobstoreServiceConstantFields wrapper linked to blobstoreService used to access all of its
+   * constant fields. 
+   * @param blobInfoFactory factory for creating an object containing meta-data for BlobstoreService.
    */
   public BlobstoreManager(BlobstoreService blobstoreService,
       BlobstoreServiceConstantFields blobstoreServiceConstantFields,
@@ -61,30 +65,19 @@ public class BlobstoreManager {
   /**
    * Given a request and the form input element name get the image uploaded in the form as
    * a Blob Key in String form. This key is used to serve the picture back to the front-end.
+   *
    * @param request the HTTP request sent from the front-end form.
    * @param formInputElementName the name of the input element in the front-end form.
    * @return the image uploaded in the front-end input form, as a Blob Key in String form.
    */
   public String getUploadedFileBlobKeyString(
-      HttpServletRequest request, String formInputElementName) {
-    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get(formInputElementName);
-
-    // User submitted form without selecting a file, so we can't get a URL. (dev server)
-    if (blobKeys == null || blobKeys.isEmpty()) {
+      HttpServletRequest request, String formInputElementName) throws IOException {
+    // Gets the blobkey for the image uploaded in the request
+    BlobKey blobKey = getFirstBlobKeyFromUploads(request, formInputElementName);
+    // If no image was uploaded in the request, getFirstBlobKeyFromUploads will return null.
+    if (blobKey == null) {
       return null;
     }
-
-    // Our form only contains a single file input, so get the first index.
-    BlobKey blobKey = blobKeys.get(0);
-
-    // User submitted form without selecting a file, so we can't get a URL. (live server)
-    BlobInfo blobInfo = blobInfoFactory.loadBlobInfo(blobKey);
-    if (blobInfo.getSize() == 0) {
-      blobstoreService.delete(blobKey);
-      return null;
-    }
-
     String blobKeyString = blobKey.getKeyString();
     return blobKeyString;
   }
@@ -92,30 +85,21 @@ public class BlobstoreManager {
   /**
    * Given a request and the form input element name get the image uploaded in the form as
    * a byte array.
+   *
    * @param request the HTTP request sent from the front-end form.
    * @param formInputElementName the name of the input element in the front-end form.
    * @return the image uploaded in the front-end input form, as a byte array.
    */
   public byte[] getBlobBytes(HttpServletRequest request, String formInputElementName)
       throws IOException {
-    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
-    List<BlobKey> blobKeys = blobs.get(formInputElementName);
-
-    // User submitted form without selecting a file, so we can't get a URL. (dev server)
-    if (blobKeys == null || blobKeys.isEmpty()) {
+    // Gets the blobkey for the image uploaded in the request
+    BlobKey blobKey = getFirstBlobKeyFromUploads(request, formInputElementName);
+    // If no image was uploaded in the request, getFirstBlobKeyFromUploads will return null.
+    if (blobKey == null) {
       return null;
     }
 
-    // Our form only contains a single file input, so get the first index.
-    BlobKey blobKey = blobKeys.get(0);
-
-    // User submitted form without selecting a file, so we can't get a URL. (live server)
-    BlobInfo blobInfo = blobInfoFactory.loadBlobInfo(blobKey);
-    if (blobInfo.getSize() == 0) {
-      blobstoreService.delete(blobKey);
-      return null;
-    }
-
+    // Generates the byte array for the uploaded image by writing the input bytes uploaded.
     ByteArrayOutputStream outputBytes = new ByteArrayOutputStream();
     int fetchSize = blobstoreServiceConstantFields.getMaxBlobFetchSize();
     long currentByteIndex = 0;
@@ -130,10 +114,37 @@ public class BlobstoreManager {
       if (bytesFromImage.length < fetchSize) {
         continueReading = false;
       }
-
       currentByteIndex += fetchSize;
     }
-
     return outputBytes.toByteArray();
+  }
+
+  /**
+   * Accesses the blobkey for the first image uploaded to blobstore in the current request, with a
+   * specified name.
+   *
+   * @param request the current HTTP request from which the image was uploaded.
+   * @param formInputElementName the input name the image was uploaded under in the HTML
+   * front-end form.
+   * @return the blobkey for the first image uploaded into this request.
+   */
+  private BlobKey getFirstBlobKeyFromUploads(
+      HttpServletRequest request, String formInputElementName) throws IOException {
+    Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(request);
+    List<BlobKey> blobKeys = blobs.get(formInputElementName);
+
+    // User submitted form without selecting a file, so we can't get a URL. (dev server)
+    if (blobKeys == null || blobKeys.isEmpty()) {
+      return null;
+    }
+    // Our form only contains a single file input, so get the first index.
+    BlobKey blobKey = blobKeys.get(0);
+    // User submitted form without selecting a file, so we can't get a URL. (live server)
+    BlobInfo blobInfo = blobInfoFactory.loadBlobInfo(blobKey);
+    if (blobInfo.getSize() == 0) {
+      blobstoreService.delete(blobKey);
+      return null;
+    }
+    return blobKey;
   }
 }
