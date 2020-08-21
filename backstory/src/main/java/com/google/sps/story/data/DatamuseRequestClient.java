@@ -38,8 +38,8 @@ public class DatamuseRequestClient {
   private final String url;
 
   /** a list of topics related to storytelling for which to filter adjectives/gerunds for */
-  public static final String[] STORYTELLING_TOPICS = { "story", "fairytale", "narrative", "anecdote",
-    "drama", "fantasy", "adventure", "poem", "grand" };
+  public static final String[] STORYTELLING_TOPICS = {"story", "fairytale", "narrative", "anecdote",
+      "drama", "fantasy", "adventure", "poem", "grand"};
 
   /**
    * Constructs a request client with the default Datamuse url.
@@ -57,8 +57,8 @@ public class DatamuseRequestClient {
   public DatamuseRequestClient(String url) {
     this.url = url;
   }
-  
-  /** 
+
+  /**
    * Returns a randomly-chosen topic related to storytelling
    * from a preset array.
    *
@@ -71,7 +71,7 @@ public class DatamuseRequestClient {
   }
 
   /**
-   * Fetches an array of words, of type wordType, related to the passed-in noun, 
+   * Fetches an array of words, of type wordType, related to the passed-in noun,
    * which will have a passed-in cap on its size (array returned might be smaller if database
    * does not have enough related adjectives). Fetches of these the words most related
    * to the passed-in topic. Accomplished by querying the Datamuse database.
@@ -80,7 +80,7 @@ public class DatamuseRequestClient {
    * @param wordType the type of word to fetch (e.g. adjectives or gerunds)
    * @param cap the maximum number of words to retrieve
    * @param topic will sort the words most relevant to given topic (so top ten will
-   *    be words related to the noun then the ones most related to the given topic) 
+   *    be words related to the noun then the ones most related to the given topic)
    *    (empty string for topic is same as no topic)
    * @return an array of words of type wordType related to the noun of max size cap
    * @throws IllegalArgumentException if noun is more than one word (has whitespace)
@@ -88,18 +88,17 @@ public class DatamuseRequestClient {
    * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
    *    or does not have objects of type JSON (ClassCastException)
    */
-  public String[] fetchRelatedWords(String noun, DatamuseRequestWordType wordType, int cap, String topic)
-      throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-    
+  public String[] fetchRelatedWords(String noun, DatamuseRequestWordType wordType, int cap,
+      String topic) throws IllegalArgumentException, APINotAvailableException, RuntimeException {
     validateWordArgument(noun, "Noun");
 
     String query = url;
 
     switch (wordType) {
-      case ADJECTIVE: 
+      case ADJECTIVE:
         query += "rel_jjb=" + noun; // get adjectives related to the noun
         break;
-      case GERUND: 
+      case GERUND:
         query += "rel_jja=" + noun + "&sp=*ing"; // get nouns related to the noun ending in "ing"
         break;
     }
@@ -111,17 +110,18 @@ public class DatamuseRequestClient {
 
     return parseWordArrayFromJson(jsonResponse);
   }
-  
+
   /**
-   * Helper method to validate a word argument by checking 
-   * it's only one word (properly formatted) which is checked 
+   * Helper method to validate a word argument by checking
+   * it's only one word (properly formatted) which is checked
    * by ensuring there's no whitespace.
    *
    * @param argument the argument to check for whitespace
    * @param argumentName the name of argument to use in the error message
    * @throws IllegalArgumentException if argument contains whitespace
    */
-  private void validateWordArgument(String argument, String argumentName) throws IllegalArgumentException {
+  private void validateWordArgument(String argument, String argumentName)
+      throws IllegalArgumentException {
     if (argument == null) {
       throw new IllegalArgumentException(argumentName + " cannot be null.");
     }
@@ -130,7 +130,8 @@ public class DatamuseRequestClient {
     Matcher matcher = pattern.matcher(argument);
 
     if (matcher.find()) {
-      throw new IllegalArgumentException(argumentName + " cannot contain whitespace (must be one word).");
+      throw new IllegalArgumentException(
+          argumentName + " cannot contain whitespace (must be one word).");
     }
   }
 

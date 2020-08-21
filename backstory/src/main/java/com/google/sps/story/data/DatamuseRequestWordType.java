@@ -14,7 +14,7 @@
 
 package com.google.sps.story.data;
 
-/** 
+/**
  * An enum to hold the current word types supported
  * to be used as word type in the fetchRelatedWords()
  * method of the DatamuseRequestClient.
