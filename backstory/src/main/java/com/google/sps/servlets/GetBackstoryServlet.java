@@ -82,7 +82,6 @@ public class GetBackstoryServlet extends HttpServlet {
       response.setContentType("application/json;");
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
       String backstoriesJsonArray = gson.toJson(backstories);
-      System.out.println(backstoriesJsonArray);
       response.getWriter().println(backstoriesJsonArray);
     }
   }

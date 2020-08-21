@@ -27,17 +27,15 @@ import javax.servlet.http.HttpServletResponse;
  *
  * blobstoreService.createUploadUrl("/analyze-image") creates an intermediate URL (uploadUrl) which
  * encodes the file upload, then forwards the encoded file, as a blob object, in the request to the
- * parameter url
- * ("/analyze-image" in this case). To see the intermediate blobstore URL, try:
+ * parameter url ("/analyze-image" in this case). To see the intermediate blobstore URL, try:
  * System.out.println(uploadUrl)
  *
  * From the response sent, to access the explicit blob keys of the encoded file, from the blob
  * object in the request, try: Map<String, List<BlobKey>> blobs =
  * blobstoreService.getUploads(request); List<BlobKey> blobKeys = blobs.get(formInputElementName);
- *
  * Where formInputElementName is the name attribute for the file input in the original HTML form.
- * From blobKeys, you can access the keys for any of the files uploaded. Then with ImagesService or
- * with Javascript, you can build the image from the blobkey, and get the url for it.
+ * From blobKeys, you can access the keys for any of the files uploaded, and use BlobstoreService
+ * to serve that image back to the front-end.
  */
 @WebServlet("/blobstore-upload-url")
 public class BlobstoreUploadUrlServlet extends HttpServlet {
