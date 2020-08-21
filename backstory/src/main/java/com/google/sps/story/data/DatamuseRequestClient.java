@@ -40,7 +40,7 @@ public class DatamuseRequestClient {
   /** a list of topics related to storytelling for which to filter adjectives/gerunds for */
   public static final String[] STORYTELLING_TOPICS = {"story", "fairytale", "narrative", "anecdote",
       "drama", "fantasy", "adventure", "poem", "grand"};
-
+  
   /**
    * Constructs a request client with the default Datamuse url.
    */
