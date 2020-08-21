@@ -38,7 +38,7 @@ public class DatamuseRequestClient {
   private final String url;
 
   /** a list of topics related to storytelling for which to filter adjectives/gerunds for */
-  public final String[] STORYTELLING_TOPICS = { "story", "fairytale", "narrative", "anecdote",
+  public static final String[] STORYTELLING_TOPICS = { "story", "fairytale", "narrative", "anecdote",
     "drama", "fantasy", "adventure", "poem", "grand" };
 
   /**
@@ -57,108 +57,56 @@ public class DatamuseRequestClient {
   public DatamuseRequestClient(String url) {
     this.url = url;
   }
-
-  /**
-   * Fetches an array of adjectives related to the passed-in noun, which will have
-   * a passed-in cap on its size (array returned might be smaller if database
-   * does not have enough related adjectives). Of the adjectives related to the noun,
-   * also filters those related to a storytelling topic and returns the most
-   * related. Fetches these adjectives by querying the Datamuse database. 
+  
+  /** 
+   * Returns a randomly-chosen topic related to storytelling
+   * from a preset array.
    *
-   * @param noun the noun to get adjectives related to (must be one word)
-   * @param cap the maximum number of adjectives to retrieve
-   * @return an array of adjectives related to the noun
-   * @throws IllegalArgumentException if noun is more than one word (has whitespace)
-   * @throws APINotAvailableException if Datamuse API cannot be reached
-   * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
-   *    or does not have objects of type JSON (ClassCastException)
+   * @return a topic related to storytelling to be used in the PCS
    */
-  public String[] fetchRelatedAdjectives(String noun, int cap)
-      throws IllegalArgumentException, APINotAvailableException, RuntimeException {
+  public static String getStorytellingTopic() {
     int randomIndex = (int) (Math.random() * STORYTELLING_TOPICS.length);
-    String topic = STORYTELLING_TOPICS[randomIndex];
 
-    return fetchRelatedAdjectives(noun, cap, topic);
+    return STORYTELLING_TOPICS[randomIndex];
   }
 
   /**
-   * Fetches an array of adjectives related to the passed-in noun, which will have
-   * a passed-in cap on its size (array returned might be smaller if database
-   * does not have enough related adjectives). Fetches of these the adjectives most related
+   * Fetches an array of words, of type wordType, related to the passed-in noun, 
+   * which will have a passed-in cap on its size (array returned might be smaller if database
+   * does not have enough related adjectives). Fetches of these the words most related
    * to the passed-in topic. Accomplished by querying the Datamuse database.
    *
-   * @param noun the noun to get adjectives related to (must be one word)
-   * @param cap the maximum number of adjectives to retrieve
-   * @param topic will sort the words msot relevant to given topic (so top ten will
-   *    be adjectives related to the noun and the ones most related to thet topic)
-   * @return an array of adjectives related to the noun
+   * @param noun the noun to get words related to (must be one word)
+   * @param wordType the type of word to fetch (e.g. adjectives or gerunds)
+   * @param cap the maximum number of words to retrieve
+   * @param topic will sort the words most relevant to given topic (so top ten will
+   *    be words related to the noun then the ones most related to the given topic) 
+   *    (empty string for topic is same as no topic)
+   * @return an array of words of type wordType related to the noun of max size cap
    * @throws IllegalArgumentException if noun is more than one word (has whitespace)
    * @throws APINotAvailableException if Datamuse API cannot be reached
    * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
    *    or does not have objects of type JSON (ClassCastException)
    */
-  public String[] fetchRelatedAdjectives(String noun, int cap, String topic)
+  public String[] fetchRelatedWords(String noun, DatamuseRequestWordType wordType, int cap, String topic)
       throws IllegalArgumentException, APINotAvailableException, RuntimeException {
     
     validateWordArgument(noun, "Noun");
 
-    // put together a query asking for adjectives related to the noun (rel_jjb=noun),
-    // capping the number of results at 10 (max=10), and sorting them 
-    // by those most related to a given topic (topics=topic)
-    String query = url + "rel_jjb=" + noun + "&max=" + cap + "&topics=" + topic;
-    String jsonResponse = queryUrl(query);
+    String query = url;
 
-    return parseWordArrayFromJson(jsonResponse);
-  }
+    switch (wordType) {
+      case ADJECTIVE: 
+        query += "rel_jjb=" + noun; // get adjectives related to the noun
+        break;
+      case GERUND: 
+        query += "rel_jja=" + noun + "&sp=*ing"; // get nouns related to the noun ending in "ing"
+        break;
+    }
 
-  /**
-   * Fetches an array of gerunds related to the passed-in noun, which will have
-   * a passed-in cap on its size (array returned might be smaller if database
-   * does not have enough related adjectives). Of the gerunds related to the noun,
-   * also filters those related to a storytelling topic and returns the most
-   * related. Fetches these gerunds by querying the Datamuse database. 
-   *
-   * @param noun the noun to get gerunds related to (must be one word)
-   * @param cap the maximum number of gerunds to retrieve
-   * @return an array of gerunds related to the noun
-   * @throws IllegalArgumentException if noun is more than one word (has whitespace)
-   * @throws APINotAvailableException if Datamuse API cannot be reached
-   * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
-   *    or does not have objects of type JSON (ClassCastException)
-   */
-  public String[] fetchRelatedGerunds(String noun, int cap)
-      throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-    int randomIndex = (int) (Math.random() * STORYTELLING_TOPICS.length);
-    String topic = STORYTELLING_TOPICS[randomIndex];
+    // cap number of results (max=cap) & set the topic (topics=topic)
+    query += "&max=" + cap + "&topics=" + topic;
 
-    return fetchRelatedGerunds(noun, cap, topic);
-  }
-
-  /**
-   * Fetches an array of gerunds related to the passed-in noun, which will have
-   * a passed-in cap on its size (array returned might be smaller if database
-   * does not have enough related adjectives). Fetches fo these the gerunds most related
-   * to the passed-in topic. Accomplished by querying the Datamuse database.
-   *
-   * @param noun the noun to get gerunds related to (must be one word)
-   * @param cap the maximum number of gerunds to retrieve
-   * @param topic will sort the words msot relevant to given topic (so top ten will
-   *    be gerunds related to the noun and the ones most related to thet topic)
-   * @return an array of gerunds related to the noun
-   * @throws IllegalArgumentException if noun is more than one word (has whitespace)
-   * @throws APINotAvailableException if Datamuse API cannot be reached
-   * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
-   *    or does not have objects of type JSON (ClassCastException)
-   */
-  public String[] fetchRelatedGerunds(String noun, int cap, String topic)
-      throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-    
-    validateWordArgument(noun, "Noun");
-
-    // put together a query asking for nouns related to the noun (rel_jja=noun),
-    // capping the number of results at 10 (max=10), getting those ending in *ing (sp=*ing),
-    // and sorting them by those most related to a given topic (topics=topic)
-    String query = url + "rel_jja=" + noun + "&sp=*ing&max=" + cap + "&topics=" + topic;
     String jsonResponse = queryUrl(query);
 
     return parseWordArrayFromJson(jsonResponse);
