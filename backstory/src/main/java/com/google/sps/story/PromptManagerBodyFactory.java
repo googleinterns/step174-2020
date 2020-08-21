@@ -24,10 +24,12 @@ import java.util.Scanner;
  * Constructs body of prompt given input keywords.
  */
 public class PromptManagerBodyFactory {
-  /** Keywords for prompt generation, word processing client, and randomness flag */
+  /** Keywords for prompt generation */
   private List<String> keywords;
+  /** Word processing client */
   private PromptManagerWordTools wordTools;
-  boolean chooseRandomly;
+  /** randomness flag */
+  private boolean chooseRandomly;
 
   /** Random number generator */
   private Random templateChooser;
@@ -98,7 +100,6 @@ public class PromptManagerBodyFactory {
    * will be used. Templates are filled using first available
    * of each WordType.
    *
-   * @param delimiter String for delimiter between appended strings.
    * @return A String containing the output prompt.
    */
   public String newInstance() {
@@ -111,11 +112,6 @@ public class PromptManagerBodyFactory {
       // Classify given word inputs.
       typeMap = wordTools.groupByWordType(keywords);
       nouns = typeMap.get(WordType.NOUN);
-
-      // Consolidate all nouns into one list.
-      if (typeMap.get(WordType.MULTIWORD_NOUN) != null) {
-        nouns.addAll(typeMap.get(WordType.MULTIWORD_NOUN));
-      }
 
       // Isolate gerunds
       gerunds = typeMap.get(WordType.GERUND);
@@ -157,7 +153,7 @@ public class PromptManagerBodyFactory {
           // Replace double-adjective noun case with first available noun and fetched adjectives.
         } else if (outputBody.contains("<adj> <adj> <noun>")) {
           String doubleAdjectiveNoun = nouns.remove(0);
-          String[] relatedAdjectives = wordTools.getRelatedAdjectives(doubleAdjectiveNoun, 2);
+          String[] relatedAdjectives = wordTools.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
 
           doubleAdjectiveNoun =
               relatedAdjectives[0] + " " + relatedAdjectives[1] + " " + doubleAdjectiveNoun;
@@ -166,7 +162,7 @@ public class PromptManagerBodyFactory {
           // Replace single-adjective noun case with first available noun and fetched adjective.
         } else if (outputBody.contains("<adj> <noun>")) {
           String singleAdjectiveNoun = nouns.remove(0);
-          String[] relatedAdjectives = wordTools.getRelatedAdjectives(singleAdjectiveNoun, 1);
+          String[] relatedAdjectives = wordTools.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
 
           singleAdjectiveNoun = relatedAdjectives[0] + " " + singleAdjectiveNoun;
           outputBody = outputBody.replaceFirst("<adj> <noun>", singleAdjectiveNoun);
@@ -217,6 +213,7 @@ public class PromptManagerBodyFactory {
   /**
    * Obtains either the first available or a randomly selected template from the list.
    *
+   * @param templateList List of templates to choose from.
    * @return Template obtained.
    */
   private String getTemplate(String[] templateList) {

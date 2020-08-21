@@ -18,6 +18,8 @@ import com.google.sps.story.data.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * Facilitates API calls through a single object.
@@ -30,6 +32,8 @@ public class PromptManagerWordTools {
 
   /**
    * Initialize API objects.
+   *
+   * @throws IOException Exception for network problem.
    */
   public PromptManagerWordTools() throws IOException {
     try {
@@ -56,11 +60,23 @@ public class PromptManagerWordTools {
    *
    * @param noun The noun to get adjectives for
    * @param cap A count of how many adjectives to return
+   * @param isRandom Determines whether or not to shuffle output
    * @return An array of related adjectives.
    */
-  public String[] getRelatedAdjectives(String noun, int cap) throws APINotAvailableException {
-    try {
-      return wordFetcher.getRelatedAdjectives(noun, cap);
+  public String[] fetchRelatedAdjectives(String noun, int cap, boolean isRandom) throws APINotAvailableException {
+    try {  
+      String storytellingTopic = DatamuseRequestClient.getStorytellingTopic();
+      String[] relatedAdjectives = wordFetcher.fetchRelatedWords(noun, DatamuseRequestWordType.ADJECTIVE, cap, storytellingTopic);
+      
+      if(isRandom){
+        List<String> adjectiveList = Arrays.asList(relatedAdjectives);
+        Collections.shuffle(adjectiveList);
+        String[] shuffledAdjectives = adjectiveList.toArray(new String[adjectiveList.size()]);
+        return shuffledAdjectives;
+      }else{
+        return relatedAdjectives;
+      }
+
     } catch (APINotAvailableException apiException) {
       throw apiException;
     }

@@ -96,7 +96,7 @@ public final class PromptManagerTest {
 
       // Stub API calls with canned classification and adjectives
       when(mockedWordTools.groupByWordType(anyList())).thenReturn(classifiedInput);
-      when(mockedWordTools.getRelatedAdjectives(anyString(), anyInt()))
+      when(mockedWordTools.fetchRelatedAdjectives(anyString(), anyInt(), anyBoolean()))
           .thenReturn(SAMPLE_GENERATED_ADJECTIVES);
 
       // Expected nonrandom template prompt uses first template.
@@ -205,7 +205,7 @@ public final class PromptManagerTest {
 
       // Stub API calls to output canned classification and adjectives
       when(mockedWordTools.groupByWordType(anyList())).thenReturn(classifiedInput);
-      when(mockedWordTools.getRelatedAdjectives(anyString(), anyInt()))
+      when(mockedWordTools.fetchRelatedAdjectives(anyString(), anyInt(), anyBoolean()))
           .thenReturn(SAMPLE_GENERATED_ADJECTIVES);
 
       String outputPrompt = promptManager.generatePrompt();
