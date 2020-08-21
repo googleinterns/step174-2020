@@ -80,60 +80,20 @@ public final class FindMeetingQuery {
    * @param request the meeting request to be fulfilled (will have duration & attendees)
    */ 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    Collection<String> attendees = request.getAttendees();
-    Collection<String> optionalAttendees = request.getOptionalAttendees();
-
     // The +1 is to account for last minute in day
     Availability[] minuteAvailability = new Availability[MINUTES_IN_DAY + 1];
 
-    // fill the minute availability array with the default (the assumption all attendees can come)
-    for (int i = 0; i < minuteAvailability.length; i++) {
-      minuteAvailability[i] = new Availability();
-    }
+    // this method fills the minuteAvailability array with correct availabilities and returns
+    // the max number of unavailable optional attendees for any time that day (for the attendees
+    // of this meeting)
+    int maxUnavailableOptionalAttendeesFound = fillAvailabilityArrayForDay(events, request, minuteAvailability);
 
-    // keep a champion for the maximum number of unavailable attendees found so that when analyzing the minuteAvailability
-    // array, we can determine where to stop. starts at 0 b/c that's the lowest number of unavailable
-    // attendees possible
-    int maxUnavailableAttendeesFound = 0;
-
-    // fill the minuteAvailability array with the correct availabilities based on events given
-    for (Event event: events) {
-      Availability status = new Availability();
-      int mandatoryOverlap = amountOfOverlap(event.getAttendees(), attendees);
-
-      if (mandatoryOverlap > 0) {
-        status.mandatoryAttendeeUnavailable();
-      }
-
-      int optionalOverlap = amountOfOverlap(event.getAttendees(), optionalAttendees);
-      status.increaseOptionalAttendeeUnavailability(optionalOverlap);
-       
-      // if status isn't just the default, update the array
-      if (!status.areMandatoryAttendeesAllAvailable || status.numberOfOptionalAttendeesUnavailable != 0) {
-        TimeRange range = event.getWhen();
-
-        for (int i = range.start(); i < range.end(); i++) {
-          // update the mandatory attendee availability of this minute
-          if (!status.areMandatoryAttendeesAllAvailable) {
-            minuteAvailability[i].mandatoryAttendeeUnavailable();
-          }
-          
-          // update the optional availability of this minute
-          minuteAvailability[i].increaseOptionalAttendeeUnavailability(status.numberOfOptionalAttendeesUnavailable);
-          
-          int currentNumberOfUnavailableAttendees = minuteAvailability[i].numberOfOptionalAttendeesUnavailable;
-          
-          // if the current number of unavailable attendees is the highest number yet, update the champion
-          if (currentNumberOfUnavailableAttendees > maxUnavailableAttendeesFound) {
-            maxUnavailableAttendeesFound = currentNumberOfUnavailableAttendees;
-          }
-        }
-      }
-    }
-
-    for (int status = 0; status <= maxUnavailableAttendeesFound; status++) {
+    for (int numberOfUnavailableOptionalAttendees = 0; 
+        numberOfUnavailableOptionalAttendees <= maxUnavailableOptionalAttendeesFound; 
+        numberOfUnavailableOptionalAttendees++) {
       // an array list of available times 
-      ArrayList<TimeRange> availableTimes = (ArrayList<TimeRange>) findTimesForStatus(request, minuteAvailability, status);
+      ArrayList<TimeRange> availableTimes = (ArrayList<TimeRange>) findTimesBasedOnOptionalAttendeeAvailability(request, 
+        minuteAvailability, numberOfUnavailableOptionalAttendees);
 
       // as soon as the times are found return it, bc the number of optional attendees who can't come
       // will only increase after this point
@@ -190,25 +150,89 @@ public final class FindMeetingQuery {
     return map;
   }
 
+  /**
+   * Helper method to fill the availability array for a given meeting on this day
+   * where each index in the array represents that minute of the day.
+   * 
+   * @param events the events to occur on this day
+   * @param request the information needed about the current meeting you're looking for availability for
+   * @param minuteAvailability the array to fill in its availabilities (based on events) for this day
+   * @return the max number of unavailable attendees found (for later purposes)
+   */
+  private int fillAvailabilityArrayForDay(Collection<Event> events, MeetingRequest request, Availability[] minuteAvailability) {
+    // fill the minute availability array with the default (the assumption all attendees can come)
+    for (int i = 0; i < minuteAvailability.length; i++) {
+      minuteAvailability[i] = new Availability();
+    }
+
+    // keep a champion for the maximum number of unavailable optional ttendees found so that 
+    // when analyzing the minuteAvailability array, we can determine where to stop. 
+    // starts at 0 b/c that's the lowest number of unavailable optional attendees possible
+    int maxUnavailableOptionalAttendeesFound = 0;
+
+    Collection<String> attendees = request.getAttendees();
+    Collection<String> optionalAttendees = request.getOptionalAttendees();
+
+    // fill the minuteAvailability array with the correct availabilities based on events given
+    for (Event event: events) {
+      Availability availabilityDuringEvent = new Availability();
+      int mandatoryOverlap = amountOfOverlap(event.getAttendees(), attendees);
+
+      if (mandatoryOverlap > 0) {
+        availabilityDuringEvent.mandatoryAttendeeUnavailable();
+      }
+
+      int optionalOverlap = amountOfOverlap(event.getAttendees(), optionalAttendees);
+      availabilityDuringEvent.increaseOptionalAttendeeUnavailability(optionalOverlap);
+       
+      // if availability during this event isn't just the default, update the array
+      if (!availabilityDuringEvent.areMandatoryAttendeesAllAvailable 
+          || availabilityDuringEvent.numberOfOptionalAttendeesUnavailable != 0) {
+        TimeRange range = event.getWhen();
+
+        for (int i = range.start(); i < range.end(); i++) {
+          // update the mandatory attendee availability of this minute
+          if (!availabilityDuringEvent.areMandatoryAttendeesAllAvailable) {
+            minuteAvailability[i].mandatoryAttendeeUnavailable();
+          }
+          
+          // update the optional availability of this minute
+          minuteAvailability[i].increaseOptionalAttendeeUnavailability(availabilityDuringEvent.numberOfOptionalAttendeesUnavailable);
+          
+          int currentNumberOfUnavailableOptionalAttendees = minuteAvailability[i].numberOfOptionalAttendeesUnavailable;
+          
+          // if the current number of unavailable attendees is the highest number yet, update the champion
+          if (currentNumberOfUnavailableOptionalAttendees > maxUnavailableOptionalAttendeesFound) {
+            maxUnavailableOptionalAttendeesFound = currentNumberOfUnavailableOptionalAttendees;
+          }
+        }
+      }
+    }
+
+    return maxUnavailableOptionalAttendeesFound;
+  }
+
   /** 
-   * A private helper method that locates the times that work for the current status (which 
-   * indicates how many optional attendees can make it). It will return whatever time ranges
+   * A private helper method that locates the times where the number of optional attendees
+   * that can't make it is below a cap. It will return whatever time ranges
    * are of a long enough duration.
    * 
    * @return the time ranges that allow this number of optional attendees and are long enough
    */
-  private Collection<TimeRange> findTimesForStatus(MeetingRequest request, Availability[] minuteAvailability, int status) {
+  private Collection<TimeRange> findTimesBasedOnOptionalAttendeeAvailability(MeetingRequest request, 
+    Availability[] minuteAvailability, int maxOptionalAttendeesUnavailable) {
+
     ArrayList<TimeRange> availableTimes = new ArrayList<TimeRange>();
     int start = 0;
     boolean wasLastMinuteAvailable = minuteAvailability[0].areMandatoryAttendeesAllAvailable 
-        && minuteAvailability[0].numberOfOptionalAttendeesUnavailable <= status;
+        && minuteAvailability[0].numberOfOptionalAttendeesUnavailable <= maxOptionalAttendeesUnavailable;
   
     for (int i = 0; i < minuteAvailability.length; i++) {
     
       // checks if the current minute is available by checking that mandatory attendees are available
-      // and the status is same or better than current status
+      // and that the number of optional attendees that can't make it is under the max
       boolean currentMinuteAvailable = minuteAvailability[i].areMandatoryAttendeesAllAvailable 
-        && minuteAvailability[i].numberOfOptionalAttendeesUnavailable <= status;
+        && minuteAvailability[i].numberOfOptionalAttendeesUnavailable <= maxOptionalAttendeesUnavailable;
 
       if (wasLastMinuteAvailable) {
         // If the previous minute was available, but the current minute is unavailable or if it's
