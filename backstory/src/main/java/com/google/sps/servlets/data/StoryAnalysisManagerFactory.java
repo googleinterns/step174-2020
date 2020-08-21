@@ -17,6 +17,13 @@ package com.google.sps.servlets.data;
 import com.google.sps.perspective.StoryAnalysisManager;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for StoryAnalysisManager.
  */
-public interface StoryAnalysisManagerFactory { public StoryAnalysisManager newInstance(); }
+public interface StoryAnalysisManagerFactory {
+  /**
+   * Create a new instance of StoryAnalysisManager.
+   *
+   * @return an instance of StoryAnalysisManager.
+   */
+  public StoryAnalysisManager newInstance();
+}

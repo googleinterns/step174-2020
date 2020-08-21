@@ -17,6 +17,13 @@ package com.google.sps.servlets.data;
 import com.google.appengine.api.datastore.Entity;
 
 /**
- * Factory pattern for object/mock creation.
+ * Factory pattern for Entity.
  */
-public interface EntityFactory { public Entity newInstance(String entityName); }
+public interface EntityFactory {
+  /**
+   * Create a new instance of Entity.
+   *
+   * @return an instance of Entity.
+   */
+  public Entity newInstance();
+}

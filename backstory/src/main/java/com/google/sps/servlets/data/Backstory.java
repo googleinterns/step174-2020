@@ -16,13 +16,23 @@ package com.google.sps.servlets.data;
 
 /** Wrapper class representing a backstory */
 public final class Backstory {
+  // Represents the generated backstory text
   private final String backstory;
 
+  /**
+   * Creates a Backstory wrapper object from a backstory.
+   *
+   * @param backstory the generated backstory text.
+   */
   public Backstory(String backstory) {
     this.backstory = backstory;
   }
 
-  /** Get the backstory */
+  /**
+   * Get the backstory text.
+   *
+   * @return the generated backstory text held in this wrapper object.
+   */
   public String getBackstory() {
     return backstory;
   }
