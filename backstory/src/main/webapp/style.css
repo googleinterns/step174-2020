@@ -143,12 +143,41 @@ textarea {
   padding: 20px 0 10px;
 }
 
+#quote {
+  color: var(--dark-cornflower-blue);
+  font-size: 18px;
+  font-style: italic;
+  margin: 0 20px;
+  padding: 10px;
+  text-align: center;
+}
+
+#description-div {
+  background-color: var(--congo-pink);
+  border: solid medium var(--congo-pink);
+  border-radius: 10px;
+  color: white;
+  margin: 10px 0 20px;
+  padding: 10px;
+  width: 450px;
+}
+
+#description {
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 0;
+  text-align: center;
+}
+
 #photo-upload-div {
   align-items: center;
 }
 
 #upload-label {
+  color: var(--dark-cornflower-blue);
   cursor: pointer;
+  font-size: 18px;
   font-weight: bold;
   padding: 0 0 10px;
 }
