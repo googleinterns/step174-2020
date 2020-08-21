@@ -50,9 +50,11 @@ public class BlobstoreManager {
    * Creates a blobstore manager using a specified BlobstoreService.
    *
    * @param blobstoreService the blobstore service linked to this blobstore manager.
-   * @param blobstoreServiceConstantFields wrapper linked to blobstoreService used to access all of its
-   * constant fields. 
-   * @param blobInfoFactory factory for creating an object containing meta-data for BlobstoreService.
+   * @param blobstoreServiceConstantFields wrapper linked to blobstoreService used to access all of
+   *     its
+   * constant fields.
+   * @param blobInfoFactory factory for creating an object containing meta-data for
+   *     BlobstoreService.
    */
   public BlobstoreManager(BlobstoreService blobstoreService,
       BlobstoreServiceConstantFields blobstoreServiceConstantFields,

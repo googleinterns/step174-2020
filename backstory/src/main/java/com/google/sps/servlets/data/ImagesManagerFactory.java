@@ -15,6 +15,7 @@
 package com.google.sps.servlets.data;
 
 import com.google.sps.images.ImagesManager;
+import java.io.IOException;
 
 /**
  * Factory pattern for ImagesManager.
@@ -24,6 +25,7 @@ public interface ImagesManagerFactory {
    * Create a new instance of ImagesManager.
    *
    * @return an instance of ImagesManager.
+   * @throws IOException if there is an error with the image analysis client.
    */
-  public ImagesManager newInstance();
+  public ImagesManager newInstance() throws IOException;
 }

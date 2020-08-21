@@ -17,6 +17,7 @@ package com.google.sps.servlets;
 import static org.mockito.Mockito.*;
 import com.google.sps.images.ImagesManager;
 import com.google.sps.images.VisionImagesManager;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.blobstore.BlobstoreService;
@@ -32,6 +33,16 @@ import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
 import com.google.sps.servlets.AnalyzeImageServlet;
 import com.google.appengine.api.datastore.DatastoreService;
+import com.google.sps.servlets.data.BlobstoreManagerFactory;
+import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
+import com.google.sps.servlets.data.EntityFactory;
+import com.google.sps.servlets.data.ImagesManagerFactory;
+import com.google.sps.servlets.data.StoryManagerFactory;
+import com.google.sps.servlets.data.BackstoryUserServiceFactory;
+import com.google.sps.servlets.data.StoryAnalysisManagerFactory;
+import com.google.sps.servlets.data.BlobstoreManager;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.User;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,97 +63,116 @@ import com.google.sps.perspective.data.StoryDecision;
  * Tests for the analyze image servlet, which contains all image analysis and backstory generation
  * functionalities.
  */
-// @RunWith(MockitoJUnitRunner.class)
-// public final class AnalyzeImageServletTest {
+@RunWith(MockitoJUnitRunner.class)
+public final class AnalyzeImageServletTest {
 
   /**
    * Tests that the correct input is passed from the initial call to the managers, 
    * and that the correct ouput is passed from the managers to the permanent storage service.
    */
-  // @Test
-  // public void testDoPostInputAndOuput() throws APINotAvailableException, NoAppropriateStoryException, IOException {
-  //   // Creates the required mocks for an HTTP request/response.
-  //   HttpServletRequest requestMock = mock(HttpServletRequest.class);
-  //   HttpServletResponse responseMock = mock(HttpServletResponse.class);
+  @Test
+  public void testDoPostInputAndOuput() throws APINotAvailableException, NoAppropriateStoryException, IOException {
+    HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+    HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 
-  //   // Creates the required mocks for the managers and their dependent classes (in the case
-  //   // that real object cannot be used).
-  //   AnalyzeImageServlet servlet = new AnalyzeImageServlet();
-  //   ImagesManager mockImagesManager = mock(VisionImagesManager.class);
-  //   StoryManager mockStoryManager = mock(StoryManagerImpl.class);
-  //   StoryAnalysisManager mockStoryAnalysisManager = mock(PerspectiveStoryAnalysisManager.class);
-  //   DatastoreService mockDatastoreService = mock(DatastoreService.class);
-  //   Entity mockAnalyzedImageEntity = mock(Entity.class);
-  //   BlobstoreService mockBlobstoreService = mock(BlobstoreService.class);
+    // 
+    AnalyzeImageServlet servlet = new AnalyzeImageServlet();
+    ImagesManager mockImagesManager = mock(VisionImagesManager.class);
+    StoryManager mockStoryManager = mock(StoryManagerImpl.class);
+    StoryAnalysisManager mockStoryAnalysisManager = mock(PerspectiveStoryAnalysisManager.class);
+    DatastoreService mockDatastoreService = mock(DatastoreService.class);
+    Entity mockAnalyzedImageEntity = mock(Entity.class);
+    BlobstoreManager mockBlobstoreManager = mock(BlobstoreManager.class);
+    UserService mockUserService = mock(UserService.class);
 
-  //   // Creates the required real test objects, and sets the required behavior of the mocks.
-  //   Map<String, List<BlobKey>> mockInputToBlobkey = new HashMap<>();
-  //   List<BlobKey> mockBlobKeys = new ArrayList<>();
-  //   mockBlobKeys.add(new BlobKey("mockBlobkey"));
-  //   byte[] mockImageByteArray = new byte[0];
-  //   mockInputToBlobkey.put("image-upload", mockBlobKeys);
-
-  //   when(mockBlobstoreService.getUploads(any(HttpServletRequest.class)))
-  //       .thenReturn(mockInputToBlobkey);
-  //   when(mockBlobstoreService.fetchData(
-  //     any(BlobKey.class), anyLong(), anyLong()
-  //   )).thenReturn(mockImageByteArray);
-
-  //   List<String> mockDescriptions = new ArrayList<>();
-  //   mockDescriptions.add("mockDescription");
-  //   AnnotatedImage mockAnnotatedImage = mock(AnnotatedImage.class);
-  //   when(mockAnnotatedImage.getLabelDescriptions()).thenReturn(mockDescriptions);
-
-  //   List<AnnotatedImage> mockAnnotatedImages = new ArrayList<>();
-  //   mockAnnotatedImages.add(mockAnnotatedImage);
-  //   when(mockImagesManager.createAnnotatedImagesFromImagesAsByteArrays(
-  //     any(List.class)
-  //   )).thenReturn(mockAnnotatedImages);
-
-  //   when(mockStoryManager.generateText()).thenReturn("mockBackstory");
-
-  //   StoryDecision mockStoryDecision = new StoryDecision("mockBackstory");
-  //   when(mockStoryAnalysisManager.generateDecision(anyString())).thenReturn(mockStoryDecision);
-
-  //   when(mockDatastoreService.put(any(Entity.class))).thenReturn(mock(Key.class));
-
-  //   // Calls the servlet injection code to insert the required mocks.
-  //   servlet.setToUseMockImagesManager(mockImagesManager);
-  //   servlet.setToUseMockStoryAnalysisManager(mockStoryAnalysisManager);
-  //   servlet.setToUseMockStoryManager(mockStoryManager);
-  //   servlet.setToUseMockDatastoreService(mockDatastoreService, mockAnalyzedImageEntity);
-  //   servlet.setToUseMockBlobstoreService(mockBlobstoreService);
-
-  //   // doPost call to initiate testing.
-  //   servlet.doPost(requestMock, responseMock);
-
-  //   // Check that the request is as expected:
-  //   ArgumentCaptor<List<byte[]>> inputArguments = ArgumentCaptor.forClass(List.class);
-  //   verify(mockImagesManager).createAnnotatedImagesFromImagesAsByteArrays(inputArguments.capture());
-  //   List<byte[]> inputImagesByteArrays = inputArguments.getValue();
-
-  //   // The list of input images in this example consists of only one image.
-  //   Assert.assertEquals(1, inputImagesByteArrays.size());
-  //   // The one image in the imput images is modeled by an empty byte array.
-  //   Assert.assertTrue(inputImagesByteArrays.get(0).length == 0);
-
-  //   // Check that the analyzed image gets put into datastore correctly:
-  //   // Here we verify that the entity has the appropriate properties set.
-  //   ArgumentCaptor<String> propertyNameCaptor = ArgumentCaptor.forClass(String.class);
-  //   ArgumentCaptor<Object> propertyValueCaptor = ArgumentCaptor.forClass(Object.class);
-
-  //   verify(mockAnalyzedImageEntity, times(3)).setProperty(propertyNameCaptor.capture(), propertyValueCaptor.capture());
-
-  //   List<String> capturedPropertyNames = propertyNameCaptor.getAllValues();
-  //   List<Object> capturedPropertyValues = propertyValueCaptor.getAllValues();
-  //   Assert.assertEquals("blobKeyString", capturedPropertyNames.get(0));
-  //   Assert.assertEquals("backstory", capturedPropertyNames.get(1));
-  //   Assert.assertEquals("timestamp", capturedPropertyNames.get(2));
-  //   Assert.assertEquals(3, capturedPropertyValues.size());
+    String userEmail = "user@gmail.com";
+    String userAuthenticationDomain = "authentication";
+    User testUser = new User(userEmail, userAuthenticationDomain);
 
 
-  //   // Here we verify that an entity is put into datastore.
-  //   ArgumentCaptor<Entity> outputArguments = ArgumentCaptor.forClass(Entity.class);
-  //   verify(mockDatastoreService).put(outputArguments.capture());
-  // }
-// }
+    // Creates the required real test objects, and sets the required behavior of the mocks.
+    boolean userIsLoggedIn = true;
+    when(mockUserService.isUserLoggedIn()).thenReturn(userIsLoggedIn);
+    when(mockUserService.getCurrentUser()).thenReturn(testUser);
+
+    String blobKeyString = "blobKeyString";
+    when(mockBlobstoreManager.getUploadedFileBlobKeyString(any(HttpServletRequest.class), anyString()))
+        .thenReturn(blobKeyString);
+    int bytesInUploadedImage = 10;
+    byte[] uploadedImageBytes = new byte[bytesInUploadedImage];
+    when(mockBlobstoreManager.getBlobBytes(any(HttpServletRequest.class), anyString()))
+        .thenReturn(uploadedImageBytes);
+
+    String sampleDescription = "sampleDescription";
+    List<String> uploadedImageDescriptions = new ArrayList<>();
+    uploadedImageDescriptions.add(sampleDescription);
+    AnnotatedImage uploadedAnnotatedImage = mock(AnnotatedImage.class);
+    when(uploadedAnnotatedImage.getLabelDescriptions()).thenReturn(uploadedImageDescriptions);
+    List<AnnotatedImage> uploadedAnnotatedImages = new ArrayList<>();
+    uploadedAnnotatedImages.add(uploadedAnnotatedImage);
+    when(mockImagesManager.createAnnotatedImagesFromImagesAsByteArrays(
+      any(List.class)
+    )).thenReturn(uploadedAnnotatedImages);
+
+    String sampleRawBackstory = "sampleRawBackstory";
+    when(mockStoryManager.generateText()).thenReturn(sampleRawBackstory);
+
+    StoryDecision sampleStoryDecision = new StoryDecision(sampleRawBackstory);
+    when(mockStoryAnalysisManager.generateDecision(anyString())).thenReturn(sampleStoryDecision);
+
+    // Create and set the factories to return the configured mocks.
+    BackstoryUserServiceFactory backstoryUserServiceFactory = () -> {
+      return mockUserService;
+    };
+    BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory = () -> {
+      return mockDatastoreService;
+    };
+    BlobstoreManagerFactory blobstoreManagerFactory = () -> {
+      return mockBlobstoreManager;
+    };
+    ImagesManagerFactory imagesManagerFactory = () -> {
+      return mockImagesManager;
+    };
+    StoryManagerFactory storyManagerFactory = (String prompt, int storyLength, double temperature) -> {
+      return mockStoryManager;
+    };
+    StoryAnalysisManagerFactory storyAnalysisManagerFactory = () -> {
+      return mockStoryAnalysisManager;
+    };
+    EntityFactory entityFactory = (String entityName) -> {
+      return mockAnalyzedImageEntity;
+    };
+    servlet.setBackstoryUserServiceFactory(backstoryUserServiceFactory);
+    servlet.setBlobstoreManagerFactory(blobstoreManagerFactory);
+    servlet.setBackstoryDatastoreServiceFactory(backstoryDatastoreServiceFactory);
+    servlet.setImagesManagerFactory(imagesManagerFactory);
+    servlet.setStoryManagerFactory(storyManagerFactory);
+    servlet.setStoryAnalysisManagerFactory(storyAnalysisManagerFactory);
+    servlet.setEntityFactory(entityFactory);
+
+    // doPost call to initiate testing.
+    servlet.doPost(mockRequest, mockResponse);
+
+    // Check that the request is as expected:
+    ArgumentCaptor<HttpServletRequest> requestCaptor = ArgumentCaptor.forClass(HttpServletRequest.class);
+    ArgumentCaptor<String> formInputNameCaptor = ArgumentCaptor.forClass(String.class);
+    verify(mockBlobstoreManager).getUploadedFileBlobKeyString(requestCaptor.capture(), formInputNameCaptor.capture());
+    // The formInputName must be "image-upload" because that is the name of the front-end form input element.
+    String expectedFormInputName = "image-upload";
+    String actualFormInputName = formInputNameCaptor.getValue();
+    Assert.assertEquals(expectedFormInputName, actualFormInputName);
+
+    // Verify that the proper properties are set for the entity
+    Text sampleBackstory = new Text(sampleRawBackstory);
+    verify(mockAnalyzedImageEntity).setProperty("userEmail", userEmail);
+    verify(mockAnalyzedImageEntity).setProperty("blobKeyString", blobKeyString);
+    verify(mockAnalyzedImageEntity).setProperty("backstory", sampleBackstory);
+    verify(mockAnalyzedImageEntity).setProperty(eq("timestamp"), anyLong());
+
+    // Check that the analyzed image entity goes into datastore.
+    ArgumentCaptor<Entity> outputArgument = ArgumentCaptor.forClass(Entity.class);
+    verify(mockDatastoreService).put(outputArgument.capture());
+    Entity actualEntityInDatastore = outputArgument.getValue();
+    Assert.assertEquals(mockAnalyzedImageEntity, actualEntityInDatastore);
+  }
+}

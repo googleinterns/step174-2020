@@ -26,17 +26,17 @@ import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.perspective.StoryAnalysisManagerFactory;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
+import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
+import com.google.sps.servlets.data.BackstoryUserServiceFactory;
 import com.google.sps.servlets.data.BlobstoreManager;
 import com.google.sps.servlets.data.BlobstoreManagerFactory;
-import com.google.sps.servlets.data.DatastoreServiceFactorySps;
 import com.google.sps.servlets.data.EntityFactory;
 import com.google.sps.servlets.data.ImagesManagerFactory;
+import com.google.sps.servlets.data.StoryAnalysisManagerFactory;
 import com.google.sps.servlets.data.StoryManagerFactory;
-import com.google.sps.servlets.data.UserServiceFactorySps;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
@@ -58,17 +58,24 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/analyze-image")
 public class AnalyzeImageServlet extends HttpServlet {
-  private UserServiceFactorySps userServiceFactory;
-  private BlobstoreManager blobstoreManagerFactory;
-  private DatastoreServiceFactorySps datastoreServiceFactory;
+  private BackstoryUserServiceFactory backstoryUserServiceFactory;
+  private BlobstoreManagerFactory blobstoreManagerFactory;
+  private BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory;
   private ImagesManagerFactory imagesManagerFactory;
   private StoryManagerFactory storyManagerFactory;
   private StoryAnalysisManagerFactory storyAnalysisManagerFactory;
   private EntityFactory entityFactory;
 
+  /**
+   *
+   */
   public AnalyzeImageServlet() throws IOException, APINotAvailableException {
-    userServiceFactory = UserServiceFactory.getUserService;
-    datastoreServiceFactory = DatastoreServiceFactory.getDatastoreService;
+    backstoryUserServiceFactory = () -> {
+      return UserServiceFactory.getUserService();
+    };
+    backstoryDatastoreServiceFactory = () -> {
+      return DatastoreServiceFactory.getDatastoreService();
+    };
     blobstoreManagerFactory = () -> {
       return new BlobstoreManager();
     };
@@ -86,15 +93,67 @@ public class AnalyzeImageServlet extends HttpServlet {
     };
   }
 
-  // Injection methods for testing.
+  /**
+   * Sets the BackstoryUserServiceFactory.
+   * @param backstoryUserServiceFactory a BackstoryUserServiceFactory object set to return a new
+   *     UserService.
+   */
+  public void setBackstoryUserServiceFactory(
+      BackstoryUserServiceFactory backstoryUserServiceFactory) {
+    this.backstoryUserServiceFactory = backstoryUserServiceFactory;
+  }
+
+  /**
+   * Sets the BlobstoreManagerFactory.
+   * @param blobstoreManagerFactory a BlobstoreManagerFactory object set to return a new
+   *     BlobstoreManager.
+   */
+  public void setBlobstoreManagerFactory(BlobstoreManagerFactory blobstoreManagerFactory) {
+    this.blobstoreManagerFactory = blobstoreManagerFactory;
+  }
+
+  /**
+   * Sets the BackstoryDatastoreServiceFactory.
+   * @param backstoryDatastoreServiceFactory a BackstoryDatastoreServiceFactory object set to return
+   *     a new DatastoreService.
+   */
+  public void setBackstoryDatastoreServiceFactory(
+      BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory) {
+    this.backstoryDatastoreServiceFactory = backstoryDatastoreServiceFactory;
+  }
+
+  /**
+   * Sets the ImagesManagerFactory.
+   * @param imagesManagerFactory an ImagesManagerFactory object set to return a new ImagesManager.
+   */
+  public void setImagesManagerFactory(ImagesManagerFactory imagesManagerFactory) {
+    this.imagesManagerFactory = imagesManagerFactory;
+  }
 
   /**
    * Sets the StoryManagerFactory.
-   * @param storyManagerFactory a StoryManagerFactory object set to return either
-   * a real storyManager or a mock.
+   * @param storyManagerFactory a StoryManagerFactory object set to return a new StoryManager.
    */
   public void setStoryManagerFactory(StoryManagerFactory storyManagerFactory) {
     this.storyManagerFactory = storyManagerFactory;
+  }
+
+  /**
+   * Sets the StoryAnalysisManagerFactory.
+   * @param storyAnalysisManagerFactory a StoryAnalysisManagerFactory object set to return a new
+   *     StoryAnalysisManager.
+   */
+  public void setStoryAnalysisManagerFactory(
+      StoryAnalysisManagerFactory storyAnalysisManagerFactory) {
+    this.storyAnalysisManagerFactory = storyAnalysisManagerFactory;
+  }
+
+  /**
+   * Sets the EntityFactory.
+   * @param entityFactory a EntityFactory object set to return a new Entity.
+   */
+  public void setEntityFactory(EntityFactory entityFactory) {
+    this.entityFactory = entityFactory;
   }
 
   /**
@@ -112,7 +171,7 @@ public class AnalyzeImageServlet extends HttpServlet {
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Check to see if the user is currently logged in
-    UserService userService = UserServiceFactory.getUserService();
+    UserService userService = backstoryUserServiceFactory.newInstance();
     if (!userService.isUserLoggedIn()) {
       String urlToRedirectToAfterUserLogsIn = "/analyze-image";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
@@ -124,9 +183,11 @@ public class AnalyzeImageServlet extends HttpServlet {
 
       // Get the input from the form: the image uploaded.
       // Get the image as a string representation of its blob key.
-      final String blobKeyString = getUploadedFileBlobKeyString(request, "image-upload");
+      BlobstoreManager blobstoreManager = blobstoreManagerFactory.newInstance();
+      final String blobKeyString =
+          blobstoreManager.getUploadedFileBlobKeyString(request, "image-upload");
       // Get the raw byte array representing the image.
-      final byte[] bytes = getBlobBytes(request, "image-upload");
+      final byte[] bytes = blobstoreManager.getBlobBytes(request, "image-upload");
 
       // Validate than  an image was uploaded
       if (bytes == null || blobKeyString == null) {
@@ -135,6 +196,7 @@ public class AnalyzeImageServlet extends HttpServlet {
 
       } else {
         // Gets the full label information from the image byte array by calling Images Manager.
+        ImagesManager imagesManager = imagesManagerFactory.newInstance();
         List<byte[]> imagesAsByteArrays = new ArrayList<>();
         imagesAsByteArrays.add(bytes);
         List<AnnotatedImage> annotatedImages =
@@ -148,7 +210,7 @@ public class AnalyzeImageServlet extends HttpServlet {
         String prompt = promptManager.generatePrompt(" and ");
 
         // Tentative story parameterizations for the MVP
-        createStoryManager(prompt, 200, .7);
+        StoryManager storyManager = storyManagerFactory.newInstance(prompt, 200, .7);
 
         String rawBackstory = "";
         Boolean generateTextFailed = true;
@@ -165,23 +227,26 @@ public class AnalyzeImageServlet extends HttpServlet {
         // Filtration Check
         Text backstory = new Text("");
         try {
+          StoryAnalysisManager storyAnalysisManager = storyAnalysisManagerFactory.newInstance();
           StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
           backstory = new Text(storyDecision.getStory());
-        } catch (NoAppropriateStoryException exception) {
-          response.sendError(400, "Please upload a valid image.");
+        } catch (NoAppropriateStoryException | APINotAvailableException exception) {
+          response.sendError(400,
+              "Sorry! No appropriate Backstory was found for your image. Please try again with another image.");
         }
 
         // Get metadata about the backstory
         final long timestamp = System.currentTimeMillis();
 
         // Add the input to datastore
-        Entity analyzedImageEntity = createEntity("analyzed-image");
+        Entity analyzedImageEntity = entityFactory.newInstance("analyzed-image");
         analyzedImageEntity.setProperty("userEmail", userEmail);
         analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
         analyzedImageEntity.setProperty("backstory", backstory);
         analyzedImageEntity.setProperty("timestamp", timestamp);
 
-        datastore.put(analyzedImageEntity);
+        DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
+        datastoreService.put(analyzedImageEntity);
 
         // Redirect back to the HTML page.
         response.sendRedirect("/index.html");

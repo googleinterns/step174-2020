@@ -23,7 +23,8 @@ public interface EntityFactory {
   /**
    * Create a new instance of Entity.
    *
+   * @param entityName the type, or name, of the entity to be created.
    * @return an instance of Entity.
    */
-  public Entity newInstance();
+  public Entity newInstance(String entityName);
 }
