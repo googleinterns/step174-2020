@@ -64,11 +64,6 @@ public final class FindMeetingQuery {
     public void increaseOptionalAttendeeUnavailability(int increase) {
       numberOfOptionalAttendeesUnavailable += increase;
     }
-
-    // TODO: remove
-    public String toString() {
-      return "{" + areMandatoryAttendeesAllAvailable + ", " + numberOfOptionalAttendeesUnavailable +"}";
-    }
   }
   
   /**
