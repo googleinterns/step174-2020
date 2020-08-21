@@ -29,7 +29,7 @@
  * @return true, if image is valid, false otherwise
  */
 function checkForm() {
-  if (! validateImageUpload()) {
+  if (!validateImageUpload()) {
     return false;
   }
 
@@ -222,14 +222,12 @@ function updateFileName() {
 }
 
 /**
- * Enables the submit button if there's a file in
- * the image-upload field.
+ * Enables the submit button if there's a valid image upload.
  */
 function enableSubmitButton() {
-  const fileInput = document.getElementById('image-upload');
   const submitButton = document.getElementById('submit-button');
 
-  if (fileInput.files.length > 0) {
+  if (validateImageUpload()) {
     submitButton.disabled = false;
   }
 }
