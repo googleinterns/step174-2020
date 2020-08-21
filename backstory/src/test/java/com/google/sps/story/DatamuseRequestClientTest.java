@@ -143,7 +143,7 @@ public final class DatamuseRequestClientTest {
       return; // test should pass if this exception is thrown
     }
 
-   Assert.fail("APINotAvailableException was not thrown.");    
+    Assert.fail("APINotAvailableException was not thrown.");    
   }
 
   /** 
