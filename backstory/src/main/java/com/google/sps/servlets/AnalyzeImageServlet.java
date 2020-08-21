@@ -40,6 +40,7 @@ import com.google.sps.servlets.data.StoryManagerFactory;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
+import com.google.sps.story.data.StoryEndingTools;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -67,7 +68,8 @@ public class AnalyzeImageServlet extends HttpServlet {
   private EntityFactory entityFactory;
 
   /**
-   *
+   * Constructer which sets the manager factories to return their online implementations
+   * (such that each manager is connected to the network).
    */
   public AnalyzeImageServlet() throws IOException, APINotAvailableException {
     backstoryUserServiceFactory = () -> {
@@ -150,7 +152,7 @@ public class AnalyzeImageServlet extends HttpServlet {
 
   /**
    * Sets the EntityFactory.
-   * @param entityFactory a EntityFactory object set to return a new Entity.
+   * @param entityFactory an EntityFactory object set to return a new Entity.
    */
   public void setEntityFactory(EntityFactory entityFactory) {
     this.entityFactory = entityFactory;
@@ -160,14 +162,15 @@ public class AnalyzeImageServlet extends HttpServlet {
    * {@inheritDoc}
    *
    * Expecting a post request from Blobstore containing the data fields from the image-upload
-   * form. After having gone through Blobstore, the request will include the image uploaded. The
-   * form in the HTML will connect to the Blobstore URL, which encodes the image and then
-   * redirects the request to this Url.
+   * form. The form in the HTML will connect to the Blobstore URL, which encodes the image and then
+   * redirects the request to this Url. After having gone through Blobstore, the request will
+   * include the image uploaded, available as a blob.
    *
-   * The image is analyzed with the ImagesAnalysisManager, the result of which is fed into the
-   * PromptManager to create a prompt which is then used to generate the raw Backstory throug the
-   * StoryManager. The raw Backstory then is checked by the StoryAnalysisManager for toxicity and,
-   * if it passes, is sent to permanent storage, along with the uploaded image's blob key.
+   * If the current user is logged out, they will automatically be logged in before they upload the
+   * image. The image is analyzed with the ImagesAnalysisManager, the result of which is fed into
+   * the PromptManager to create a prompt which is then used to generate the raw Backstory through
+   * the StoryManager. The raw Backstory then is checked by the StoryAnalysisManager for toxicity
+   * and, if it passes, is sent to permanent storage, along with the uploaded image's blob key.
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Check to see if the user is currently logged in
@@ -178,40 +181,44 @@ public class AnalyzeImageServlet extends HttpServlet {
       response.sendRedirect(loginUrl);
 
     } else {
-      // Get user identification
+      // Get user identification to store alongside their backstory and image
       String userEmail = userService.getCurrentUser().getEmail();
 
-      // Get the input from the form: the image uploaded.
-      // Get the image as a string representation of its blob key.
+      // The blobKeyString of the image will be used to serve the image back to the front-end.
       BlobstoreManager blobstoreManager = blobstoreManagerFactory.newInstance();
       final String blobKeyString =
           blobstoreManager.getUploadedFileBlobKeyString(request, "image-upload");
-      // Get the raw byte array representing the image.
+      // The raw byte array representing the image will be used for image analytics.
       final byte[] bytes = blobstoreManager.getBlobBytes(request, "image-upload");
 
-      // Validate than  an image was uploaded
+      // Validate that an image was actually uploaded.
       if (bytes == null || blobKeyString == null) {
         // Redirect back to the HTML page.
         response.sendError(400, "Please upload a valid image.");
 
       } else {
-        // Gets the full label information from the image byte array by calling Images Manager.
+        // Generate a list of AnnotatedImages, with each annotatedImage consisting of an image with
+        // labels.
         ImagesManager imagesManager = imagesManagerFactory.newInstance();
         List<byte[]> imagesAsByteArrays = new ArrayList<>();
         imagesAsByteArrays.add(bytes);
         List<AnnotatedImage> annotatedImages =
             imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
-        // There wil only be one image uploaded at a time for the demo
+        // Currently, Backstory only supports single image uploads.
+        // which is why we only get the first annotatedImage element here from annotatedImages.
         AnnotatedImage annotatedImage = annotatedImages.get(0);
         List<String> descriptions = annotatedImage.getLabelDescriptions();
 
         PromptManager promptManager = new PromptManager(descriptions);
-        // The delimiter for the MVP will be tentatively be "and"
+        // The delimiter for the MVP prompt will be tentatively be " and ", ex:
+        // "<label1> and <label2> and <label3>"
         String prompt = promptManager.generatePrompt(" and ");
 
-        // Tentative story parameterizations for the MVP
+        // Tentative backstory generation parameters: a 200 word-long story, with a .7 temperature.
         StoryManager storyManager = storyManagerFactory.newInstance(prompt, 200, .7);
 
+        // We loop until a story succesfully generates, this is necessary because of an unavoidable
+        // memory leak in the GPT2 container which causes generation to occasionaly fail.
         String rawBackstory = "";
         Boolean generateTextFailed = true;
         while (generateTextFailed) {
@@ -224,16 +231,18 @@ public class AnalyzeImageServlet extends HttpServlet {
           }
         }
 
-        // Filtration Check
-        Text backstory = new Text("");
+        String backstory = "";
         try {
           StoryAnalysisManager storyAnalysisManager = storyAnalysisManagerFactory.newInstance();
           StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
-          backstory = new Text(storyDecision.getStory());
+          backstory = storyDecision.getStory();
         } catch (NoAppropriateStoryException | APINotAvailableException exception) {
           response.sendError(400,
               "Sorry! No appropriate Backstory was found for your image. Please try again with another image.");
         }
+
+        // Adds an ending to a story which passes the filtration check.
+        Text finalBackstory = new Text(StoryEndingTools.endStory(backstory));
 
         // Get metadata about the backstory
         final long timestamp = System.currentTimeMillis();
@@ -242,7 +251,7 @@ public class AnalyzeImageServlet extends HttpServlet {
         Entity analyzedImageEntity = entityFactory.newInstance("analyzed-image");
         analyzedImageEntity.setProperty("userEmail", userEmail);
         analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
-        analyzedImageEntity.setProperty("backstory", backstory);
+        analyzedImageEntity.setProperty("backstory", finalBackstory);
         analyzedImageEntity.setProperty("timestamp", timestamp);
 
         DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();

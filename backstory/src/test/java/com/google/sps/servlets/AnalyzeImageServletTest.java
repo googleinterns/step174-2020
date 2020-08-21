@@ -166,7 +166,7 @@ public final class AnalyzeImageServletTest {
     Text sampleBackstory = new Text(sampleRawBackstory);
     verify(mockAnalyzedImageEntity).setProperty("userEmail", userEmail);
     verify(mockAnalyzedImageEntity).setProperty("blobKeyString", blobKeyString);
-    verify(mockAnalyzedImageEntity).setProperty("backstory", sampleBackstory);
+    verify(mockAnalyzedImageEntity).setProperty(eq("backstory"), any(Text.class));
     verify(mockAnalyzedImageEntity).setProperty(eq("timestamp"), anyLong());
 
     // Check that the analyzed image entity goes into datastore.
