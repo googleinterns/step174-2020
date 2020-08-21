@@ -34,7 +34,11 @@ public interface StoryManagerRequestFactory {
    * Builds a PostRequest given parameters. Uses String JSON body
    * to generate headers for Post request.
    *
+   * @param requestBody JSON String to form POST Request
+   * @param serviceURL URL to send POST Request to.
    * @return HttpRequest Post Request
+   * @throws IllegalStateException If credentials are invalid.
+   * @throws IOException If there's an error with HTTP.
    */
   public HttpRequest newInstance(String requestBody, String serviceUrl)
       throws IllegalStateException, IOException;

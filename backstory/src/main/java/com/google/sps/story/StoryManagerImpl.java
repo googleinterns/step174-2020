@@ -54,6 +54,8 @@ public final class StoryManagerImpl implements StoryManager {
    * @param maxLength Maximum text character length for generation output. 100-1000 characters.
    * @param temperature Double to hold number 0-1 for text generation volatility.
    * @param URLProvider Provides service URLs for generation.
+   * @throws RuntimeException If cannot convert from JSON.
+   * @throws IllegalArgumentException If input is invalid.
    */
   public StoryManagerImpl(String prefix, int maxLength, Double temperature,
       StoryManagerURLProvider URLProvider) throws RuntimeException, IllegalArgumentException {
@@ -82,6 +84,7 @@ public final class StoryManagerImpl implements StoryManager {
    *
    * @return HttpResponse The reponse from the Generation server expected to include
    *          a "text" field with the generated text.
+   * @throws IOException If there's an error with HTTP.
    */
   private HttpResponse requestGeneratedText() throws IOException {
     // Form JSON body using generation parameters
@@ -101,6 +104,7 @@ public final class StoryManagerImpl implements StoryManager {
    * Returns generated text output using given fields.
    *
    * @return String Generated output text.
+   * @throws RuntimeException If cannot convert from JSON.
    */
   public String generateText() throws RuntimeException {
     // Obtain response from Server POST Request
@@ -115,7 +119,7 @@ public final class StoryManagerImpl implements StoryManager {
       JSONObject jsonObject = new JSONObject(outputResponse.parseAsString());
       return jsonObject.getString("text");
     } catch (Exception jsonException) {
-      throw new RuntimeException("Failed to convert repsonse into JSON", jsonException);
+      throw new RuntimeException("Failed to convert response from JSON", jsonException);
     }
   }
 
@@ -134,6 +138,7 @@ public final class StoryManagerImpl implements StoryManager {
    * @param prefix String to serve as generation prompt.
    * @param maxLength Maximum text character length for generation output.
    * @param temperature Double to hold number 0-1 for text generation volatility.
+   * @return A JSON String request body.
    */
   private String makeRequestBody(String prefix, int maxLength, Double temperature) {
     Gson gson = new Gson();

@@ -92,7 +92,7 @@ public final class StoryManagerTest {
 
   /**
    * Ensure the method configures a proper POST request and receives
-   *  proper output translation.
+   * proper output translation.
    */
   @Test
   public void correctRequestConfiguration() throws RuntimeException {
@@ -159,12 +159,12 @@ public final class StoryManagerTest {
     try{
       boolean firstCycle = true;
       
-      //Cycle through all URLs in first cycle.
+      // Cycle through all URLs in first cycle.
       while(firstCycle) {
         firstCycle = URLProvider.cycleURL();
       }
 
-      //Cycle once more.
+      // Cycle once more.
       URLProvider.cycleURL();
     }
     catch(ArrayIndexOutOfBoundsException indexException){
