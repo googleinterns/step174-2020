@@ -178,7 +178,7 @@ public class DatamuseRequestClient {
   }
 
   /**
-   * Helper method to read in a String array from the jsonResponse and gets the Strings 
+   * Helper method to read in a String array from the jsonResponse and gets the Strings
    * in this array from the value for "word" stored in the objects of this response. Throws an error
    * if json is not formatted as expected (expected format is that of JSON found at a Datamuse query
    * url) or if it can't be parsed for some reason. Purpose of this method is to read the words
