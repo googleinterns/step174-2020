@@ -156,11 +156,11 @@ public final class StoryManagerTest {
    * Ensures Provider does not cycle past bounds.
    */
   public void cyclePastBounds() {
-    try{
+    try {
       boolean firstCycle = true;
       
       // Cycle through all URLs in first cycle.
-      while(firstCycle) {
+      while (firstCycle) {
         firstCycle = URLProvider.cycleURL();
       }
 
