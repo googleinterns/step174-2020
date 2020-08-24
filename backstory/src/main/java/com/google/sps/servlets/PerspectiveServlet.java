@@ -78,7 +78,17 @@ public final class PerspectiveServlet extends HttpServlet {
     }
 
     // generate a PerspectiveDecision with that manager
-    PerspectiveDecision perspectiveDecision = manager.generatePerspectiveDecision(text);
+    PerspectiveDecision perspectiveDecision;
+
+    try {
+      perspectiveDecision = manager.generatePerspectiveDecision(text);
+    } catch (NullPointerException exception) {
+      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+        "Perspective was unable to analyze your sample text. This occurs sometimes with text in other languages, " 
+        + "\"fake\" text (e.g. lorem ipsum dolor) and other text that doesn't fall within the English language."
+        + " Some non-proper English text (e.g. haha) is still capable of being analyzed.");
+      return;
+    }
 
     Boolean isAppropriateStory = perspectiveDecision.hasAppropriateStory();
     PerspectiveValues values = perspectiveDecision.getValues();
