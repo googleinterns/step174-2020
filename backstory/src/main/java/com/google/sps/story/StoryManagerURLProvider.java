@@ -44,29 +44,17 @@ public class StoryManagerURLProvider {
   private int selectedURLIndex;
 
   /**
-   * Initializes index for URL cycling.
-   */
-  public StoryManagerURLProvider() {
-    selectedURLIndex = 0;
-  }
-
-  /**
    * Cycles to next serviceUrl to an alternate container.
    * Returns true when not last URL.
    *
    * @return False if called on last URL.
    */
-  synchronized public boolean cycleURL() {
-    boolean isLast = true;
-    if (selectedURLIndex == serviceURLs.length - 1) {
-      isLast = false;
-    }
-    if (selectedURLIndex < serviceURLs.length) {
+  synchronized public void cycleURL() {
+    if (selectedURLIndex < serviceURLs.length - 1) {
       selectedURLIndex++;
     } else {
       selectedURLIndex = 0;
     }
-    return isLast;
   }
 
   /**
