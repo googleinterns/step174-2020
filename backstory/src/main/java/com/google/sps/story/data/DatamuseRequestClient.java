@@ -39,9 +39,9 @@ public class DatamuseRequestClient {
   private final String url;
 
   /** a list of topics related to storytelling for which to filter adjectives/gerunds for */
-  public static final ImmutableList<String> STORYTELLING_TOPICS = ImmutableList.of("story", "fairytale", "narrative", "anecdote",
-      "drama", "fantasy", "adventure", "poem", "grand");
-  
+  public static final ImmutableList<String> STORYTELLING_TOPICS = ImmutableList.of("story",
+      "fairytale", "narrative", "anecdote", "drama", "fantasy", "adventure", "poem", "grand");
+
   /**
    * Constructs a request client with the default Datamuse url.
    */
@@ -103,7 +103,8 @@ public class DatamuseRequestClient {
         query += "rel_jja=" + noun + "&sp=*ing"; // get nouns related to the noun ending in "ing"
         break;
       default:
-        throw new IllegalArgumentException("Only adjective and gerund are supported types for this method at the moment");
+        throw new IllegalArgumentException(
+            "Only adjective and gerund are supported types for this method at the moment");
     }
 
     // cap number of results (max=cap) & set the topic (topics=topic)
@@ -121,14 +122,14 @@ public class DatamuseRequestClient {
    * and that no arguments are null.
    *
    * @param word the word argument to check if null or for whitespace
-   * @param wordType the word type to check if null 
+   * @param wordType the word type to check if null
    * @param cap the cap to check that it's > 0
    * @param topic the topic to check not null
-   * @throws IllegalArgumentException if object arguments are null, if word contains whitespace, or if cap <= 0 
+   * @throws IllegalArgumentException if object arguments are null, if word contains whitespace, or
+   *     if cap <= 0
    */
-  private void validateArguments(String word, DatamuseRelatedWordType wordType,
-      int cap, String topic) throws IllegalArgumentException {
-    
+  private void validateArguments(String word, DatamuseRelatedWordType wordType, int cap,
+      String topic) throws IllegalArgumentException {
     // check this first b/c you use word type when you write error message for
     // when word == null
     if (wordType == null) {
@@ -154,7 +155,6 @@ public class DatamuseRequestClient {
     if (topic == null) {
       throw new IllegalArgumentException("Topic cannot be null.");
     }
-
   }
 
   /**
