@@ -16,7 +16,8 @@
  * features: display analysis
  */
 
-/* exported displayAnalysis */
+// export the display analysis method so it's global
+window.displayAnalysis = displayAnalysis;
 
 // DISPLAY ANALYSIS
 
@@ -60,6 +61,7 @@ async function displayAnalysis() {
   // Perspective
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);
+    display.style.textAlign = 'center';
   } else {
     if (display.firstChild) display.firstChild.remove();
     display.appendChild(formatResponse(

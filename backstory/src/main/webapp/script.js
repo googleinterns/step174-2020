@@ -12,12 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* JS for Home page
- * features: validate form, get blobstore url, retrieve analyzed images,
- * create loading element, and updates to front end when file uploaded.
+/* 
+ * JS for Home page
+ * features: validate form (& add loading animation) on submit of form, 
+ * get blobstore url for the backstory form, retrieve analyzed images, 
+ * and updates to front end when file uploaded.
  */
 
-/* exported checkForm fetchBlobstoreUrl getAnalyzedImages uploadFileUpdates*/
+import { fetchBlobstoreUrl } from './features/fetch-blobstore-url.js';
+import { validateImageUpload } from './features/image-validation.js';
+import { createBackstoryLoadingElement } from './features/backstory-loading-element.js';
+import { updateFileName } from './features/update-file-name.js';
+
+// export methods by making them global
+window.checkForm = checkForm;
+window.fetchBlobstoreUrlForBackstory = fetchBlobstoreUrlForBackstory;
+window.getAnalyzedImagesForBackstory = getAnalyzedImagesForBackstory;
+window.uploadFileUpdates = uploadFileUpdates;
 
 // VALIDATE FORM WITH IMAGE UPLOAD
 
@@ -29,68 +40,23 @@
  * @return true, if image is valid, false otherwise
  */
 function checkForm() {
-  if (!validateImageUpload()) {
+  if (!validateImageUpload('image-upload')) {
     return false;
   }
 
-  createBackstoryLoadingElement();
+  createBackstoryLoadingElement('story-display');
   return true;
 }
 
-/**
- * Validate that the file uploaded to image upload
- * is an accepted image. Alert user to upload a new file if not.
- *
- * @return true, if valid image uploaded; false, if no image uploaded
- *      or if no valid image uploaded
- */
-function validateImageUpload() {
-  const imageUpload = document.getElementById('image-upload');
-  const files = imageUpload.files;
-
-  if (files.length === 0) {
-    alert('No file has been uploaded. Please upload a file.');
-    return false;
-  }
-
-  if (!validImage(files.item(0))) {
-    alert(
-        'Only PNGs and JPGs are accepted image upload types. ' +
-        'Please upload a PNG or JPG.');
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Validate that the passed-in file is an
- * accepted image type (jpg or png).
- *
- * @param file - the file to validate
- * @return true, if file exists & is a valid image, false otherwise
- */
-function validImage(file) {
-  const acceptedImageTypes = ['image/jpeg', 'image/png'];
-
-  return file && acceptedImageTypes.includes(file['type']);
-}
 
 // FETCH BLOBSTORE URL
 
 /**
- * On load of the application, this function fetches the blobstore Url and sets
- * it as the action of the photo-upload form.
+ * Fetch the Blobstore URL by calling the method
+ * for the 'photo-upload' form element.
  */
-function fetchBlobstoreUrl() {
-  fetch('/blobstore-upload-url')
-      .then((response) => {
-        return response.text();
-      })
-      .then((imageUploadUrl) => {
-        const imageUploadForm = document.getElementById('photo-upload');
-        imageUploadForm.action = imageUploadUrl;
-      });
+function fetchBlobstoreUrlForBackstory() {
+  fetchBlobstoreUrl('photo-upload');
 }
 
 // RETRIEVE ANALYZED IMAGES
@@ -100,7 +66,7 @@ function fetchBlobstoreUrl() {
  * along, with the relevant backstory, from permanent storage. No analysis or
  * computation is done from this interface with the backend.
  */
-function getAnalyzedImages() {
+function getAnalyzedImagesForBackstory() {
   fetch('/backstory')
       .then((response) => response.json())
       .then((backstoryObject) => {
@@ -158,40 +124,6 @@ function createBackstoryElement(imageUrl, backstory) {
   return backstoryElement;
 }
 
-// CREATE LOADING ELEMENT
-
-/**
- * Helper function to create and set a loading element to display after the
- * photo-upload form is submitted, while image is being analyzed and the
- * backstory is being created. Only execute this function if valid
- * image uploaded.
- */
-function createBackstoryLoadingElement() {
-  const backstoryLoadingIcon = document.createElement('div');
-  backstoryLoadingIcon.classList.add('backstory-loading');
-
-  const backstoryLoadingParagraphDiv = document.createElement('div');
-  const backstoryLoadingParagraph = document.createElement('p');
-  const backstoryLoadingText =
-      document.createTextNode('Your backstory is loading! Please be patient.');
-  backstoryLoadingParagraph.appendChild(backstoryLoadingText);
-  backstoryLoadingParagraphDiv.appendChild(backstoryLoadingParagraph);
-  backstoryLoadingParagraphDiv.classList.add('backstory-paragraph');
-
-  const backstoryLoadingElement = document.createElement('div');
-  backstoryLoadingElement.classList.add('backstory-element');
-  backstoryLoadingElement.appendChild(backstoryLoadingIcon);
-  backstoryLoadingElement.appendChild(backstoryLoadingParagraphDiv);
-
-  const storyDisplayElement = document.getElementById('story-display');
-  if (storyDisplayElement.childNodes.length === 1) {
-    storyDisplayElement.replaceChild(
-        backstoryLoadingElement, storyDisplayElement.childNodes[0]);
-  } else {
-    storyDisplayElement.appendChild(backstoryLoadingElement);
-  }
-}
-
 // UPLOAD FILE CHANGES
 
 /**
@@ -200,25 +132,16 @@ function createBackstoryLoadingElement() {
  * a disabled button in HTML).
  */
 function uploadFileUpdates() {
-  updateFileName();
+  updateFileNameForImageUpload();
   enableSubmitButton();
 }
 
 /**
- * Updates the text of the file upload label to match the uploaded file
- * or {number of files uploaded} files selected, if multiple files.
+ * Updates the file name using the imported method
+ * for the image-upload and upload-label elements.
  */
-function updateFileName() {
-  const fileInput = document.getElementById('image-upload');
-  const label = document.getElementById('upload-label');
-
-  if (fileInput.files) {
-    if (fileInput.files.length > 1) {
-      label.innerText = `${fileInput.files.length} files selected`;
-    } else {
-      label.innerText = fileInput.files.item(0).name;
-    }
-  }
+function updateFileNameForImageUpload() {
+  updateFileName('image-upload', 'upload-label');
 }
 
 /**
@@ -227,7 +150,7 @@ function updateFileName() {
 function enableSubmitButton() {
   const submitButton = document.getElementById('submit-button');
 
-  if (validateImageUpload()) {
+  if (validateImageUpload('image-upload')) {
     submitButton.disabled = false;
   }
 }

@@ -14,34 +14,36 @@
 
 /**
  * JS for Vision Demo Page
- * features: fetch Blobstore URL, retrieve/format images and labels,
- * image validation, display correct file upload
+ * features: fetch Blobstore URL, retrieve/format images and labels for demo,
+ * validate vision demo image upload, display correct file upload
  */
 
-/* exported fetchBlobstoreUrl getAnalyzedImages validateImageUpload
- * updateFileName */
+import { fetchBlobstoreUrl } from './features/fetch-blobstore-url.js';
+import { validateImageUpload } from './features/image-validation.js';
+import { updateFileName } from './features/update-file-name.js';
 
-// FETCH BLOBSTORE URL
+// export methods by making them global
+window.fetchBlobstoreUrlForDemo = fetchBlobstoreUrlForDemo;
+window.getAnalyzedImagesForDemo = getAnalyzedImagesForDemo;
+window.validateVisionImageUpload = validateVisionImageUpload;
+window.updateFileNameForDemo = updateFileNameForDemo;
 
+// FETCH BLOBSTORE URL 
 /**
- * Fetches the URL for uploading to Blobstore and adds it to the image upload
- * form.
+ * Fetch blobstore url and set it by calling the 
+ * fetchBlobstoreUrl() method for the Vision Demo
+ * image-upload-form element
  */
-function fetchBlobstoreUrl() {
-  fetch('/blobstore-upload-url')
-      .then((response) => {
-        return response.text();
-      })
-      .then((imageUploadUrl) => {
-        const imageUploadForm = document.getElementById('image-upload-form');
-        imageUploadForm.action = imageUploadUrl;
-      });
+function fetchBlobstoreUrlForDemo() {
+  fetchBlobstoreUrl('image-upload-form');
 }
 
 // RETRIEVE/FORMAT IMAGES & LABELS
 
-/** Adds the analyzed images to the image-list unordered list element */
-function getAnalyzedImages() {
+/** 
+ * Adds the analyzed images to the image-list unordered list element 
+ */
+function getAnalyzedImagesForDemo() {
   fetch('/analyzed-images')
       .then((response) => response.json())
       .then((analyzedImagesObject) => {
@@ -143,65 +145,24 @@ function formatLabelsAsTable(labels) {
   return table;
 }
 
-// VALIDATE IMAGE UPLOAD
+// VALIDATE VISION IMAGE UPLOAD 
 
-/**
- * Validate that the file uploaded to image upload
- * is an accepted image. Alert user to upload a new file if not.
- *
- * @return true, if valid image uploaded; false, if no image uploaded
- *      or if no valid image uploaded
+/** 
+ * Validate the image upload by calling validateImageUpload
+ * on the image-upload element.
  */
-function validateImageUpload() {
-  const imageUpload = document.getElementById('image-upload');
-  const files = imageUpload.files;
-
-  if (files.length === 0) {
-    alert('No file has been uploaded. Please upload a file.');
-    return false;
-  }
-
-  if (!validImage(files.item(0))) {
-    alert(
-        'Only PNGs and JPGs are accepted image upload types. ' +
-        'Please upload a PNG or JPG.');
-    return false;
-  }
-
-  return true;
+function validateVisionImageUpload() {
+  return validateImageUpload('image-upload');
 }
 
-/**
- * Validate that the passed-in file is an
- * accepted image type (jpg or png).
- *
- * @param file - the file to validate
- * @return true, if file exists & is a valid image, false otherwise
- */
-function validImage(file) {
-  const acceptedImageTypes = ['image/jpeg', 'image/png'];
-
-  return file && acceptedImageTypes.includes(file['type']);
-}
 
 // DISPLAY CORRECT FILE NAME
 
 /**
- * Updates the text of the file upload label to match the uploaded file
- * or {number of files uploaded} files selected, if multiple files.
+ * Updates the text of the file upload label to match 
+ * the uploaded file for the 'image-upload' file upload
+ * and 'upload-visual' label.
  */
-function updateFileName() {
-  const fileInput = document.getElementById('image-upload');
-  const label = document.getElementById('upload-visual');
-
-  const files = fileInput.files;
-
-  if (files) {
-    const length = files.length;
-    if (length > 1) {
-      label.innerText = `${length} files selected`;
-    } else {
-      label.innerText = files.item(0).name;
-    }
-  }
+function updateFileNameForDemo() {
+  updateFileName('image-upload', 'upload-visual');
 }
