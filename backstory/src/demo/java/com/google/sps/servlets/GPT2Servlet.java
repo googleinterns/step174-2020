@@ -16,8 +16,7 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.story.StoryManager;
-import com.google.sps.story.StoryManagerImpl;
+import com.google.sps.story.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,6 +37,8 @@ public final class GPT2Servlet extends HttpServlet {
   
   public static final int DEFAULT_MAX_STORY_LENGTH = 200;
   public static final Double DEFAULT_TEMPERATURE = 0.7;
+  private StoryManagerURLProvider URLProvider;
+
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -65,8 +66,12 @@ public final class GPT2Servlet extends HttpServlet {
     }
     String generatedText;
     try {
+      if (URLProvider == null) {
+        URLProvider = new StoryManagerURLProvider();
+      }
       StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
       generatedText = storyManager.generateText();
+      URLProvider.cycleURL();
     } catch (Exception exception) {
       System.out.println(exception);
       // Displays if internal server error.
