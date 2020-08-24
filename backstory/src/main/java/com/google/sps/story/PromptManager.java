@@ -26,20 +26,24 @@ import java.util.Scanner;
  */
 public final class PromptManager {
   /** Keywords for generation */
-  private List<String> keywords;
+  private final List<String> keywords;
   /** Word fetching/processing client */
-  private PromptManagerWordTools wordTools;
+  private PromptManagerAPIsClient wordAPIsClient;
   /** Randomness flag. */
-  private boolean chooseRandomly;
+  private boolean isTemplateRandomized = true;
 
   /**
    * Initialize keywords and randomness parameters.
    *
    * @param keywords A list of Strings containing keywords for prompts.
+   * @throws IllegalArgumentException If input list is null.
    */
-  public PromptManager(List<String> keywords) {
+  public PromptManager(List<String> keywords) throws IllegalArgumentException {
+    // Check for null input.
+    if (keywords == null) {
+      throw new IllegalArgumentException("Input list cannot be null.");
+    }
     this.keywords = keywords;
-    this.chooseRandomly = true;
   }
 
   /**
@@ -47,17 +51,17 @@ public final class PromptManager {
    *
    * @param wordTools PromptManagerWordTools instance.
    */
-  public void setWordTools(PromptManagerWordTools wordTools) {
-    this.wordTools = wordTools;
+  public void setAPIsClient(PromptManagerAPIsClient wordAPIsClient) {
+    this.wordAPIsClient = wordAPIsClient;
   }
 
   /**
    * Sets use of randomness in prompt template selection.
-   *
-   * @param boolean Whether or not to randomly choose output templates..
+   * If false, the first template for each input configuration is chosen.
+   * @param boolean Whether or not to randomly choose output templates.
    */
-  public void setRandom(boolean chooseRandomly) {
-    this.chooseRandomly = chooseRandomly;
+  public void isTemplateRandomized(boolean isTemplateRandomized) {
+    this.isTemplateRandomized = isTemplateRandomized;
   }
 
   /**
@@ -69,21 +73,17 @@ public final class PromptManager {
     // Prepare story-like prefix.
     String prompt = "Once upon a time, ";
 
-    // Check for null input.
-    if (keywords == null) {
-      throw new IllegalArgumentException("Input list cannot be null.");
-    }
-
     // Initialize bodyFactory to process template construction
-    PromptManagerBodyFactory bodyFactory;
-    if (wordTools == null) {
-      bodyFactory = new PromptManagerBodyFactory(keywords, chooseRandomly);
+    PromptManagerBodyGenerator bodyGenerator;
+    if (wordAPIsClient == null) {
+      bodyGenerator = new PromptManagerBodyGenerator(keywords, isTemplateRandomized);
     } else {
-      bodyFactory = new PromptManagerBodyFactory(keywords, chooseRandomly, wordTools);
+      bodyGenerator =
+          new PromptManagerBodyGenerator(keywords, isTemplateRandomized, wordAPIsClient);
     }
 
     // Append generated prompt body.
-    prompt += bodyFactory.newInstance();
+    prompt += bodyGenerator.generateBody();
     return prompt;
   }
 }

@@ -15,6 +15,8 @@ package com.google.sps.story;
 
 import com.google.sps.story.data.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -23,11 +25,11 @@ import java.util.Scanner;
 /**
  * Constructs body of prompt given input keywords.
  */
-public class PromptManagerBodyFactory {
+public class PromptManagerBodyGenerator {
   /** Keywords for prompt generation */
-  private List<String> keywords;
+  private final List<String> keywords;
   /** Word processing client */
-  private PromptManagerWordTools wordTools;
+  private PromptManagerAPIsClient wordAPIsClient;
   /** randomness flag */
   private boolean chooseRandomly;
 
@@ -46,27 +48,27 @@ public class PromptManagerBodyFactory {
   private String outputBody;
 
   /** Templates for introductory sentence completion */
-  private final String[] INTRO_TEMPLATES = {
-      "a <adj> <noun> as well as a <adj> <noun> decided to come together.",
-      "a <adj> <adj> <noun> and a <adj> <adj> <noun> appeared all at once. "};
+  private final static List<String> INTRO_TEMPLATES = Collections.unmodifiableList(
+      Arrays.asList("a <adj> <noun> as well as a <adj> <noun> decided to come together.",
+          "a <adj> <adj> <noun> and a <adj> <adj> <noun> appeared all at once. "));
 
   /** Templates for introductory sentence completion with gerunds included */
-  private final String[] INTRO_TEMPLATES_WITH_GERUNDS = {
-      "there was a <adj> <adj> <noun> <gerund> alongside a <adj> <noun>.",
-      "a <adj> <noun> as well as a <gerund> <adj> <noun> were together."};
+  private final static List<String> INTRO_TEMPLATES_WITH_GERUNDS = Collections.unmodifiableList(
+      Arrays.asList("there was a <adj> <adj> <noun> <gerund> alongside a <adj> <noun>.",
+          "a <adj> <noun> as well as a <gerund> <adj> <noun> were together."));
 
   /** Templates for second sentence. */
-  private final String[] SECOND_TEMPLATES = {
-      "A <adj> <noun> was also present, quite an interesting scene.",
-      "One must not forget the <adj> <noun>, which simply cannot be ignored.",
-  };
+  private final static List<String> SECOND_TEMPLATES = Collections.unmodifiableList(
+      Arrays.asList("A <adj> <noun> was also present, quite an interesting scene.",
+          "One must not forget the <adj> <noun>, which simply cannot be ignored."));
 
   /** Templates for list method sentence endings. */
-  private final String[] SIMPLE_ENDINGS = {"were all really quite interesting.",
-      "all came together in one place.", "were all together at once."};
+  private final static List<String> SIMPLE_ENDINGS =
+      Collections.unmodifiableList(Arrays.asList("were all really quite interesting.",
+          "all came together in one place.", "were all together at once."));
 
   /** Default ending for empty string return. */
-  private final String EMPTY_ENDING = "a hectic, unrecognizable scene took place.";
+  private final static String EMPTY_ENDING = "a hectic, unrecognizable scene took place.";
 
   /**
    * Initializes fields and takes in word processing client if supplied.
@@ -75,10 +77,10 @@ public class PromptManagerBodyFactory {
    * @param chooseRandomly Whether or not to randomly select a template.
    * @param wordTools Client for word processing API calls.
    */
-  public PromptManagerBodyFactory(
-      List<String> keywords, boolean chooseRandomly, PromptManagerWordTools wordTools) {
+  public PromptManagerBodyGenerator(
+      List<String> keywords, boolean chooseRandomly, PromptManagerAPIsClient wordAPIsClient) {
     this(keywords, chooseRandomly);
-    this.wordTools = wordTools;
+    this.wordAPIsClient = wordAPIsClient;
   }
 
   /**
@@ -87,7 +89,7 @@ public class PromptManagerBodyFactory {
    * @param keywords Input words for generation.
    * @param chooseRandomly Whether or not to randomly select a template.
    */
-  public PromptManagerBodyFactory(List<String> keywords, boolean chooseRandomly) {
+  public PromptManagerBodyGenerator(List<String> keywords, boolean chooseRandomly) {
     this.keywords = keywords;
     this.chooseRandomly = chooseRandomly;
     templateChooser = new Random();
@@ -102,15 +104,15 @@ public class PromptManagerBodyFactory {
    *
    * @return A String containing the output prompt.
    */
-  public String newInstance() {
+  public String generateBody() {
     try {
       // Instantiate wordTools within try-catch if not supplied.
-      if (wordTools == null) {
-        wordTools = new PromptManagerWordTools();
+      if (wordAPIsClient == null) {
+        wordAPIsClient = new PromptManagerAPIsClient();
       }
 
       // Classify given word inputs.
-      typeMap = wordTools.groupByWordType(keywords);
+      typeMap = wordAPIsClient.groupByWordType(keywords);
       nouns = typeMap.get(WordType.NOUN);
 
       // Isolate gerunds
@@ -154,7 +156,7 @@ public class PromptManagerBodyFactory {
         } else if (outputBody.contains("<adj> <adj> <noun>")) {
           String doubleAdjectiveNoun = nouns.remove(0);
           String[] relatedAdjectives =
-              wordTools.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
+              wordAPIsClient.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
 
           doubleAdjectiveNoun =
               relatedAdjectives[0] + " " + relatedAdjectives[1] + " " + doubleAdjectiveNoun;
@@ -164,7 +166,7 @@ public class PromptManagerBodyFactory {
         } else if (outputBody.contains("<adj> <noun>")) {
           String singleAdjectiveNoun = nouns.remove(0);
           String[] relatedAdjectives =
-              wordTools.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
+              wordAPIsClient.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
 
           singleAdjectiveNoun = relatedAdjectives[0] + " " + singleAdjectiveNoun;
           outputBody = outputBody.replaceFirst("<adj> <noun>", singleAdjectiveNoun);
@@ -218,11 +220,11 @@ public class PromptManagerBodyFactory {
    * @param templateList List of templates to choose from.
    * @return Template obtained.
    */
-  private String getTemplate(String[] templateList) {
+  private String getTemplate(List<String> templateList) {
     if (chooseRandomly) {
-      return templateList[templateChooser.nextInt(templateList.length)];
+      return templateList.get(templateChooser.nextInt(templateList.size()));
     } else {
-      return templateList[0];
+      return templateList.get(0);
     }
   }
 }

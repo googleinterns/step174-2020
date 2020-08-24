@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  * Facilitates API calls through a single object.
  */
-public class PromptManagerWordTools {
+public class PromptManagerAPIsClient {
   /** Client object for word classification */
   private NLServiceClient wordClassifier;
   /** Client object for word fetching */
@@ -35,7 +35,7 @@ public class PromptManagerWordTools {
    *
    * @throws IOException Exception for network problem.
    */
-  public PromptManagerWordTools() throws IOException {
+  public PromptManagerAPIsClient() throws IOException {
     try {
       // Instantiate API objects
       wordClassifier = new NLServiceClient();
@@ -69,9 +69,9 @@ public class PromptManagerWordTools {
   public String[] fetchRelatedAdjectives(String noun, int cap, boolean isRandom)
       throws APINotAvailableException, RuntimeException, IllegalArgumentException {
     try {
-      String storytellingTopic = DatamuseRequestClient.getStorytellingTopic();
+      String storytellingTopic = DatamuseRequestClient.getRandomStorytellingTopic();
       String[] relatedAdjectives = wordFetcher.fetchRelatedWords(
-          noun, DatamuseRequestWordType.ADJECTIVE, cap, storytellingTopic);
+          noun, DatamuseRelatedWordType.ADJECTIVE, cap, storytellingTopic);
 
       if (isRandom) {
         List<String> adjectiveList = Arrays.asList(relatedAdjectives);

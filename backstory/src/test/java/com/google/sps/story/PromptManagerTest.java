@@ -80,11 +80,11 @@ public final class PromptManagerTest {
       PromptManager promptManager = new PromptManager(inputList);
 
       // Mock word processing APIs
-      PromptManagerWordTools mockedWordTools = mock(PromptManagerWordTools.class);
+      PromptManagerAPIsClient mockedAPIsClient = mock(PromptManagerAPIsClient.class);
 
       // Inject mock and disable randomness
-      promptManager.setWordTools(mockedWordTools);
-      promptManager.setRandom(false);
+      promptManager.setAPIsClient(mockedAPIsClient);
+      promptManager.isTemplateRandomized(false);
 
       // Prepare canned classification of nouns and gerunds
       Map<WordType, List<String>> classifiedInput = new HashMap<WordType, List<String>>();
@@ -95,8 +95,8 @@ public final class PromptManagerTest {
       classifiedInput.put(WordType.NOUN, inputList);
 
       // Stub API calls with canned classification and adjectives
-      when(mockedWordTools.groupByWordType(anyList())).thenReturn(classifiedInput);
-      when(mockedWordTools.fetchRelatedAdjectives(anyString(), anyInt(), anyBoolean()))
+      when(mockedAPIsClient.groupByWordType(anyList())).thenReturn(classifiedInput);
+      when(mockedAPIsClient.fetchRelatedAdjectives(anyString(), anyInt(), anyBoolean()))
           .thenReturn(SAMPLE_GENERATED_ADJECTIVES);
 
       // Expected nonrandom template prompt uses first template.
@@ -128,7 +128,7 @@ public final class PromptManagerTest {
       PromptManager promptManager = new PromptManager(inputList);
 
       // Disable randomness
-      promptManager.setRandom(false);
+      promptManager.isTemplateRandomized(false);
 
       // Expected nonrandom template prompt uses first template.
       String expected =
@@ -157,7 +157,7 @@ public final class PromptManagerTest {
       PromptManager promptManager = new PromptManager(inputList);
 
       // Disable randomness
-      promptManager.setRandom(false);
+      promptManager.isTemplateRandomized(false);
 
       // Expected nonrandom template prompt uses first template.
       String expected = "Once upon a time, a dog was present.";
@@ -188,9 +188,9 @@ public final class PromptManagerTest {
       PromptManager promptManager = new PromptManager(inputList);
 
       // Inject mock APIs into word tools.
-      PromptManagerWordTools mockedWordTools = mock(PromptManagerWordTools.class);
+      PromptManagerAPIsClient mockedAPIsClient = mock(PromptManagerAPIsClient.class);
 
-      promptManager.setWordTools(mockedWordTools);
+      promptManager.setAPIsClient(mockedAPIsClient);
 
       // Prepare canned output for classification.
       Map<WordType, List<String>> classifiedInput = new HashMap<WordType, List<String>>();
@@ -204,8 +204,8 @@ public final class PromptManagerTest {
       classifiedInput.put(WordType.NOUN, inputList);
 
       // Stub API calls to output canned classification and adjectives
-      when(mockedWordTools.groupByWordType(anyList())).thenReturn(classifiedInput);
-      when(mockedWordTools.fetchRelatedAdjectives(anyString(), anyInt(), anyBoolean()))
+      when(mockedAPIsClient.groupByWordType(anyList())).thenReturn(classifiedInput);
+      when(mockedAPIsClient.fetchRelatedAdjectives(anyString(), anyInt(), anyBoolean()))
           .thenReturn(SAMPLE_GENERATED_ADJECTIVES);
 
       String outputPrompt = promptManager.generatePrompt();
