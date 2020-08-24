@@ -62,7 +62,9 @@ public final class GPT2Servlet extends HttpServlet {
       handleError(response, HttpServletResponse.SC_BAD_REQUEST, "Text input was null or empty");
       return;
     }
+
     String generatedText;
+
     try {
       StoryManager storyManager =
           new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
@@ -75,7 +77,7 @@ public final class GPT2Servlet extends HttpServlet {
     }
 
     // Return Generated Text as JSON
-    response.getWriter().println(generatedText);
+    response.getWriter().println(gson.toJson(generatedText));
   }
 
   /**
