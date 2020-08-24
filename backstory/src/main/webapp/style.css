@@ -197,9 +197,9 @@ textarea {
 }
 
 #submit-button:disabled {
-  height: 0px;
-  margin: 0px;
-  padding: 0px;
+  height: 0;
+  margin: 0;
+  padding: 0;
   visibility: hidden;
 }
 

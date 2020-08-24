@@ -14,16 +14,18 @@
 
 /**
  * JS for Vision Demo Page
- * features: fetch Blobstore URL, retrieve/format images and labels, 
+ * features: fetch Blobstore URL, retrieve/format images and labels,
  * image validation, display correct file upload
  */
 
- /* exported fetchBlobstoreUrl getAnalyzedImages validateImageUpload updateFileName */
+/* exported fetchBlobstoreUrl getAnalyzedImages validateImageUpload
+ * updateFileName */
 
 // FETCH BLOBSTORE URL
 
 /**
- * Fetches the URL for uploading to Blobstore and adds it to the image upload form.
+ * Fetches the URL for uploading to Blobstore and adds it to the image upload
+ * form.
  */
 function fetchBlobstoreUrl() {
   fetch('/blobstore-upload-url')
@@ -46,26 +48,26 @@ function getAnalyzedImages() {
         const imageListElement = document.getElementById('image-list');
         imageListElement.innerHTML = '';
 
-        for (let i = 0; i < analyzedImagesObject.length; i++) {   
+        for (let i = 0; i < analyzedImagesObject.length; i++) {
           const imageUrl = analyzedImagesObject[i].imageUrl;
           const labelsJsonArray = analyzedImagesObject[i].labelsJsonArray;
-          
+
           // parse the labels json and pass it into the formatting array
           const labelsObj = JSON.parse(labelsJsonArray);
           const labels = labelsObj.labels;
 
-          imageListElement.appendChild(
-              createRow(imageUrl, labels));
+          imageListElement.appendChild(createRow(imageUrl, labels));
         }
       });
 }
 
-/** 
+/**
  * Formats the image url and labels array into HTML
  *
  * @param {string} imageUrl - the url of the analyzed image
  * @param {object} labels - an array of labels & their other properties
- * @return {object} - an Element containing the analyzed image with its labels and scores 
+ * @return {object} - an Element containing the analyzed image with its labels
+ *     and scores
  */
 function createRow(imageUrl, labels) {
   const row = document.createElement('div');
@@ -75,7 +77,7 @@ function createRow(imageUrl, labels) {
   const imageDiv = document.createElement('div');
   imageDiv.classList.add('image-div');
 
-  // create a div to hold the image for this 
+  // create a div to hold the image for this
   const image = document.createElement('img');
   image.src = imageUrl;
   image.classList.add('image');
@@ -89,7 +91,7 @@ function createRow(imageUrl, labels) {
   labelsDiv.classList.add('labels-div');
   const labelsTable = formatLabelsAsTable(labels);
   labelsTable.id = 'labels-table';
-  
+
   // add labels to row
   labelsDiv.appendChild(labelsTable);
   row.appendChild(labelsDiv);
@@ -99,7 +101,7 @@ function createRow(imageUrl, labels) {
 
 /**
  * Format labels as an HTML table.
- * 
+ *
  * @param {object} labels - an array of labels (as JSON)
  * @return {object} - a table representing the labels array
  */
@@ -108,7 +110,7 @@ function formatLabelsAsTable(labels) {
   table.classList.add('labels-table');
 
   let rowNumber = 0;
-  
+
   // add headers
   const header = table.insertRow(rowNumber);
   const labelHeader = document.createElement('th');
@@ -137,11 +139,11 @@ function formatLabelsAsTable(labels) {
     scoreData.innerText = `${(label.score * 100).toFixed(2)}%`;
     scoreData.classList.add('labels-table-cell');
   }
-  
+
   return table;
 }
 
-// VALIDATE IMAGE UPLOAD 
+// VALIDATE IMAGE UPLOAD
 
 /**
  * Validate that the file uploaded to image upload
@@ -196,7 +198,7 @@ function updateFileName() {
 
   if (files) {
     const length = files.length;
-    if (length > 1)  {
+    if (length > 1) {
       label.innerText = `${length} files selected`;
     } else {
       label.innerText = files.item(0).name;

@@ -35,7 +35,6 @@ import org.json.JSONObject;
 /** Servlet that returns a generated story. */
 @WebServlet("/gpt2")
 public final class GPT2Servlet extends HttpServlet {
-  
   public static final int DEFAULT_MAX_STORY_LENGTH = 200;
   public static final Double DEFAULT_TEMPERATURE = 0.7;
 
@@ -65,7 +64,8 @@ public final class GPT2Servlet extends HttpServlet {
     }
     String generatedText;
     try {
-      StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
+      StoryManager storyManager =
+          new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
       generatedText = storyManager.generateText();
     } catch (Exception exception) {
       System.out.println(exception);

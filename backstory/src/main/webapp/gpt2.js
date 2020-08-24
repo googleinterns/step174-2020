@@ -37,7 +37,7 @@ async function displayStory() {
 
   // get display
   const display = document.getElementById('gpt2-story-display');
-  
+
   createBackstoryLoadingElement();
 
   // grab data and get its text version (it is sent as JSON)
