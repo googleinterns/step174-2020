@@ -15,10 +15,10 @@
 /**
  * JS for Vision Demo Page
  * features: fetch Blobstore URL, retrieve/format images and labels, 
- * display correct file upload
+ * image validation, display correct file upload
  */
 
- /* exported fetchBlobstoreUrl getAnalyzedImages updateFileName */
+ /* exported fetchBlobstoreUrl getAnalyzedImages validateImageUpload updateFileName */
 
 // FETCH BLOBSTORE URL
 
@@ -139,6 +139,47 @@ function formatLabelsAsTable(labels) {
   }
   
   return table;
+}
+
+// VALIDATE IMAGE UPLOAD 
+
+/**
+ * Validate that the file uploaded to image upload
+ * is an accepted image. Alert user to upload a new file if not.
+ *
+ * @return true, if valid image uploaded; false, if no image uploaded
+ *      or if no valid image uploaded
+ */
+function validateImageUpload() {
+  const imageUpload = document.getElementById('image-upload');
+  const files = imageUpload.files;
+
+  if (files.length === 0) {
+    alert('No file has been uploaded. Please upload a file.');
+    return false;
+  }
+
+  if (!validImage(files.item(0))) {
+    alert(
+        'Only PNGs and JPGs are accepted image upload types. ' +
+        'Please upload a PNG or JPG.');
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Validate that the passed-in file is an
+ * accepted image type (jpg or png).
+ *
+ * @param file - the file to validate
+ * @return true, if file exists & is a valid image, false otherwise
+ */
+function validImage(file) {
+  const acceptedImageTypes = ['image/jpeg', 'image/png'];
+
+  return file && acceptedImageTypes.includes(file['type']);
 }
 
 // DISPLAY CORRECT FILE NAME

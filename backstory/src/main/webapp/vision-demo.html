@@ -34,7 +34,7 @@
       <h1 class="header red-header">Vision Demo</h1>
 
       <div class="vertical-flex-container" id="upload-form-div">
-        <form class="vertical-flex-container demo-div" id="image-upload-form" method="post" enctype="multipart/form-data">
+        <form class="vertical-flex-container demo-div" id="image-upload-form" onsubmit="return validateImageUpload();" method="post" enctype="multipart/form-data">
           <input type="file" name="image-upload" id="image-upload" class="file-input" onchange="updateFileName()"/>
           <label id="upload-visual" for="image-upload">Select an image...</label>
 

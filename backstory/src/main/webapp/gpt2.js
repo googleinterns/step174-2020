@@ -13,7 +13,7 @@
 
 /**
  * JS for GPT2 Page
- * features: display story
+ * features: display story, backstory loading element
  */
 
 /* exported displayStory */
@@ -32,16 +32,19 @@ async function displayStory() {
     return;
   }
 
-  console.log(input);
+  const inputObj = {text: input};
+  const inputJSON = JSON.stringify(inputObj);
 
   // get display
-  const display = document.getElementById('story-display');
-  display.appendChild(formatResponse('Generating... Please be patient.'));
+  const display = document.getElementById('gpt2-story-display');
+  
+  createBackstoryLoadingElement();
+
   // grab data and get its text version (it is sent as JSON)
   const response = await fetch('/gpt2', {
     method: 'post',
     headers: {'Content-Type': 'application/json'},
-    body: `{text: ${input}}`,
+    body: inputJSON,
   });
 
   const data = await response.text();
@@ -89,4 +92,38 @@ function formatResponse(text) {
   container.appendChild(generatedText);
 
   return container;
+}
+
+// CREATE BACKSTORY LOADING ELEMENT
+
+/**
+ * Helper function to create and set a loading element to display after the
+ * photo-upload form is submitted, while image is being analyzed and the
+ * backstory is being created. Only execute this function if valid
+ * image uploaded.
+ */
+function createBackstoryLoadingElement() {
+  const backstoryLoadingIcon = document.createElement('div');
+  backstoryLoadingIcon.classList.add('backstory-loading');
+
+  const backstoryLoadingParagraphDiv = document.createElement('div');
+  const backstoryLoadingParagraph = document.createElement('p');
+  const backstoryLoadingText =
+      document.createTextNode('Your backstory is loading! Please be patient.');
+  backstoryLoadingParagraph.appendChild(backstoryLoadingText);
+  backstoryLoadingParagraphDiv.appendChild(backstoryLoadingParagraph);
+  backstoryLoadingParagraphDiv.classList.add('backstory-paragraph');
+
+  const backstoryLoadingElement = document.createElement('div');
+  backstoryLoadingElement.classList.add('backstory-element');
+  backstoryLoadingElement.appendChild(backstoryLoadingIcon);
+  backstoryLoadingElement.appendChild(backstoryLoadingParagraphDiv);
+
+  const storyDisplayElement = document.getElementById('gpt2-story-display');
+  if (storyDisplayElement.childNodes.length === 1) {
+    storyDisplayElement.replaceChild(
+        backstoryLoadingElement, storyDisplayElement.childNodes[0]);
+  } else {
+    storyDisplayElement.appendChild(backstoryLoadingElement);
+  }
 }
