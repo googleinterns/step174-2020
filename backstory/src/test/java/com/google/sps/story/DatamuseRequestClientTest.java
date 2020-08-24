@@ -121,55 +121,83 @@ public final class DatamuseRequestClientTest {
    * Check that IllegalArgumentException thrown for a multiple
    * word noun.
    */
-  @Test
+  @Test (expected = IllegalArgumentException.class)
   public void multipleWordNoun() throws Exception {
     final String MULTIWORD_NOUN = "multiword noun";
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
-    try {
-      client.fetchRelatedWords(MULTIWORD_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (IllegalArgumentException exception) {
-      return; // test should pass if this exception is thrown
-    } 
-
-    Assert.fail("IllegalArgumentException was not thrown.");
+    client.fetchRelatedWords(MULTIWORD_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
   }
 
   /** 
    * Check that IllegalArgumentException thrown
    * for a noun with whitespace.
    */
-  @Test
+  @Test (expected = IllegalArgumentException.class)
   public void nounWithWhitespace() throws Exception {
     final String WHITESPACE_NOUN = "noun\n";
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
-    try {
-      client.fetchRelatedWords(WHITESPACE_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (IllegalArgumentException exception) {
-      return; // test should pass if this exception is thrown
-    } 
-
-    Assert.fail("IllegalArgumentException was not thrown.");
+    client.fetchRelatedWords(WHITESPACE_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
   }
 
   /** 
    * Check that IllegalArgumentException thrown
    * for a null argument for noun
    */
-  @Test
+  @Test (expected = IllegalArgumentException.class)
   public void nullNounInput() throws Exception {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
-    try {
-      client.fetchRelatedWords(null, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (IllegalArgumentException exception) {
-      return; // test should pass if this exception is thrown
-    } 
+    client.fetchRelatedWords(null, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
+  }
 
-    Assert.fail("IllegalArgumentException was not thrown.");
+  /** 
+   * Check that IllegalArgumentException thrown
+   * for a null argument for wordType
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void nullTypeInput() throws Exception {
+    DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
+
+    client.fetchRelatedWords(DEFAULT_NOUN, null, DEFAULT_MAX, DEFAULT_TOPIC);
+  }
+
+  /** 
+   * Check that IllegalArgumentException thrown
+   * for a < 0 argument for cap
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void negativeCapInput() throws Exception {
+    final int NEGATIVE_NUMBER = -1;
+    DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
+
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, NEGATIVE_NUMBER, DEFAULT_TOPIC);
+  }
+
+  /** 
+   * Check that IllegalArgumentException thrown
+   * when cap = 0
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void zeroCapInput() throws Exception {
+    final int ZERO = 0;
+    DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
+
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, ZERO, DEFAULT_TOPIC);
+  }
+
+  /** 
+   * Check that IllegalArgumentException thrown
+   * when topic is null.
+   */
+  @Test (expected = IllegalArgumentException.class)
+  public void nullTopicInput() throws Exception {
+    DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
+
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, null);
   }
 
   /** 
@@ -177,17 +205,11 @@ public final class DatamuseRequestClientTest {
    * if there is no URLConnection injected (which is equivalent
    * to if it can't access the Datamuse API).
    */
-  @Test 
+  @Test (expected = APINotAvailableException.class)
   public void apiNotAvailable() throws Exception {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
-    try {
-      client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (APINotAvailableException exception) {
-      return; // test should pass if this exception is thrown
-    }
-
-    Assert.fail("APINotAvailableException was not thrown.");    
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
   }
 
   /** 
@@ -195,28 +217,18 @@ public final class DatamuseRequestClientTest {
    * when the JSON can't be parsed with the correct message signaling
    * it's an issue with the JSON.
    */
-  @Test 
+  @Test (expected = RuntimeException.class)
   public void jsonCannotBeParsed() throws Exception {
     final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + DEFAULT_MAX 
         + "&topics=" + DEFAULT_TOPIC;
-    final String INPUT = "not JSON";
+    final String RESPONSE = "not JSON";
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
     // inject the url but with a response that's not proper JSON
-    injectURLConnectionMock(DEFAULT_URL, QUERIES, INPUT);
+    stubURLConnection(DEFAULT_URL, QUERIES, RESPONSE);
 
-    try {
-      String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (RuntimeException exception) {
-      final String EXPECTED_MESSAGE = "Could not parse the JSON received back from the Datamuse Query.";
-    
-      Assert.assertEquals(EXPECTED_MESSAGE, exception.getMessage());
-      Assert.assertEquals(JSONException.class, exception.getCause().getClass());
-      return; // this is the behavior we wanted to happen
-    }
-
-    Assert.fail("No RuntimeException was thrown when parsing incorrect JSON.");
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
   }   
 
   /** 
@@ -224,28 +236,18 @@ public final class DatamuseRequestClientTest {
    * when the JSON array that it gets back from the server does not
    * contain JSON objects.
    */
-  @Test 
+  @Test (expected = RuntimeException.class)
   public void jsonArrayButNotJsonObjects() throws Exception {
     final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + DEFAULT_MAX 
         + "&topics=" + DEFAULT_TOPIC;
-    final String[] INPUT = { "sandy", "long", "private", "white", "small"}; 
+    final String[] RESPONSE = { "sandy", "long", "private", "white", "small"}; 
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
-    // inject the url but with a response that's an array but of Strings not of JSON objects
-    injectURLConnectionMock(DEFAULT_URL, QUERIES, Arrays.toString(INPUT));
+    // stub the url but with a response that's an array but of Strings not of JSON objects
+    stubURLConnection(DEFAULT_URL, QUERIES, Arrays.toString(RESPONSE));
 
-    try {
-      String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (RuntimeException exception) {
-      final String EXPECTED_MESSAGE = "JSON array received was not of JSON objects.";
-    
-      Assert.assertEquals(EXPECTED_MESSAGE, exception.getMessage());
-      Assert.assertEquals(ClassCastException.class, exception.getCause().getClass());
-      return; // this is the behavior we wanted to happen
-    }
-
-    Assert.fail("No RuntimeException was thrown when objects were not valid JSON.");
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
   }
 
   /** 
@@ -253,30 +255,20 @@ public final class DatamuseRequestClientTest {
    * when the JSON objects in the JSON array do not have a String
    * value for "word".
    */
-  @Test 
+  @Test (expected = RuntimeException.class)
   public void noValueForWord() throws Exception {
     final String QUERIES = "rel_jjb=" + DEFAULT_NOUN + "&max=" + DEFAULT_MAX 
         + "&topics=" + DEFAULT_TOPIC;
     
-    JSONArray input = new JSONArray();
-    input.put(new JSONObject()); // put in a default object without a "word" field
+    JSONArray response = new JSONArray();
+    response.put(new JSONObject()); // put in a default object without a "word" field
 
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
 
-    // inject the url but with a response that doesn't have a "word" field
-    injectURLConnectionMock(DEFAULT_URL, QUERIES, input.toString());
+    // stub the url but with a response that doesn't have a "word" field
+    stubURLConnection(DEFAULT_URL, QUERIES, response.toString());
 
-    try {
-      String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
-    } catch (RuntimeException exception) {
-      final String EXPECTED_MESSAGE = "JSON Object did not have a String value for the key \"word\".";
-    
-      Assert.assertEquals(EXPECTED_MESSAGE, exception.getMessage());
-      Assert.assertEquals(JSONException.class, exception.getCause().getClass());
-      return; // this is the behavior we wanted to happen
-    }
-
-    Assert.fail("No RuntimeException was thrown when parsing incorrect JSON.");
+    client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, DEFAULT_MAX, DEFAULT_TOPIC);
   }   
 
   /** 
@@ -293,7 +285,7 @@ public final class DatamuseRequestClientTest {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
     JSONArray jsonOutput = buildJSONFromStringArray(EXPECTED_OUTPUT);
 
-    injectURLConnectionMock(DEFAULT_URL, QUERIES, jsonOutput.toString());
+    stubURLConnection(DEFAULT_URL, QUERIES, jsonOutput.toString());
 
     String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE, MAX_WORDS, DEFAULT_TOPIC);
     Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
@@ -313,7 +305,7 @@ public final class DatamuseRequestClientTest {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
     JSONArray jsonOutput = buildJSONFromStringArray(EXPECTED_OUTPUT);
 
-    injectURLConnectionMock(DEFAULT_URL, QUERIES, jsonOutput.toString());
+    stubURLConnection(DEFAULT_URL, QUERIES, jsonOutput.toString());
 
     String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DEFAULT_WORD_TYPE,
         MAX_WORDS, DEFAULT_TOPIC);
@@ -333,7 +325,7 @@ public final class DatamuseRequestClientTest {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
     JSONArray jsonOutput = buildJSONFromStringArray(EXPECTED_OUTPUT);
 
-    injectURLConnectionMock(DEFAULT_URL, RIGHT_QUERIES, jsonOutput.toString());
+    stubURLConnection(DEFAULT_URL, RIGHT_QUERIES, jsonOutput.toString());
 
     String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DatamuseRelatedWordType.ADJECTIVE,
         DEFAULT_MAX, DEFAULT_TOPIC);
@@ -353,7 +345,7 @@ public final class DatamuseRequestClientTest {
     DatamuseRequestClient client = new DatamuseRequestClient(DEFAULT_URL);
     JSONArray jsonOutput = buildJSONFromStringArray(EXPECTED_OUTPUT);
 
-    injectURLConnectionMock(DEFAULT_URL, RIGHT_QUERIES, jsonOutput.toString());
+    stubURLConnection(DEFAULT_URL, RIGHT_QUERIES, jsonOutput.toString());
 
     String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DatamuseRelatedWordType.GERUND,
         DEFAULT_MAX, DEFAULT_TOPIC);
@@ -361,18 +353,18 @@ public final class DatamuseRequestClientTest {
   }
 
   /**
-   * Inject a mock of the URLConnection for the given url and queries 
+   * Stub a mock of the URLConnection for the given url and queries 
    * so that when a URL is created from the url + queries given,
    * the input stream that will be returned from it will be
    * the passed-in String response. Needed in order to test methods
    * that use a URL. Code adapted from this tutorial: 
    * https://claritysoftware.co.uk/mocking-javas-url-with-mockito/.
    * 
-   * @param url the base url to inject canned results for
+   * @param url the base url to return canned results for
    * @param queries the quer(ies) to send to that url
    * @param response the response to return from that query
    */
-  private void injectURLConnectionMock(String url, String queries, String response) {
+  private void stubURLConnection(String url, String queries, String response) {
     URLConnection urlConnection = mock(URLConnection.class);
 
     try {

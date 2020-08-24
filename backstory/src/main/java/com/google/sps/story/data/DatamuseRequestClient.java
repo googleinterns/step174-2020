@@ -91,7 +91,7 @@ public class DatamuseRequestClient {
    */
   public String[] fetchRelatedWords(String noun, DatamuseRelatedWordType wordType, int cap,
       String topic) throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-    validateArguments(noun, wordType.toString(), wordType, cap, topic);
+    validateArguments(noun, wordType, cap, topic);
 
     String query = url;
 
@@ -102,6 +102,8 @@ public class DatamuseRequestClient {
       case GERUND:
         query += "rel_jja=" + noun + "&sp=*ing"; // get nouns related to the noun ending in "ing"
         break;
+      default:
+        throw new IllegalArgumentException("Only adjective and gerund are supported types for this method at the moment");
     }
 
     // cap number of results (max=cap) & set the topic (topics=topic)
@@ -113,19 +115,28 @@ public class DatamuseRequestClient {
   }
 
   /**
-   * Helper method to validate arguments to fetchRelatedWords by checking
+   * Helper method to validate arguments for fetchRelatedWords by checking
    * it's only one word (properly formatted) which is checked
    * by ensuring there's no whitespace. Also, check that cap > 0
-   * and that the other arguments are not null.
+   * and that no arguments are null.
    *
    * @param word the word argument to check if null or for whitespace
-   * @param wordArgumentName the name of argument to use in the error message
-   * @throws IllegalArgumentException if wordArgument is null or contains whitespace
+   * @param wordType the word type to check if null 
+   * @param cap the cap to check that it's > 0
+   * @param topic the topic to check not null
+   * @throws IllegalArgumentException if object arguments are null, if word contains whitespace, or if cap <= 0 
    */
-  private void validateArguments(String word, String wordArgumentName, DatamuseRelatedWordType wordType,
+  private void validateArguments(String word, DatamuseRelatedWordType wordType,
       int cap, String topic) throws IllegalArgumentException {
+    
+    // check this first b/c you use word type when you write error message for
+    // when word == null
+    if (wordType == null) {
+      throw new IllegalArgumentException("Word type cannot be null.");
+    }
+
     if (word == null) {
-      throw new IllegalArgumentException(argumentName + " cannot be null.");
+      throw new IllegalArgumentException(wordType.toString() + " cannot be null.");
     }
     // check for whitespace
     Pattern pattern = Pattern.compile("\\s");
@@ -133,11 +144,7 @@ public class DatamuseRequestClient {
 
     if (matcher.find()) {
       throw new IllegalArgumentException(
-          wordArgumentName + " cannot contain whitespace (must be one word).");
-    }
-
-    if (wordType == null) {
-      throw new IllegalArgumentException("Word type cannot be null.");
+          wordType.toString() + " cannot contain whitespace (must be one word).");
     }
 
     if (cap <= 0) {
