@@ -19,7 +19,7 @@ package com.google.sps.story.data;
  * to be used as word type in the fetchRelatedWords()
  * method of the DatamuseRequestClient.
  */
-public enum DatamuseRequestWordType {
+public enum DatamuseRelatedWordType {
   ADJECTIVE,
   GERUND,
 }

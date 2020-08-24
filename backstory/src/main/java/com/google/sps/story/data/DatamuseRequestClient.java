@@ -14,6 +14,7 @@
 
 package com.google.sps.story.data;
 
+import com.google.common.collect.ImmutableList;
 import com.google.sps.APINotAvailableException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,8 +39,8 @@ public class DatamuseRequestClient {
   private final String url;
 
   /** a list of topics related to storytelling for which to filter adjectives/gerunds for */
-  public static final String[] STORYTELLING_TOPICS = {"story", "fairytale", "narrative", "anecdote",
-      "drama", "fantasy", "adventure", "poem", "grand"};
+  public static final ImmutableList<String> STORYTELLING_TOPICS = ImmutableList.of("story", "fairytale", "narrative", "anecdote",
+      "drama", "fantasy", "adventure", "poem", "grand");
   
   /**
    * Constructs a request client with the default Datamuse url.
@@ -64,10 +65,10 @@ public class DatamuseRequestClient {
    *
    * @return a topic related to storytelling to be used in the PCS
    */
-  public static String getStorytellingTopic() {
-    int randomIndex = (int) (Math.random() * STORYTELLING_TOPICS.length);
+  public static String getRandomStorytellingTopic() {
+    int randomIndex = (int) (Math.random() * STORYTELLING_TOPICS.size());
 
-    return STORYTELLING_TOPICS[randomIndex];
+    return STORYTELLING_TOPICS.get(randomIndex);
   }
 
   /**
@@ -88,9 +89,9 @@ public class DatamuseRequestClient {
    * @throws RuntimeException if JSON received back from the API cannot be parsed (JSONException)
    *    or does not have objects of type JSON (ClassCastException)
    */
-  public String[] fetchRelatedWords(String noun, DatamuseRequestWordType wordType, int cap,
+  public String[] fetchRelatedWords(String noun, DatamuseRelatedWordType wordType, int cap,
       String topic) throws IllegalArgumentException, APINotAvailableException, RuntimeException {
-    validateWordArgument(noun, "Noun");
+    validateArguments(noun, wordType.toString(), wordType, cap, topic);
 
     String query = url;
 
@@ -112,27 +113,41 @@ public class DatamuseRequestClient {
   }
 
   /**
-   * Helper method to validate a word argument by checking
+   * Helper method to validate arguments to fetchRelatedWords by checking
    * it's only one word (properly formatted) which is checked
-   * by ensuring there's no whitespace.
+   * by ensuring there's no whitespace. Also, check that cap > 0
+   * and that the other arguments are not null.
    *
-   * @param argument the argument to check for whitespace
-   * @param argumentName the name of argument to use in the error message
-   * @throws IllegalArgumentException if argument contains whitespace
+   * @param word the word argument to check if null or for whitespace
+   * @param wordArgumentName the name of argument to use in the error message
+   * @throws IllegalArgumentException if wordArgument is null or contains whitespace
    */
-  private void validateWordArgument(String argument, String argumentName)
-      throws IllegalArgumentException {
-    if (argument == null) {
+  private void validateArguments(String word, String wordArgumentName, DatamuseRelatedWordType wordType,
+      int cap, String topic) throws IllegalArgumentException {
+    if (word == null) {
       throw new IllegalArgumentException(argumentName + " cannot be null.");
     }
     // check for whitespace
     Pattern pattern = Pattern.compile("\\s");
-    Matcher matcher = pattern.matcher(argument);
+    Matcher matcher = pattern.matcher(word);
 
     if (matcher.find()) {
       throw new IllegalArgumentException(
-          argumentName + " cannot contain whitespace (must be one word).");
+          wordArgumentName + " cannot contain whitespace (must be one word).");
     }
+
+    if (wordType == null) {
+      throw new IllegalArgumentException("Word type cannot be null.");
+    }
+
+    if (cap <= 0) {
+      throw new IllegalArgumentException("Cap must be greater than 0.");
+    }
+
+    if (topic == null) {
+      throw new IllegalArgumentException("Topic cannot be null.");
+    }
+
   }
 
   /**

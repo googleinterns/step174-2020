@@ -21,7 +21,7 @@ import au.com.origma.perspectiveapi.v1alpha1.models.AttributeType;
 import com.google.gson.Gson;
 import com.google.sps.APINotAvailableException;
 import com.google.sps.story.data.DatamuseRequestClient;
-import com.google.sps.story.data.DatamuseRequestWordType;
+import com.google.sps.story.data.DatamuseRelatedWordType;
 import com.google.sps.story.data.HttpUrlStreamHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -63,7 +63,7 @@ public final class DatamuseRequestClientTest {
   private static final String DEFAULT_NOUN = "beach";
 
   /** the default word type to use for tests */
-  private static final DatamuseRequestWordType DEFAULT_WORD_TYPE = DatamuseRequestWordType.ADJECTIVE;
+  private static final DatamuseRelatedWordType DEFAULT_WORD_TYPE = DatamuseRelatedWordType.ADJECTIVE;
 
   /** the default max to use for tests */
   private static final int DEFAULT_MAX = 5;
@@ -102,16 +102,16 @@ public final class DatamuseRequestClientTest {
   }
 
   /**
-   * Check that getStorytellingTopic() topic only returns Strings
+   * Check that getRandomStorytellingTopic() topic only returns Strings
    * from the storytelling topics array.
    */
   @Test
-  public void checkGetStorytellingTopic() {
-    Set<String> topics = new HashSet<String>(Arrays.asList(DatamuseRequestClient.STORYTELLING_TOPICS));
+  public void checkGetRandomStorytellingTopic() {
+    Set<String> topics = new HashSet<String>(DatamuseRequestClient.STORYTELLING_TOPICS);
      
     // check a significant number of times (at least 2x array length)
-    for (int i = 0; i < DatamuseRequestClient.STORYTELLING_TOPICS.length * 2; i++) {
-      String topic = DatamuseRequestClient.getStorytellingTopic();
+    for (int i = 0; i < DatamuseRequestClient.STORYTELLING_TOPICS.size() * 2; i++) {
+      String topic = DatamuseRequestClient.getRandomStorytellingTopic();
       
       Assert.assertTrue(topics.contains(topic));
     }
@@ -335,7 +335,7 @@ public final class DatamuseRequestClientTest {
 
     injectURLConnectionMock(DEFAULT_URL, RIGHT_QUERIES, jsonOutput.toString());
 
-    String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DatamuseRequestWordType.ADJECTIVE,
+    String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DatamuseRelatedWordType.ADJECTIVE,
         DEFAULT_MAX, DEFAULT_TOPIC);
     Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
   }
@@ -355,7 +355,7 @@ public final class DatamuseRequestClientTest {
 
     injectURLConnectionMock(DEFAULT_URL, RIGHT_QUERIES, jsonOutput.toString());
 
-    String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DatamuseRequestWordType.GERUND,
+    String[] actualOutput = client.fetchRelatedWords(DEFAULT_NOUN, DatamuseRelatedWordType.GERUND,
         DEFAULT_MAX, DEFAULT_TOPIC);
     Assert.assertEquals(EXPECTED_OUTPUT, actualOutput);
   }
