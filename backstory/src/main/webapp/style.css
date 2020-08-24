@@ -210,7 +210,7 @@ textarea {
 .backstory-element {
   margin: 25px auto;
   text-align: center;
-  width: 40vw;
+  width: 50vw;
 }
 
 .backstory-element img {
@@ -220,11 +220,17 @@ textarea {
     0 0 0 9px var(--congo-pink),
     0 0 0 12px var(--bittersweet),
     0 0 0 15px var(--blue-yonder);
-  width: 100%;
+  width: 40vw;
 }
 
 .backstory-paragraph {
   margin-top: 40px;
+  text-align: left;
+}
+
+.backstory-loading-text {
+  margin-top: 40px;
+  text-align: center;
 }
 
 @keyframes loading {
@@ -423,6 +429,7 @@ textarea {
 
 #gpt2-story-display {
   color: var(--oxford-blue);
+  padding-bottom: 30px;
   width: 60%;
 }
 
