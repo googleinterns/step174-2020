@@ -41,6 +41,8 @@ public final class StoryManagerImpl implements StoryManager {
   private int maxTextLength;
   /** The volatility of topics and style in generation. */
   private Double temperature;
+  /** Provider object of serviceURLs*/
+  private StoryManagerURLProvider URLProvider;
 
   /** requestFactory - Builds and facilitates authenticated post requests. */
   private StoryManagerRequestFactory requestFactory;
@@ -51,9 +53,12 @@ public final class StoryManagerImpl implements StoryManager {
    * @param prefix String to serve as generation prompt.
    * @param maxLength Maximum text character length for generation output. 100-1000 characters.
    * @param temperature Double to hold number 0-1 for text generation volatility.
+   * @param URLProvider Provides service URLs for generation.
+   * @throws RuntimeException If cannot convert from JSON.
+   * @throws IllegalArgumentException If input is invalid.
    */
-  public StoryManagerImpl(String prefix, int maxLength, Double temperature)
-      throws RuntimeException, IllegalArgumentException {
+  public StoryManagerImpl(String prefix, int maxLength, Double temperature,
+      StoryManagerURLProvider URLProvider) throws RuntimeException, IllegalArgumentException {
     this.prefix = prefix;
     this.maxTextLength = maxLength;
     this.temperature = temperature;
@@ -71,6 +76,7 @@ public final class StoryManagerImpl implements StoryManager {
     if (temperature < 0 || temperature > 1) {
       throw new IllegalArgumentException("Temperature must be between 0 and 1.");
     }
+    this.URLProvider = URLProvider;
   }
 
   /**
@@ -78,13 +84,14 @@ public final class StoryManagerImpl implements StoryManager {
    *
    * @return HttpResponse The reponse from the Generation server expected to include
    *          a "text" field with the generated text.
+   * @throws IOException If there's an error with HTTP.
    */
   private HttpResponse requestGeneratedText() throws IOException {
     // Form JSON body using generation parameters
     String requestBody = makeRequestBody(prefix, maxTextLength, temperature);
 
     // Build Request with Adapter and JSON Input
-    HttpRequest request = requestFactory.newInstance(requestBody);
+    HttpRequest request = requestFactory.newInstance(requestBody, URLProvider.getCurrentURL());
     request.getHeaders().setContentType("application/json");
 
     // Wait until response received
@@ -97,6 +104,7 @@ public final class StoryManagerImpl implements StoryManager {
    * Returns generated text output using given fields.
    *
    * @return String Generated output text.
+   * @throws RuntimeException If cannot convert from JSON.
    */
   public String generateText() throws RuntimeException {
     // Obtain response from Server POST Request
@@ -111,7 +119,7 @@ public final class StoryManagerImpl implements StoryManager {
       JSONObject jsonObject = new JSONObject(outputResponse.parseAsString());
       return jsonObject.getString("text");
     } catch (Exception jsonException) {
-      throw new RuntimeException("Failed to convert repsonse into JSON", jsonException);
+      throw new RuntimeException("Failed to convert response from JSON", jsonException);
     }
   }
 
@@ -130,6 +138,7 @@ public final class StoryManagerImpl implements StoryManager {
    * @param prefix String to serve as generation prompt.
    * @param maxLength Maximum text character length for generation output.
    * @param temperature Double to hold number 0-1 for text generation volatility.
+   * @return A JSON String request body.
    */
   private String makeRequestBody(String prefix, int maxLength, Double temperature) {
     Gson gson = new Gson();
