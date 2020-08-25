@@ -148,13 +148,13 @@ public class PromptManagerBodyGenerator {
       while (true) {
         // Replace gerund tag with first available from list.
         if (outputBody.contains("<gerund>")) {
-          String gerund = gerunds.remove(0);
+          String gerund = gerunds.remove(0).toLowerCase();
 
           outputBody = outputBody.replaceFirst("<gerund>", gerund);
 
           // Replace double-adjective noun case with first available noun and fetched adjectives.
         } else if (outputBody.contains("<adj> <adj> <noun>")) {
-          String doubleAdjectiveNoun = nouns.remove(0);
+          String doubleAdjectiveNoun = nouns.remove(0).toLowerCase();
           String[] relatedAdjectives =
               wordAPIsClient.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
 
@@ -164,7 +164,7 @@ public class PromptManagerBodyGenerator {
 
           // Replace single-adjective noun case with first available noun and fetched adjective.
         } else if (outputBody.contains("<adj> <noun>")) {
-          String singleAdjectiveNoun = nouns.remove(0);
+          String singleAdjectiveNoun = nouns.remove(0).toLowerCase();
           String[] relatedAdjectives =
               wordAPIsClient.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
 
