@@ -56,41 +56,40 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
       String urlToRedirectToAfterUserLogsIn = "/analyzed-images";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
       response.sendRedirect(loginUrl);
-
-    } else {
-      // Get user identification
-      String userEmail = userService.getCurrentUser().getEmail();
-
-      BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
-
-      // Query to find all analyzed image entities. We will filter to only return the current
-      // user's backstories.
-      Filter onlyShowUserBackstories =
-          new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
-
-      Query query = new Query("analyzed-image")
-                        .setFilter(onlyShowUserBackstories)
-                        .addSort("timestamp", SortDirection.DESCENDING);
-      // Will limit the Query (which is sorted from newest to oldest) to only return the first
-      // result, Thus displaying the most recent story uploaded.
-      int onlyShowMostRecentStoryUploaded = 1;
-
-      DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-      PreparedQuery results = datastore.prepare(query);
-
-      BlobKey blobKey = null;
-      for (Entity entity :
-          results.asIterable(FetchOptions.Builder.withLimit(onlyShowMostRecentStoryUploaded))) {
-        blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
-      }
-
-      // Validation to make sure that empty images are not getting uploaded to permanent storage.
-      if (blobKey == null) {
-        throw new NullPointerException(
-            "No image(s) were uploaded, this servlet should not have been called.");
-      }
-
-      blobstoreService.serve(blobKey, response);
+      return;
     }
+
+    // Get user identification
+    String userEmail = userService.getCurrentUser().getEmail();
+
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+
+    // Query to find all analyzed image entities. We will filter to only return the current
+    // user's backstories.
+    Filter userBackstoriesFilter =
+        new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
+    Query query = new Query("analyzed-image")
+                      .setFilter(userBackstoriesFilter)
+                      .addSort("timestamp", SortDirection.DESCENDING);
+    // Will limit the Query (which is sorted from newest to oldest) to only return the first
+    // result, Thus displaying the most recent story uploaded.
+    int backstoryFetchLimit = 1;
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    BlobKey blobKey = null;
+    for (Entity entity :
+        results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
+      blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
+    }
+
+    // Validation to make sure that empty images are not getting uploaded to permanent storage.
+    if (blobKey == null) {
+      throw new NullPointerException(
+          "No image(s) were uploaded, this servlet should not have been called.");
+    }
+
+    blobstoreService.serve(blobKey, response);
   }
 }

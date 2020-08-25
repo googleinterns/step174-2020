@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Arrays;
 import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
@@ -75,7 +76,6 @@ public final class AnalyzeImageServletTest {
     HttpServletRequest mockRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 
-    // 
     AnalyzeImageServlet servlet = new AnalyzeImageServlet();
     ImagesManager mockImagesManager = mock(VisionImagesManager.class);
     StoryManager mockStoryManager = mock(StoryManagerImpl.class);
@@ -89,10 +89,8 @@ public final class AnalyzeImageServletTest {
     String userAuthenticationDomain = "authentication";
     User testUser = new User(userEmail, userAuthenticationDomain);
 
-
     // Creates the required real test objects, and sets the required behavior of the mocks.
-    boolean userIsLoggedIn = true;
-    when(mockUserService.isUserLoggedIn()).thenReturn(userIsLoggedIn);
+    when(mockUserService.isUserLoggedIn()).thenReturn(true);
     when(mockUserService.getCurrentUser()).thenReturn(testUser);
 
     String blobKeyString = "blobKeyString";
@@ -108,8 +106,7 @@ public final class AnalyzeImageServletTest {
     uploadedImageDescriptions.add(sampleDescription);
     AnnotatedImage uploadedAnnotatedImage = mock(AnnotatedImage.class);
     when(uploadedAnnotatedImage.getLabelDescriptions()).thenReturn(uploadedImageDescriptions);
-    List<AnnotatedImage> uploadedAnnotatedImages = new ArrayList<>();
-    uploadedAnnotatedImages.add(uploadedAnnotatedImage);
+    List<AnnotatedImage> uploadedAnnotatedImages = Arrays.asList(uploadedAnnotatedImage);
     when(mockImagesManager.createAnnotatedImagesFromImagesAsByteArrays(
       any(List.class)
     )).thenReturn(uploadedAnnotatedImages);
