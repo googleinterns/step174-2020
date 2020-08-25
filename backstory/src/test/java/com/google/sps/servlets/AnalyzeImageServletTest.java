@@ -27,7 +27,6 @@ import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
 import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
-import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
@@ -55,7 +54,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.HashMap;
-import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 
@@ -75,7 +74,6 @@ public final class AnalyzeImageServletTest {
     HttpServletRequest mockRequest = mock(HttpServletRequest.class);
     HttpServletResponse mockResponse = mock(HttpServletResponse.class);
 
-    // 
     AnalyzeImageServlet servlet = new AnalyzeImageServlet();
     ImagesManager mockImagesManager = mock(VisionImagesManager.class);
     StoryManager mockStoryManager = mock(StoryManagerImpl.class);

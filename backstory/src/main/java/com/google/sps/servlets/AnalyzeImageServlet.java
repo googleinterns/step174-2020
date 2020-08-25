@@ -26,7 +26,7 @@ import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
@@ -52,6 +52,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.sps.story.StoryManagerURLProvider;
 
 /**
  * Backend servlet which manages the analysis of images, creation of backstories, and uploading
@@ -85,7 +86,7 @@ public class AnalyzeImageServlet extends HttpServlet {
       return new VisionImagesManager();
     };
     storyManagerFactory = (String prompt, int storyLength, double temperature) -> {
-      return new StoryManagerImpl(prompt, storyLength, temperature);
+      return new StoryManagerImpl(prompt, storyLength, temperature, new StoryManagerURLProvider());
     };
     storyAnalysisManagerFactory = () -> {
       return new PerspectiveStoryAnalysisManager();
@@ -210,9 +211,7 @@ public class AnalyzeImageServlet extends HttpServlet {
         List<String> descriptions = annotatedImage.getLabelDescriptions();
 
         PromptManager promptManager = new PromptManager(descriptions);
-        // The delimiter for the MVP prompt will be tentatively be " and ", ex:
-        // "<label1> and <label2> and <label3>"
-        String prompt = promptManager.generatePrompt(" and ");
+        String prompt = promptManager.generatePrompt();
 
         // Tentative backstory generation parameters: a 200 word-long story, with a .7 temperature.
         StoryManager storyManager = storyManagerFactory.newInstance(prompt, 200, .7);

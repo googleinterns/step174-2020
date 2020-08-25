@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.google.sps.story.StoryManagerURLProvider;
 
 /** Servlet that returns a generated story. */
 @WebServlet("/gpt2")
@@ -70,7 +71,7 @@ public final class GPT2Servlet extends HttpServlet {
       if (URLProvider == null) {
         URLProvider = new StoryManagerURLProvider();
       }
-      StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
+      StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
       generatedText = storyManager.generateText();
       URLProvider.cycleURL();
     } catch (Exception exception) {
