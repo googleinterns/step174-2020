@@ -16,13 +16,19 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
-import com.google.sps.story.*;
+import com.google.sps.APINotAvailableException;
+import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
+import com.google.sps.perspective.StoryAnalysisManager;
+import com.google.sps.perspective.data.NoAppropriateStoryException;
+import com.google.sps.perspective.data.PerspectiveAPIClient;
+import com.google.sps.perspective.data.PerspectiveAPIFactory;
+import com.google.sps.perspective.data.PerspectiveAPIFactoryImpl;
+import com.google.sps.perspective.data.PerspectiveDecision;
+import com.google.sps.perspective.data.PerspectiveValues;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,56 +37,69 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** Servlet that returns a generated story. */
-@WebServlet("/gpt2")
-public final class GPT2Servlet extends HttpServlet {
-  
-  public static final int DEFAULT_MAX_STORY_LENGTH = 200;
-  public static final Double DEFAULT_TEMPERATURE = 0.7;
-  private StoryManagerURLProvider URLProvider;
-
-
+/** Servlet that filters text using the Perspective API. */
+@WebServlet("/perspective")
+public final class PerspectiveServlet extends HttpServlet {
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // prepare response to return JSON and set up a GSON object
     response.setContentType("application/json;");
     Gson gson = new Gson();
-    String text = "";
+
     String json = request.getReader().readLine();
 
-    // get the text from the JSON & handle error if it cannot be converted
+    // get the text to be analyzedfrom the JSON & handle error if it cannot be converted
+    String text = null;
+
     try {
       JSONObject jsonObject = new JSONObject(json);
       text = jsonObject.getString("text");
     } catch (JSONException exception) {
+      exception.printStackTrace();
       String errorMessage = "Could not convert text sent to server from JSON.";
-      System.out.println(text);
 
       handleError(response, HttpServletResponse.SC_BAD_REQUEST, errorMessage);
       return;
     }
 
-    // Check that text is valid
+    // check that text is valid (not null or empty)
     if (text == null || text.equals("")) {
       handleError(response, HttpServletResponse.SC_BAD_REQUEST, "Text input was null or empty");
       return;
     }
-    String generatedText;
+
+    // create a PerspectiveStoryAnalysisManager
+    PerspectiveStoryAnalysisManager manager;
     try {
-      if (URLProvider == null) {
-        URLProvider = new StoryManagerURLProvider();
-      }
-      StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
-      generatedText = storyManager.generateText();
-      URLProvider.cycleURL();
-    } catch (Exception exception) {
-      System.out.println(exception);
-      // Displays if internal server error.
-      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Server Error");
+      manager = new PerspectiveStoryAnalysisManager();
+    } catch (APINotAvailableException exception) {
+      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, exception.toString());
       return;
     }
 
-    // Return Generated Text as JSON
-    response.getWriter().println(generatedText);
+    // generate a PerspectiveDecision with that manager
+    PerspectiveDecision perspectiveDecision;
+
+    try {
+      perspectiveDecision = manager.generatePerspectiveDecision(text);
+    } catch (NullPointerException exception) {
+      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
+        "Perspective was unable to analyze your sample text. This occurs sometimes with text in other languages, " 
+        + "\"fake\" text (e.g. lorem ipsum dolor) and other text that doesn't fall within the English language."
+        + " Some non-proper English text (e.g. haha) is still capable of being analyzed.");
+      return;
+    }
+
+    Boolean isAppropriateStory = perspectiveDecision.hasAppropriateStory();
+    PerspectiveValues values = perspectiveDecision.getValues();
+
+    // objects to write back on the respones
+    Map<String, Object> responseBody = new HashMap<String, Object>();
+    responseBody.put("isAppropriate", isAppropriateStory);
+    responseBody.put("attributeTypesToScores", values.getAttributeTypesToScores());
+
+    // pass the decision and values from PerspectiveAPI to demo as JSON
+    response.getWriter().println(gson.toJson(responseBody));
   }
 
   /**
