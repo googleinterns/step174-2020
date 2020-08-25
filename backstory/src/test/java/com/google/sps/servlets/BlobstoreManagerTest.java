@@ -48,7 +48,6 @@ public final class BlobstoreManagerTest {
   private final String formInputElementName = "image-upload";
   private final String mockBlobKeyString = "mockBlobKeyString";
 
-
   /**
    * Tests the getUploadedFileBlobKeyString method of BlobstoreManager
    */

@@ -1,0 +1,7 @@
+indexes:
+
+- kind: analyzed-image
+  properties:
+  - name: userEmail
+  - name: timestamp
+    direction: desc

@@ -15,6 +15,7 @@
 package com.google.sps.servlets.data;
 
 import com.google.sps.perspective.StoryAnalysisManager;
+import com.google.sps.perspective.data.APINotAvailableException;
 
 /**
  * Factory pattern for StoryAnalysisManager.
@@ -24,6 +25,7 @@ public interface StoryAnalysisManagerFactory {
    * Create a new instance of StoryAnalysisManager.
    *
    * @return an instance of StoryAnalysisManager.
+   * @throws APINotAvailableException if there is an error in accessing the StoryAnalysis API.
    */
-  public StoryAnalysisManager newInstance();
+  public StoryAnalysisManager newInstance() throws APINotAvailableException;
 }
