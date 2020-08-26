@@ -25,24 +25,14 @@ import java.util.Map;
  * Facilitates API calls through a single object.
  */
 public class PromptManagerAPIsClient {
-  /** Client object for word classification */
-  private NLServiceClient wordClassifier;
   /** Client object for word fetching */
   private DatamuseRequestClient wordFetcher;
 
   /**
-   * Initialize API objects.
-   *
-   * @throws IOException Exception for network problem.
+   * Initialize Datamuse API object.
    */
   public PromptManagerAPIsClient() throws IOException {
-    try {
-      // Instantiate API objects
-      wordClassifier = new NLServiceClient();
-      wordFetcher = new DatamuseRequestClient();
-    } catch (IOException ioException) {
-      throw ioException;
-    }
+    wordFetcher = new DatamuseRequestClient();
   }
 
   /**
@@ -50,8 +40,14 @@ public class PromptManagerAPIsClient {
    *
    * @param words A list of Strings containing keywords for prompts.
    * @return A mapping of WordTypes to given words.
+   * @throws IOException Exception for network problem.
    */
-  public Map<WordType, List<String>> groupByWordType(List<String> words) {
+  public Map<WordType, List<String>> groupByWordType(List<String> words) throws IOException {
+    NLServiceClient wordClassifier = new NLServiceClient();
+
+    Map<WordType, List<String>> groupings = wordClassifier.groupByWordType(words);
+    wordClassifier.close();
+
     return wordClassifier.groupByWordType(words);
   }
 

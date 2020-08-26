@@ -74,6 +74,8 @@ public class NLServiceClient {
    *    word type as a key
    */
   public Map<WordType, List<String>> groupByWordType(List<String> words) {
+    
+
     Map<WordType, List<String>> map = new HashMap<WordType, List<String>>();
 
     List<String> singleWords = new ArrayList<String>();
@@ -162,7 +164,11 @@ public class NLServiceClient {
     return map;
   }
 
-  public void closeClient() {
+  /**
+   * Close out the NLServiceClient by clsoing out
+   * the LanguageServiceClient.
+   */
+  public void close() {
     client.close();
   }
 
