@@ -13,7 +13,11 @@
 // limitations under the License.
 package com.google.sps.story;
 
+import com.google.sps.story.data.*;
+import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -21,38 +25,65 @@ import java.util.Scanner;
  * Creates prompt string for text generation using input keyword strings.
  */
 public final class PromptManager {
-  private List<String> keywords;
+  /** Keywords for generation */
+  private final List<String> keywords;
+  /** Word fetching/processing client */
+  private PromptManagerAPIsClient wordAPIsClient;
+  /** Randomness flag. */
+  private boolean isTemplateRandomized = true;
 
   /**
-   * Initialize labels parameter.
+   * Initialize keywords and randomness parameters.
    *
-   * @param labels A list of Strings containing keywords for prompts.
+   * @param keywords A list of Strings containing keywords for prompts.
+   * @throws IllegalArgumentException If input list is null.
    */
-  public PromptManager(List<String> keywords) {
+  public PromptManager(List<String> keywords) throws IllegalArgumentException {
+    // Check for null input.
+    if (keywords == null) {
+      throw new IllegalArgumentException("Input list cannot be null.");
+    }
     this.keywords = keywords;
   }
 
   /**
-   * Generates prompt using labels.
+   * Sets wordTools for word processing API calls.
    *
-   * @param delimiter String for delimiter between appended strings.
+   * @param wordTools PromptManagerWordTools instance.
+   */
+  public void setAPIsClient(PromptManagerAPIsClient wordAPIsClient) {
+    this.wordAPIsClient = wordAPIsClient;
+  }
+
+  /**
+   * Sets use of randomness in prompt template selection.
+   * If false, the first template for each input configuration is chosen.
+   * @param boolean Whether or not to randomly choose output templates.
+   */
+  public void isTemplateRandomized(boolean isTemplateRandomized) {
+    this.isTemplateRandomized = isTemplateRandomized;
+  }
+
+  /**
+   * Generates prompt using keywords given.
+   *
    * @return A String containing the output prompt.
    */
-  public String generatePrompt(String delimiter) {
-    String prompt = "";
+  public String generatePrompt() {
+    // Prepare story-like prefix.
+    String prompt = "Once upon a time, ";
 
-    // Check if valid.
-    if (keywords.size() == 0) {
-      return "";
+    // Initialize bodyFactory to process template construction
+    PromptManagerBodyGenerator bodyGenerator;
+    if (wordAPIsClient == null) {
+      bodyGenerator = new PromptManagerBodyGenerator(keywords, isTemplateRandomized);
+    } else {
+      bodyGenerator =
+          new PromptManagerBodyGenerator(keywords, isTemplateRandomized, wordAPIsClient);
     }
 
-    // Append strings.
-    for (int keywordIndex = 0; keywordIndex < keywords.size() - 1; keywordIndex++) {
-      prompt = prompt + keywords.get(keywordIndex) + delimiter;
-    }
-    prompt += keywords.get(keywords.size() - 1);
-    prompt += ".";
-
+    // Append generated prompt body.
+    prompt += bodyGenerator.generateBody();
     return prompt;
   }
 }
