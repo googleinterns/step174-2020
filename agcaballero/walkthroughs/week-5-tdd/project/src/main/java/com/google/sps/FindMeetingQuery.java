@@ -27,27 +27,6 @@ import java.util.Map;
  */
 public final class FindMeetingQuery {
 
-  /** An enum to represent the different options for availability at every meeting time */
-  private enum Availability { 
-    ALL_AVAILABLE,
-    MANDATORY_AVAILABLE,
-    UNAVAILABLE;
-  
-    boolean isReplaceableBy(Availability availability) {
-      switch (this) {
-        case ALL_AVAILABLE:
-          return true;
-        case UNAVAILABLE:
-          return false;
-        case MANDATORY_AVAILABLE:
-          return availability == ALL_AVAILABLE;
-        default:
-          throw new IllegalStateException("This statement should not be reachable." +
-              "This switch should have conditions for all possible values of enum.");
-      }
-    }
-  }
-   
   /** the number of minutes in a day */
   private static final int MINUTES_IN_DAY = 24 * 60;
 
@@ -75,7 +54,7 @@ public final class FindMeetingQuery {
      * If any one (or multiple) of the mandatory attendees can't make it, 
      * sets the mandatory availability of this time to false.
      */
-    public void mandatoryAttendeeUnavailable() {
+    public void setMandatoryAttendeesUnavailable() {
       areMandatoryAttendeesAllAvailable = false;
     }
 
@@ -138,7 +117,7 @@ public final class FindMeetingQuery {
     // increase overlap by the number of times a given element occurred
     // in both collections
     for (String key: leftMap.keySet()) {
-      if(rightMap.containsKey(key)) {
+      if (rightMap.containsKey(key)) {
         overlap += Math.min(leftMap.get(key), rightMap.get(key));
       }
     }
@@ -158,7 +137,7 @@ public final class FindMeetingQuery {
     Map<String, Integer> map = new HashMap<String, Integer>();
 
     for (String string: strings) {
-      if(map.containsKey(string)) {
+      if (map.containsKey(string)) {
         map.put(string, map.get(string) + 1);
       } else {
         map.put(string, 1);
@@ -197,7 +176,7 @@ public final class FindMeetingQuery {
       int mandatoryOverlap = amountOfOverlap(event.getAttendees(), attendees);
 
       if (mandatoryOverlap > 0) {
-        availabilityDuringEvent.mandatoryAttendeeUnavailable();
+        availabilityDuringEvent.setMandatoryAttendeesUnavailable();
       }
 
       int optionalOverlap = amountOfOverlap(event.getAttendees(), optionalAttendees);
@@ -211,7 +190,7 @@ public final class FindMeetingQuery {
         for (int i = range.start(); i < range.end(); i++) {
           // update the mandatory attendee availability of this minute
           if (!availabilityDuringEvent.areMandatoryAttendeesAllAvailable) {
-            minuteAvailability[i].mandatoryAttendeeUnavailable();
+            minuteAvailability[i].setMandatoryAttendeesUnavailable();
           }
           
           // update the optional availability of this minute
@@ -240,6 +219,9 @@ public final class FindMeetingQuery {
   private Collection<TimeRange> findTimesBasedOnOptionalAttendeeAvailability(MeetingRequest request, 
     Availability[] minuteAvailability, int maxOptionalAttendeesUnavailable) {
 
+    // cache the request duration
+    long requestDuration = request.getDuration();
+
     ArrayList<TimeRange> availableTimes = new ArrayList<TimeRange>();
     int start = 0;
     boolean wasLastMinuteAvailable = minuteAvailability[0].areMandatoryAttendeesAllAvailable 
@@ -260,19 +242,17 @@ public final class FindMeetingQuery {
           int end = i;
           int duration = end - start;
 
-          if (duration >= request.getDuration()) {
+          if (duration >= requestDuration) {
             availableTimes.add(TimeRange.fromStartEnd(start, end - 1, true)); // add time range (inclusive of start & end) 
           }
         
           wasLastMinuteAvailable = false;
         }      
-      } else {
+      } else if (currentMinuteAvailable) {
         // If the last minute was unavailable, but this minute is available, then this is the beginning
         // of a new available time range, so start will be set to this minute and wasLastMinuteAvailable to true.
-        if (currentMinuteAvailable) {
-          start = i;
-          wasLastMinuteAvailable = true;
-        }
+        start = i;
+        wasLastMinuteAvailable = true;
       }
     }
 
