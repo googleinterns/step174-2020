@@ -162,6 +162,10 @@ public class NLServiceClient {
     return map;
   }
 
+  public void closeClient() {
+    client.close();
+  }
+
   /**
    * Build and return a document from the given test.
    *
