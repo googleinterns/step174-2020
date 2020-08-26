@@ -18,7 +18,6 @@
  * validate vision demo image upload, display correct file upload
  */
 
-import { fetchBlobstoreUrl } from './features/fetch-blobstore-url.js';
 import { validateImageUpload } from './features/image-validation.js';
 import { updateFileName } from './features/update-file-name.js';
 
@@ -38,29 +37,81 @@ function fetchBlobstoreUrlForDemo() {
   fetchBlobstoreUrl('image-upload-form');
 }
 
-// RETRIEVE/FORMAT IMAGES & LABELS
+function fetchBlobstoreUrl(formName) {
+  fetch('/demo-blobstore-upload-url')
+      .then((response) => {
+        return response.text();
+      })
+      .then((imageUploadUrl) => {
+        const imageUploadForm = document.getElementById(formName);
+        imageUploadForm.action = imageUploadUrl;
+      });
+}
 
-/** 
- * Adds the analyzed images to the image-list unordered list element 
+// RETRIEVE/FORMAT IMAGES & LABELS
+// RETRIEVE ANALYZED IMAGES
+
+/**
+ * This function interfaces with the back-end to get the user's photo upload
+ * along, with the relevant backstory, from permanent storage. No analysis or
+ * computation is done from this interface with the backend.
  */
 function getAnalyzedImagesForDemo() {
-  fetch('/analyzed-images')
+  fetch('/analyzed-demo-labels')
       .then((response) => response.json())
-      .then((analyzedImagesObject) => {
-        const imageListElement = document.getElementById('image-list');
-        imageListElement.innerHTML = '';
+      .then((backstoryObject) => {
+        if (backstoryObject.length !== 0) {
+          // Only support returning a single backstory at the moment
+          const backstory = backstoryObject;
 
-        for (let i = 0; i < analyzedImagesObject.length; i++) {
-          const imageUrl = analyzedImagesObject[i].imageUrl;
-          const labelsJsonArray = analyzedImagesObject[i].labelsJsonArray;
+          fetch('/analyzed-demo-image')
+              .then((response) => response.blob())
+              .then((blob) => {
+                const storyDisplayElement =
+                    document.getElementById('image-list');
+                storyDisplayElement.innerHTML = '';
+                const urlCreator = window.URL;
+                const imageUrl = urlCreator.createObjectURL(blob);
 
-          // parse the labels json and pass it into the formatting array
-          const labelsObj = JSON.parse(labelsJsonArray);
-          const labels = labelsObj.labels;
-
-          imageListElement.appendChild(createRow(imageUrl, labels));
+                if (storyDisplayElement.childNodes.length === 1) {
+                  storyDisplayElement.replaceChild(
+                      createBackstoryElement(imageUrl, backstory),
+                      storyDisplayElement.childNodes[0]);
+                } else {
+                  storyDisplayElement.appendChild(
+                      createBackstoryElement(imageUrl, backstory));
+                }
+              });
         }
       });
+}
+
+/**
+ * Helper function to format the image and backstory combination into one
+ * element. This element and it's components have classes added to them for
+ * front-end purposes - the classes can be found in the project style.css file.
+ *
+ * @param {string} imageUrl the url created to display the user-uploaded image.
+ * @param {string} backstory the backstory text
+ * @return {element} the HTML DOM element consisting of the uploaded image and
+ *     the backstory text.
+ */
+function createBackstoryElement(imageUrl, backstory) {
+  const imageElement = document.createElement('img');
+  imageElement.src = imageUrl;
+
+  const backstoryParagraphDiv = document.createElement('div');
+  const backstoryParagraph = document.createElement('p');
+  const backstoryText = document.createTextNode(backstory);
+  backstoryParagraph.appendChild(backstoryText);
+  backstoryParagraphDiv.appendChild(backstoryParagraph);
+  backstoryParagraphDiv.classList.add('backstory-paragraph');
+
+  const backstoryElement = document.createElement('div');
+  backstoryElement.classList.add('backstory-element');
+  backstoryElement.appendChild(imageElement);
+  backstoryElement.appendChild(backstoryParagraphDiv);
+  return backstoryElement;
 }
 
 /**

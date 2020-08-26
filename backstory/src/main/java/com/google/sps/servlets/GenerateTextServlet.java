@@ -14,7 +14,6 @@
 
 package com.google.sps.servlets;
 
-import com.google.gson.Gson;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -55,13 +54,41 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.sps.story.StoryManagerURLProvider;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.datastore.Text;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.IOException;
+import java.lang.NullPointerException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+// import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+// import com.google.appengine.api.urlfetch.URLFetchService;
 
 /**
  * Backend servlet which manages the analysis of images, creation of stories, filtrations of stories, and uploading
  * the analyzed images along with its story to permanent storage.
  */
-@WebServlet("/analyze-demo-image")
-public class AnalyzeDemoImageServlet extends HttpServlet {
+@WebServlet("/generate-text")
+public class GenerateTextServlet extends HttpServlet {
   /** Creates the UserService instance, which includes authentication functionality. */
   private BackstoryUserServiceFactory backstoryUserServiceFactory;
   /** Creates the BlobstoreManager instance, which manages Backstory's BLOB (binary large object) upload functionality. */
@@ -84,6 +111,7 @@ public class AnalyzeDemoImageServlet extends HttpServlet {
   private final int MAX_GENERATION_ATTEMPS = 3;
   /** */
   private StoryManagerURLProvider storyManagerURLProvider;
+  // private URLFetchService urlFetchService;
 
   /**
    * Constructor which sets the manager factories to return their online implementations
@@ -93,7 +121,7 @@ public class AnalyzeDemoImageServlet extends HttpServlet {
    * @throws IOException if an error occurs when reading the uploaded BLOB.
    * @throws APINotAvailableException if an error occurs when connecting to the story analysis API.
    */
-  public AnalyzeDemoImageServlet() throws IOException, APINotAvailableException {
+  public GenerateTextServlet() throws IOException, APINotAvailableException {
     backstoryUserServiceFactory = () -> {
       return UserServiceFactory.getUserService();
     };
@@ -116,6 +144,8 @@ public class AnalyzeDemoImageServlet extends HttpServlet {
       return new Entity(entityName);
     };
     storyManagerURLProvider = new StoryManagerURLProvider();
+    // urlFetchService = URLFetchService.getURLFetchService();
+    // urlFetchService.DEFAULT_DEADLINE_PROPERTY = 120;
   }
 
   /**
@@ -189,24 +219,13 @@ public class AnalyzeDemoImageServlet extends HttpServlet {
   }
 
   /**
-   * {@inheritDoc}
    *
-   * Expecting a post request from Blobstore containing the data fields from the image-upload
-   * form. The form in the HTML will connect to the Blobstore URL, which encodes the image and then
-   * redirects the request to this Url. After having gone through Blobstore, the request will
-   * include the image uploaded, available as a blob.
-   *
-   * If the current user is logged out, they will automatically be logged in before they upload the
-   * image. The image is analyzed with the ImagesAnalysisManager, the result of which is fed into
-   * the PromptManager to create a prompt which is then used to generate the raw Backstory through
-   * the StoryManager. The raw Backstory then is checked by the StoryAnalysisManager for toxicity
-   * and, if it passes, is sent to permanent storage, along with the uploaded image's blob key.
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Check to see if the user is currently logged in
     UserService userService = backstoryUserServiceFactory.newInstance();
     if (!userService.isUserLoggedIn()) {
-      String urlToRedirectToAfterUserLogsIn = "/analyze-demo-image";
+      String urlToRedirectToAfterUserLogsIn = "/generate-text";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
       response.sendRedirect(loginUrl);
       return;
@@ -215,50 +234,74 @@ public class AnalyzeDemoImageServlet extends HttpServlet {
     // Get user identification to store alongside their backstory and image
     String userEmail = userService.getCurrentUser().getEmail();
 
-    // The blobKeyString of the image will be used to serve the image back to the front-end.
-    BlobstoreManager blobstoreManager = blobstoreManagerFactory.newInstance();
-    final String blobKeyString =
-        blobstoreManager.getUploadedFileBlobKeyString(request, "image-upload");
-    // The raw byte array representing the image will be used for image analytics.
-    final byte[] bytes = blobstoreManager.getBlobBytes(request, "image-upload");
-    // Validate that an image was actually uploaded.
-    if (bytes == null || blobKeyString == null) {
-      // Redirect back to the HTML page.
-      response.sendError(400, "Please upload a valid image.");
+    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+
+    // Query to find all analyzed image entities. We will filter to only return the current
+    // user's backstories.
+    Filter userBackstoriesFilter =
+        new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
+    Query query = new Query("analyzed-backstory-image")
+                      .setFilter(userBackstoriesFilter)
+                      .addSort("timestamp", SortDirection.DESCENDING);
+    // Will limit the Query (which is sorted from newest to oldest) to only return the first
+    // result, Thus displaying the most recent story uploaded.
+    int backstoryFetchLimit = 1;
+
+    DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
+    PreparedQuery results = datastoreService.prepare(query);
+
+    String prompt = "";
+    for (Entity entity :
+        results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
+      prompt = (String) entity.getProperty("prompt");
+    }
+
+    System.out.println("IN THE GENERATE TEXT");
+    System.out.println(prompt);
+
+    StoryManager storyManager = storyManagerFactory.newInstance(prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManagerURLProvider);
+    // The loop is necessary because of a memory leak in the GPT2 container which causes generation to fail.
+    // TODO: Fix the memory leak within the GPT2 container itself.
+    String rawBackstory = "";
+    int textGenerationAttemps = 0;
+    while (textGenerationAttemps < MAX_GENERATION_ATTEMPS) {
+      try {
+        storyManagerURLProvider.cycleURL();
+        rawBackstory = storyManager.generateText();
+      } catch (RuntimeException exception) {
+        System.err.println(exception);
+      }
+      textGenerationAttemps++;
+    }
+    if (rawBackstory == "") {
+      response.sendError(400,
+          "Sorry! There was an error in your backstory generation. Please try again!");
       return;
     }
 
-    // Generate a list of AnnotatedImages, with each annotatedImage consisting of an image with
-    // labels.
-    ImagesManager imagesManager = imagesManagerFactory.newInstance();
-    List<byte[]> imagesAsByteArrays = Arrays.asList(bytes);
-    List<AnnotatedImage> annotatedImages =
-        imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
-    // Validate that annotatedImages only includes one image since, currently, Backstory 
-    //only supports single image uploads.
-    if (annotatedImages.size() != 1) {
-      // Redirect back to the HTML page.
-      response.sendError(400, "Please upload exactly one image.");
-      return;
+    String backstory = "";
+    try {
+      StoryAnalysisManager storyAnalysisManager = storyAnalysisManagerFactory.newInstance();
+      StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
+      backstory = storyDecision.getStory();
+    } catch (NoAppropriateStoryException | APINotAvailableException exception) {
+      response.sendError(400,
+          "Sorry! No appropriate Backstory was found for your image. Please try again with another image.");
     }
-    AnnotatedImage annotatedImage = annotatedImages.get(0);
-    Gson gson = new Gson();
-    String descriptions = gson.toJson(annotatedImage.getLabelDescriptions());
+
+    // Adds an ending to a story which passes the filtration check.
+    Text finalBackstory = new Text(StoryEndingTools.endStory(backstory));
 
     // Get metadata about the backstory
     final long timestamp = System.currentTimeMillis();
 
     // Add the input to datastore
-    Entity analyzedImageEntity = entityFactory.newInstance("analyzed-demo-image");
+    Entity analyzedImageEntity = entityFactory.newInstance("analyzed-backstory");
     analyzedImageEntity.setProperty("userEmail", userEmail);
-    analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
-    analyzedImageEntity.setProperty("descriptions", descriptions);
+    analyzedImageEntity.setProperty("backstory", finalBackstory);
     analyzedImageEntity.setProperty("timestamp", timestamp);
-
-    DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
     datastoreService.put(analyzedImageEntity);
 
-    // Redirect back to the HTML page.
-    response.sendRedirect("/vision-demo.html");
+    System.out.println("TEXT GENERATED AND ADDED");
   }
 }

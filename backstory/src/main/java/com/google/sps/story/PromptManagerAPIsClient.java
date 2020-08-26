@@ -36,13 +36,7 @@ public class PromptManagerAPIsClient {
    * @throws IOException Exception for network problem.
    */
   public PromptManagerAPIsClient() throws IOException {
-    try {
-      // Instantiate API objects
-      wordClassifier = new NLServiceClient();
-      wordFetcher = new DatamuseRequestClient();
-    } catch (IOException ioException) {
-      throw ioException;
-    }
+    wordFetcher = new DatamuseRequestClient();
   }
 
   /**
@@ -51,8 +45,11 @@ public class PromptManagerAPIsClient {
    * @param words A list of Strings containing keywords for prompts.
    * @return A mapping of WordTypes to given words.
    */
-  public Map<WordType, List<String>> groupByWordType(List<String> words) {
-    return wordClassifier.groupByWordType(words);
+  public Map<WordType, List<String>> groupByWordType(List<String> words) throws IOException {
+    wordClassifier = new NLServiceClient();
+    Map<WordType, List<String>> wordsGrouped = wordClassifier.groupByWordType(words);
+    wordClassifier.closeClient();
+    return wordsGrouped;
   }
 
   /**

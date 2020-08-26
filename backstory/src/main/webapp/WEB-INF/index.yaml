@@ -5,3 +5,21 @@ indexes:
   - name: userEmail
   - name: timestamp
     direction: desc
+
+- kind: analyzed-demo-image
+  properties:
+  - name: userEmail
+  - name: timestamp
+    direction: desc
+
+- kind: analyzed-backstory
+  properties:
+  - name: userEmail
+  - name: timestamp
+    direction: desc
+
+- kind: analyzed-backstory-image
+  properties:
+  - name: userEmail
+  - name: timestamp
+    direction: desc

@@ -216,4 +216,8 @@ public class NLServiceClient {
 
     return token.getPartOfSpeech().getTag() == Tag.VERB;
   }
+
+  public void closeClient() {
+    client.close();
+  }
 }

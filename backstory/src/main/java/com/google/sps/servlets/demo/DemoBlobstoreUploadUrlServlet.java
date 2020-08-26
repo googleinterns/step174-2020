@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.servlets;
+package com.google.sps.servlets.demo;
 
 import com.google.appengine.api.blobstore.BlobstoreService;
 import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
@@ -38,7 +38,7 @@ import javax.servlet.http.HttpServletResponse;
  * to serve that image back to the front-end.
  */
 @WebServlet("/demo-blobstore-upload-url")
-public class BlobstoreUploadUrlServlet extends HttpServlet {
+public class DemoBlobstoreUploadUrlServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();

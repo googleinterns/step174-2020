@@ -86,6 +86,7 @@ public final class VisionImagesManager implements ImagesManager {
 
     // The invocation of batchAnnotateImages() makes a network call.
     BatchAnnotateImagesResponse response = imageAnnotatorClient.batchAnnotateImages(requests);
+    imageAnnotatorClient.close();
     List<AnnotateImageResponse> responses = response.getResponsesList();
 
     // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
