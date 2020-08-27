@@ -27,6 +27,8 @@ import java.util.Scanner;
 public final class PromptManager {
   /** Keywords for generation */
   private final List<String> keywords;
+  /** Locations for generation */
+  private final List<String> locations;
   /** Word fetching/processing client */
   private PromptManagerAPIsClient wordAPIsClient;
   /** Randomness flag. */
@@ -36,14 +38,17 @@ public final class PromptManager {
    * Initialize keywords and randomness parameters.
    *
    * @param keywords A list of Strings containing keywords for prompts.
+   * @param locations A list of Strings containing potential locations for prompts.
    * @throws IllegalArgumentException If input list is null.
    */
-  public PromptManager(List<String> keywords) throws IllegalArgumentException {
+  public PromptManager(List<String> keywords, List<String> locations) throws IllegalArgumentException {
     // Check for null input.
-    if (keywords == null) {
-      throw new IllegalArgumentException("Input list cannot be null.");
+    if (keywords == null || locations == null) {
+      throw new IllegalArgumentException("Input lists cannot be null.");
     }
+
     this.keywords = keywords;
+    this.locations = locations;
   }
 
   /**
@@ -71,7 +76,7 @@ public final class PromptManager {
    */
   public String generatePrompt() {
     // Prepare story-like prefix.
-    String prompt = "Once upon a time, ";
+    String prompt = "Once upon a time" + getFormattedLocation() + ", ";
 
     // Initialize bodyFactory to process template construction
     PromptManagerBodyGenerator bodyGenerator;
@@ -85,5 +90,32 @@ public final class PromptManager {
     // Append generated prompt body.
     prompt += bodyGenerator.generateBody();
     return prompt;
+  }
+
+  /**
+   * Returns the first location from the locations list
+   * formatted properly.
+   *
+   * @return an empty String, if no locations, and a properly formatted
+   * location if the list isn't empty
+   */
+  private String getFormattedLocation() {
+    if (locations.size() == 0) {
+      return "";
+    }
+
+    String location = locations.get(0);
+    String prefix = "the ";
+    int prefixLength = prefix.length();
+
+    // if the location starts with "the", return " at " + location,
+    // (& change the t in The to lowercase if it's uppercase)
+    // else return " near " + location
+    if (location.length() > prefixLength 
+        && location.substring(0, prefixLength).toLowerCase().equals(prefix)) {
+      return " at " + prefix + location.substring(prefixLength);
+    } else {
+      return " near " + location;
+    }
   }
 }
