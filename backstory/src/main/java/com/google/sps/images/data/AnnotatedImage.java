@@ -50,7 +50,7 @@ public final class AnnotatedImage {
   /** labels describing the picture */
   private final List<EntityAnnotation> labelAnnotations;
   /** the possible locations for this picture */
-  private final List<EntityAnnotation> landmarkAnnotations; 
+  private final List<EntityAnnotation> landmarkAnnotations;
 
   /**
    * Instantiates the AnnotatedImage object parameterized with a byte array of raw image data and
@@ -61,10 +61,10 @@ public final class AnnotatedImage {
    * @param labelAnnotations the preset labels to annotate the image with. Must be non-null.
    * @param landmarkAnnotations the locations of this photo. Must be non-null.
    */
-  public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations, 
-    List<EntityAnnotation> landmarkAnnotations)
-      throws IllegalArgumentException {
-    if (rawImageData == null || labelAnnotations == null || landmarkAnnotations == null | rawImageData.length == 0) {
+  public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations,
+      List<EntityAnnotation> landmarkAnnotations) throws IllegalArgumentException {
+    if (rawImageData == null || labelAnnotations == null
+        || landmarkAnnotations == null | rawImageData.length == 0) {
       throw new IllegalArgumentException(
           "Raw image data must be non-null and non-empty, label annotation data must be non-null");
     }
@@ -118,8 +118,8 @@ public final class AnnotatedImage {
     return descriptions;
   }
 
-  /** 
-   * Return the bytes representing the image 
+  /**
+   * Return the bytes representing the image
    *
    * @return byte representation of image held in this class
    */
@@ -127,17 +127,17 @@ public final class AnnotatedImage {
     return Arrays.copyOf(rawImageData, rawImageData.length);
   }
 
-  /** 
-   * Return the labels annotated to the image 
+  /**
+   * Return the labels annotated to the image
    *
    * @return the labels annotations for this image
    */
   public List<EntityAnnotation> getLabelAnnotations() {
     return Collections.unmodifiableList(labelAnnotations);
   }
-  
-  /** 
-   * Return the landmarks annotated to the image 
+
+  /**
+   * Return the landmarks annotated to the image
    *
    * @return landmarks annotated to this class
    */

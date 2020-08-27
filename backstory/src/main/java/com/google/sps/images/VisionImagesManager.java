@@ -55,8 +55,8 @@ public final class VisionImagesManager implements ImagesManager {
   }
 
   @Override
-  public List<AnnotatedImage> createAnnotatedImagesFromImagesAsByteArrays(List<byte[]> imagesAsByteArrays)
-    throws IOException {
+  public List<AnnotatedImage> createAnnotatedImagesFromImagesAsByteArrays(
+      List<byte[]> imagesAsByteArrays) throws IOException {
     List<AnnotateImageRequest> requests = new ArrayList<AnnotateImageRequest>();
 
     // add the features we want (labels & landmarks to list)
@@ -71,10 +71,11 @@ public final class VisionImagesManager implements ImagesManager {
     // iterate through the images to build the request
     int size = imagesAsByteArrays.size();
 
-    for (int i = 0; i < size; i++){
-      Image image = Image.newBuilder().setContent(ByteString.copyFrom(imagesAsByteArrays.get(i))).build();
+    for (int i = 0; i < size; i++) {
+      Image image =
+          Image.newBuilder().setContent(ByteString.copyFrom(imagesAsByteArrays.get(i))).build();
       AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addAllFeatures(features).setImage(image).build();
+          AnnotateImageRequest.newBuilder().addAllFeatures(features).setImage(image).build();
       requests.add(request);
     }
 
@@ -86,8 +87,7 @@ public final class VisionImagesManager implements ImagesManager {
 
     // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
     if (!(responses.size() == size)) {
-      throw new RuntimeException(
-          "The number of responses is not equal to the number of requests.");
+      throw new RuntimeException("The number of responses is not equal to the number of requests.");
     }
 
     List<AnnotatedImage> annotatedImages = new ArrayList<AnnotatedImage>();
