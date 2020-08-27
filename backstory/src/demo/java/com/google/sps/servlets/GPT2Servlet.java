@@ -69,12 +69,12 @@ public final class GPT2Servlet extends HttpServlet {
     }
     String generatedText;
     try {
-      
+      StoryManager storyManager;      
       synchronized (URLProviderLock) {
         if (URLProvider == null) {
           URLProvider = new StoryManagerURLProvider();
         }
-        StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
+        storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
         
       }
       generatedText = storyManager.generateText();
