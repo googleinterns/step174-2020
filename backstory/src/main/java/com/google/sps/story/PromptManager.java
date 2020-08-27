@@ -41,7 +41,8 @@ public final class PromptManager {
    * @param locations A list of Strings containing potential locations for prompts.
    * @throws IllegalArgumentException If input list is null.
    */
-  public PromptManager(List<String> keywords, List<String> locations) throws IllegalArgumentException {
+  public PromptManager(List<String> keywords, List<String> locations)
+      throws IllegalArgumentException {
     // Check for null input.
     if (keywords == null || locations == null) {
       throw new IllegalArgumentException("Input lists cannot be null.");
@@ -111,7 +112,7 @@ public final class PromptManager {
     // if the location starts with "the", return " at " + location,
     // (& change the t in The to lowercase if it's uppercase)
     // else return " near " + location
-    if (location.length() > prefixLength 
+    if (location.length() > prefixLength
         && location.substring(0, prefixLength).toLowerCase().equals(prefix)) {
       return " at " + prefix + location.substring(prefixLength);
     } else {
