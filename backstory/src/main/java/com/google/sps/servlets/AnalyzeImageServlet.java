@@ -211,6 +211,7 @@ public class AnalyzeImageServlet extends HttpServlet {
         List<String> locations = annotatedImage.getLandmarkDescriptions();
 
         PromptManager promptManager = new PromptManager(descriptions, locations);
+        String prompt = promptManager.generatePrompt();
 
         // Tentative backstory generation parameters: a 200 word-long story, with a .7 temperature.
         StoryManager storyManager = storyManagerFactory.newInstance(prompt, 200, .7);
