@@ -264,19 +264,53 @@ public class AnalyzeImageServlet extends HttpServlet {
     //   }
     // }
 
-    System.out.println(prompt);
-    System.out.println("Queueing");
-    Queue queue = QueueFactory.getDefaultQueue();
-    queue.add(TaskOptions.Builder.withUrl("/generate-text").param("prompt", prompt));
-    System.out.println("Queued");
+    // System.out.println(prompt);
+    // System.out.println("Queueing");
+    // Queue queue = QueueFactory.getDefaultQueue();
+    // queue.add(TaskOptions.Builder.withUrl("/generate-text").param("prompt", prompt));
+    // System.out.println("Queued");
+
+    StoryManager storyManager = storyManagerFactory.newInstance(prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManagerURLProvider);
+    // The loop is necessary because of a memory leak in the GPT2 container which causes generation to fail.
+    // TODO: Fix the memory leak within the GPT2 container itself.
+    String rawBackstory = "";
+    int textGenerationAttemps = 0;
+    while (textGenerationAttemps < MAX_GENERATION_ATTEMPS) {
+      try {
+        // storyManagerURLProvider.cycleURL();
+        rawBackstory = storyManager.generateText();
+      } catch (RuntimeException exception) {
+        System.err.println(exception);
+      }
+      textGenerationAttemps++;
+    }
+    if (rawBackstory == "") {
+      response.sendError(400,
+          "Sorry! There was an error in your backstory generation. Please try again!");
+      return;
+    }
+
+    String backstory = "";
+    try {
+      StoryAnalysisManager storyAnalysisManager = storyAnalysisManagerFactory.newInstance();
+      StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
+      backstory = storyDecision.getStory();
+    } catch (NoAppropriateStoryException | APINotAvailableException exception) {
+      response.sendError(400,
+          "Sorry! No appropriate Backstory was found for your image. Please try again with another image.");
+    }
+
+    // Adds an ending to a story which passes the filtration check.
+    Text finalBackstory = new Text(StoryEndingTools.endStory(backstory));
 
     // Get metadata about the backstory
     final long timestamp = System.currentTimeMillis();
 
     // Add the input to datastore
-    Entity analyzedImageEntity = entityFactory.newInstance("analyzed-backstory-image");
+    Entity analyzedImageEntity = entityFactory.newInstance("analyzed-image"); //analyzed-backstory-image
     analyzedImageEntity.setProperty("userEmail", userEmail);
     analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
+    analyzedImageEntity.setProperty("backstory", finalBackstory);
     analyzedImageEntity.setProperty("timestamp", timestamp);
 
     DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
