@@ -103,15 +103,13 @@ public final class VisionImagesManagerTest {
 
     // Create the ImagesManager with the mock image annotator client
     ImagesManager manager = new VisionImagesManager(mockImageAnnotatorClient);
-
-    // Use the ImageAnnotatorClient to check the response given  to it
+    // Call the analysis method
     manager.createAnnotatedImagesFromImagesAsByteArrays(rawImageDataList);
 
-    // Check that the request is as expected
+    // Capture the requests argument
     ArgumentCaptor<List<AnnotateImageRequest>> argument = ArgumentCaptor.forClass(List.class);
     verify(mockImageAnnotatorClient).batchAnnotateImages(argument.capture());
     List<AnnotateImageRequest> requests = argument.getValue();
-    Assert.assertEquals(rawImageDataList.size(), requests.size());
 
     // Check that features we want are requested
     List<Feature> expectedFeatures = new ArrayList<Feature>();
@@ -122,9 +120,10 @@ public final class VisionImagesManagerTest {
     expectedFeatures.add(labelFeature);
     expectedFeatures.add(landmarkFeature);
     
-    for (AnnotateImageRequest request: requests) {
-      Assert.assertEquals(expectedFeatures, request.getFeaturesList());
-    }
+    // Check the request is as expected 
+    Assert.assertEquals(1, requests.size());
+    AnnotateImageRequest request = requests.get(0);
+    Assert.assertEquals(expectedFeatures, request.getFeaturesList());
   }
 
   /** 

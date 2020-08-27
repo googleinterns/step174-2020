@@ -57,8 +57,6 @@ public final class VisionImagesManager implements ImagesManager {
   @Override
   public List<AnnotatedImage> createAnnotatedImagesFromImagesAsByteArrays(
       List<byte[]> imagesAsByteArrays) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<AnnotateImageRequest>();
-
     // add the features we want (labels & landmarks to list)
     List<Feature> features = new ArrayList<Feature>();
 
@@ -68,25 +66,21 @@ public final class VisionImagesManager implements ImagesManager {
     features.add(labelFeature);
     features.add(landmarkFeature);
 
-    // iterate through the images to build the request
-    int size = imagesAsByteArrays.size();
+    // the requests we'll send to Vision API
+    List<AnnotateImageRequest> requests = new ArrayList<AnnotateImageRequest>();
 
-    for (int i = 0; i < size; i++) {
-      Image image =
-          Image.newBuilder().setContent(ByteString.copyFrom(imagesAsByteArrays.get(i))).build();
+    for (byte[] imageBytes : imagesAsByteArrays) {
+      Image image = Image.newBuilder().setContent(ByteString.copyFrom(imageBytes)).build();
       AnnotateImageRequest request =
           AnnotateImageRequest.newBuilder().addAllFeatures(features).setImage(image).build();
       requests.add(request);
     }
 
-    // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
-
     // The invocation of batchAnnotateImages() makes a network call.
     BatchAnnotateImagesResponse batchResponse = imageAnnotatorClient.batchAnnotateImages(requests);
     List<AnnotateImageResponse> responses = batchResponse.getResponsesList();
 
-    // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
-    if (!(responses.size() == size)) {
+    if (!(responses.size() == imagesAsByteArrays.size())) {
       throw new RuntimeException("The number of responses is not equal to the number of requests.");
     }
 

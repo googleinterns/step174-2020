@@ -86,12 +86,12 @@ public final class AnnotatedImageTest {
   }
 
   /**
-   * public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations, List<EntityAnottation landmarkAnnotations);
+   * public AnnotatedImage(byte[] rawImageData, List<EntityAnnotation> labelAnnotations, List<EntityAnnotation landmarkAnnotations);
    *  rawImageData is null.
    *  labelAnnotations is empty.
    *  landmarkAnnotations is empty.
    *  Expects IllegalArgumentException to be thrown.
-  */
+   */
   @Test (expected = IllegalArgumentException.class)
   public void constructorNullImageData() throws IllegalArgumentException {
     new AnnotatedImage(nullRawImageData, emptyLabelAnnotations, emptyLandmarkAnnotations);
@@ -103,7 +103,7 @@ public final class AnnotatedImageTest {
    *  labelAnnotations is null
    *  landmarkAnnotations is empty.
    *  Expects IllegalArgumentException to be thrown.
-  */
+   */
   @Test (expected = IllegalArgumentException.class)
   public void constructorNullLabelAnnotations() throws IllegalArgumentException, IOException {
     byte[] rawImageData = getBytesFromImageReference(
@@ -118,7 +118,7 @@ public final class AnnotatedImageTest {
    *  labelAnnotations is empty.
    *  landmarkAnnotations is null.
    *  Expects IllegalArgumentException to be thrown.
-  */
+   */
   @Test (expected = IllegalArgumentException.class)
   public void constructorNullLandmarkAnnotations() throws IllegalArgumentException, IOException {
     byte[] rawImageData = getBytesFromImageReference(
@@ -132,7 +132,7 @@ public final class AnnotatedImageTest {
    *  rawImageData is non-empty image data.
    *  labelAnnotations is non-empty.
    *  landmarkAnnotations is non-empty.
-  */
+   */
   @Test
   public void constructorRawImageData() throws IllegalArgumentException, IOException {
     List<EntityAnnotation> labelAnnotations = new ArrayList<>();
@@ -140,13 +140,8 @@ public final class AnnotatedImageTest {
     List<EntityAnnotation> landmarkAnnotations = new ArrayList<EntityAnnotation>();
     landmarkAnnotations.add(makeMockEntityAnnotationWithDescription("Description"));
 
-    byte[] rawImageData;
-    try {
-      rawImageData = getBytesFromImageReference(
-        "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
-    } catch (IOException exception) {
-      throw exception;
-    }
+    byte[] rawImageData = getBytesFromImageReference(
+      "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
 
     AnnotatedImage actualAnnotatedImage = new AnnotatedImage(rawImageData, labelAnnotations, landmarkAnnotations);
     assertTrue(Arrays.equals(rawImageData, actualAnnotatedImage.getRawImageData()));
@@ -157,16 +152,12 @@ public final class AnnotatedImageTest {
   /**
    * public List<String> getLabelDescriptions();
    *  labelAnnotations is empty.
-  */
+   */
   @Test
   public void getLabelDescriptionsEmptyLabelAnnotations() throws IllegalArgumentException, IOException {
-    byte[] rawImageData;
-    try {
-      rawImageData = getBytesFromImageReference(
+    byte[] rawImageData = getBytesFromImageReference(
         "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
-    } catch (IOException exception) {
-      throw exception;
-    }
+
         
     AnnotatedImage annotatedImage = new AnnotatedImage(rawImageData, emptyLabelAnnotations, emptyLandmarkAnnotations);
     assertEquals(new ArrayList<>(), annotatedImage.getLabelDescriptions());
@@ -175,24 +166,21 @@ public final class AnnotatedImageTest {
   /**
    * public List<String> getLabelDescriptions();
    *  labelAnnotations is a non-empty list of EntityAnnotations.
-  */
+   */
   @Test
   public void getLabelDescriptionsNonEmptyLabelAnnotations() throws IllegalArgumentException, IOException {
-    List<EntityAnnotation> labelAnnotations = new ArrayList<>();
+    List<EntityAnnotation> labelAnnotations = new ArrayList<EntityAnnotation>();
+
     String firstAnnotationDescription = "DescriptionOne";
     String secondAnnotationDescription = "DescriptionTwo";
     labelAnnotations.add(makeMockEntityAnnotationWithDescription(firstAnnotationDescription));
     labelAnnotations.add(makeMockEntityAnnotationWithDescription(secondAnnotationDescription)); 
-    byte[] rawImageData;
-    try {
-      rawImageData = getBytesFromImageReference(
-        "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
-    } catch (IOException exception) {
-      throw exception;
-    }
 
-    AnnotatedImage annotatedImageActual = new AnnotatedImage(rawImageData, labelAnnotations, emptyLandmarkAnnotations);
-    List<String> actualLabelDescriptions = annotatedImageActual.getLabelDescriptions();
+    byte[] rawImageData = getBytesFromImageReference(
+        "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
+
+    AnnotatedImage actualAnnotatedImage = new AnnotatedImage(rawImageData, labelAnnotations, emptyLandmarkAnnotations);
+    List<String> actualLabelDescriptions = actualAnnotatedImage.getLabelDescriptions();
     List<String> expectedLabelDescriptions = new ArrayList<>();
     expectedLabelDescriptions.add(firstAnnotationDescription);
     expectedLabelDescriptions.add(secondAnnotationDescription);
@@ -203,16 +191,11 @@ public final class AnnotatedImageTest {
   /**
    * public List<String> getLandmarkDescriptions();
    *  landmarkAnnotations is empty.
-  */
+   */
   @Test
   public void getLandmarkDescriptionsEmptyLandmarkAnnotations() throws IllegalArgumentException, IOException {
-    byte[] rawImageData;
-    try {
-      rawImageData = getBytesFromImageReference(
+    byte[] rawImageData = getBytesFromImageReference(
         "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
-    } catch (IOException exception) {
-      throw exception;
-    }
         
     AnnotatedImage annotatedImage = new AnnotatedImage(rawImageData, emptyLabelAnnotations, emptyLandmarkAnnotations);
     assertEquals(new ArrayList<String>(), annotatedImage.getLandmarkDescriptions());
@@ -221,7 +204,7 @@ public final class AnnotatedImageTest {
   /**
    * public List<String> getLandmarkDescriptions();
    *  landmarkAnnotations is a non-empty list of EntityAnnotations.
-  */
+   */
   @Test
   public void getLandmarkDescriptionsNonEmptyLandmarkAnnotations() throws IllegalArgumentException, IOException {
     List<EntityAnnotation> landmarkAnnotations = new ArrayList<EntityAnnotation>();
@@ -230,16 +213,11 @@ public final class AnnotatedImageTest {
     landmarkAnnotations.add(makeMockEntityAnnotationWithDescription(firstAnnotationDescription));
     landmarkAnnotations.add(makeMockEntityAnnotationWithDescription(secondAnnotationDescription)); 
     
-    byte[] rawImageData;
-    try {
-      rawImageData = getBytesFromImageReference(
+    byte[] rawImageData= getBytesFromImageReference(
         "src/test/java/com/google/sps/images/data/dogRunningOnBeach.jpg", "jpg");
-    } catch (IOException exception) {
-      throw exception;
-    }
 
-    AnnotatedImage annotatedImageActual = new AnnotatedImage(rawImageData, emptyLabelAnnotations, landmarkAnnotations);
-    List<String> actualLandmarkDescriptions = annotatedImageActual.getLandmarkDescriptions();
+    AnnotatedImage actualAnnotatedImage = new AnnotatedImage(rawImageData, emptyLabelAnnotations, landmarkAnnotations);
+    List<String> actualLandmarkDescriptions = actualAnnotatedImage.getLandmarkDescriptions();
     List<String> expectedLandmarkDescriptions = new ArrayList<String>();
     expectedLandmarkDescriptions.add(firstAnnotationDescription);
     expectedLandmarkDescriptions.add(secondAnnotationDescription);
