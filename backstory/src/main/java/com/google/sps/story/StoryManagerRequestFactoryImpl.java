@@ -36,10 +36,9 @@ public class StoryManagerRequestFactoryImpl implements StoryManagerRequestFactor
    *
    * @return HttpRequest Post Request
    */
-  public HttpRequest newInstance(String requestBody) throws IllegalStateException, IOException {
+  public HttpRequest newInstance(String requestBody, String serviceUrl)
+      throws IllegalStateException, IOException {
     try {
-      String serviceUrl = "https://backstory-text-gen-pdaqhmzgva-uc.a.run.app";
-
       // Obtain Credentials
       GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
 

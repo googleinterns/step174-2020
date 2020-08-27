@@ -21,6 +21,9 @@ import java.io.IOException;
 public interface StoryManager {
   /**
    * Returns generated text output.
+   *
+   * @return String Generated output text.
+   * @throws RuntimeException If cannot convert from JSON.
    */
   public String generateText() throws RuntimeException;
 

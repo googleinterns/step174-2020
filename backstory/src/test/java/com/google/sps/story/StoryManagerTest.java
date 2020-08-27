@@ -50,15 +50,20 @@ public final class StoryManagerTest {
   private static final String PREFIX_SAMPLE = "HELLO_WORLD";
   private static final int SIZE_SAMPLE = 100;
   private static final Double TEMPERATURE_SAMPLE = 1.0;
-
+  private StoryManagerURLProvider URLProvider;
   private StoryManager storyManager;
+
+  @Before
+  public void setUp() {
+    URLProvider = new StoryManagerURLProvider();
+  }
 
   @Test(expected = IllegalArgumentException.class)
   /**
    * Verifies that "" replaces invalid prefix input.
    */
   public void invalidPrefix() {
-    storyManager = new StoryManagerImpl(null, SIZE_SAMPLE, TEMPERATURE_SAMPLE);
+    storyManager = new StoryManagerImpl(null, SIZE_SAMPLE, TEMPERATURE_SAMPLE, URLProvider);
   }
 
   /**
@@ -66,7 +71,7 @@ public final class StoryManagerTest {
    */
   @Test(expected = IllegalArgumentException.class)
   public void lengthTooLow() {
-    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, 0, TEMPERATURE_SAMPLE);
+    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, 0, TEMPERATURE_SAMPLE, URLProvider);
   }
 
   /**
@@ -74,7 +79,7 @@ public final class StoryManagerTest {
    */
   @Test(expected = IllegalArgumentException.class)
   public void lengthTooHigh() {
-    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, 10000, TEMPERATURE_SAMPLE);
+    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, 10000, TEMPERATURE_SAMPLE, URLProvider);
   }
 
   /**
@@ -82,17 +87,18 @@ public final class StoryManagerTest {
    */
   @Test(expected = IllegalArgumentException.class)
   public void invalidTemperature() {
-    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, 1000.0);
+    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, 1000.0, URLProvider);
   }
 
   /**
    * Ensure the method configures a proper POST request and receives
-   *  proper output translation.
+   * proper output translation.
    */
   @Test
   public void correctRequestConfiguration() throws RuntimeException {
     // Declare StoryManager with standard inputs.
-    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, TEMPERATURE_SAMPLE);
+    
+    storyManager = new StoryManagerImpl(PREFIX_SAMPLE, SIZE_SAMPLE, TEMPERATURE_SAMPLE, URLProvider);
 
     // Configure fake Request Factory to allow for mock request injection.
     StoryManagerRequestFactoryFakeImpl factoryFake = new StoryManagerRequestFactoryFakeImpl();
@@ -143,5 +149,23 @@ public final class StoryManagerTest {
     // Evaluate input body and output text accuracy.
     Assert.assertEquals(expectedRequestString, actualRequestString);
     Assert.assertEquals(expectedOutput, actualOutput);
+  }
+
+  @Test
+  /**
+   * Ensures Provider does not cycle past bounds.
+   */
+  public void cyclePastBounds() {
+    try {
+      String firstURL = URLProvider.getCurrentURL();
+      do{
+      URLProvider.cycleURL();
+      
+      // Cycle through all URLs in first cycle.
+      } while (firstURL != URLProvider.getCurrentURL());
+    }
+    catch(ArrayIndexOutOfBoundsException indexException){
+      Assert.fail("cycleURL went out of bounds.");
+    }
   }
 }
