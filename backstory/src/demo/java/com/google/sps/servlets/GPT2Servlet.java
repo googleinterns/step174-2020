@@ -35,9 +35,12 @@ import org.json.JSONObject;
 @WebServlet("/gpt2")
 public final class GPT2Servlet extends HttpServlet {
   
-  public static final int DEFAULT_MAX_STORY_LENGTH = 200;
+  public static final int DEFAULT_WMAX_STORY_LENGTH = 200;
   public static final Double DEFAULT_TEMPERATURE = 0.7;
-  private StoryManagerURLProvider URLProvider;
+  private static StoryManagerURLProvider URLProvider;
+
+  // Maintain synchronized calls.
+  private static final Object URLProviderLock = new Object();
 
 
   @Override
@@ -66,12 +69,18 @@ public final class GPT2Servlet extends HttpServlet {
     }
     String generatedText;
     try {
-      if (URLProvider == null) {
-        URLProvider = new StoryManagerURLProvider();
+      
+      synchronized (URLProviderLock) {
+        if (URLProvider == null) {
+          URLProvider = new StoryManagerURLProvider();
+        }
+        StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
+        
       }
-      StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE);
       generatedText = storyManager.generateText();
-      URLProvider.cycleURL();
+      synchronized (URLProviderLock) {
+        URLProvider.cycleURL();
+      }
     } catch (Exception exception) {
       System.out.println(exception);
       // Displays if internal server error.

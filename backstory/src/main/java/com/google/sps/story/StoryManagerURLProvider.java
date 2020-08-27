@@ -32,7 +32,7 @@ import java.io.IOException;
 public class StoryManagerURLProvider {
     
   /** serviceUrls - URLs for each story generation container */
-  private String[] serviceURLs = {
+  private final static String[] serviceURLs = {
       "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
@@ -45,9 +45,7 @@ public class StoryManagerURLProvider {
 
   /**
    * Cycles to next serviceUrl to an alternate container.
-   * Returns true when not last URL.
    *
-   * @return False if called on last URL.
    */
   synchronized public void cycleURL() {
     if (selectedURLIndex < serviceURLs.length - 1) {

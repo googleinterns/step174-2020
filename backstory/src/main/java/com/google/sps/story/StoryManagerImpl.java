@@ -41,7 +41,7 @@ public final class StoryManagerImpl implements StoryManager {
   private int maxTextLength;
   /** The volatility of topics and style in generation. */
   private Double temperature;
-  /** Provider object of serviceURLs*/
+  /** Provider object of service URLs */
   private StoryManagerURLProvider URLProvider;
 
   /** requestFactory - Builds and facilitates authenticated post requests. */

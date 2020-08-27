@@ -158,12 +158,11 @@ public final class StoryManagerTest {
   public void cyclePastBounds() {
     try {
       String firstURL = URLProvider.getCurrentURL();
+      do{
       URLProvider.cycleURL();
       
       // Cycle through all URLs in first cycle.
-      while (firstURL != URLProvider.getCurrentURL()) {
-        URLProvider.cycleURL();
-      }
+      } while (firstURL != URLProvider.getCurrentURL());
     }
     catch(ArrayIndexOutOfBoundsException indexException){
       Assert.fail("cycleURL went out of bounds.");
