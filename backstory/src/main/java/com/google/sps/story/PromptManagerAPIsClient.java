@@ -43,12 +43,12 @@ public class PromptManagerAPIsClient {
    * @throws IOException Exception for network problem.
    */
   public Map<WordType, List<String>> groupByWordType(List<String> words) throws IOException {
-    NLServiceClient wordClassifier = new NLServiceClient();
+    NLServiceClient nlServiceClient = new NLServiceClient();
 
-    Map<WordType, List<String>> groupings = wordClassifier.groupByWordType(words);
-    wordClassifier.close();
+    Map<WordType, List<String>> groupings = nlServiceClient.groupByWordType(words);
+    nlServiceClient.close();
 
-    return wordClassifier.groupByWordType(words);
+    return groupings;
   }
 
   /**

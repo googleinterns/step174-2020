@@ -163,7 +163,7 @@ public class NLServiceClient {
   }
 
   /**
-   * Close out the NLServiceClient by clsoing out
+   * Close out the NLServiceClient by closing out
    * the LanguageServiceClient.
    */
   public void close() {
