@@ -102,6 +102,22 @@ public final class AnnotatedImage {
     return descriptions;
   }
 
+  /**
+   * Returns only the "description" field, for all image landmark annotations.
+   *
+   * @return list of "description" fields for all landmarks returned by Vision API's
+   *     getLandmarkAnnotationsList method.
+   */
+  public List<String> getLandmarkDescriptions() {
+    List<String> descriptions = new ArrayList<String>();
+
+    for (EntityAnnotation landmarkAnnotation : landmarkAnnotations) {
+      descriptions.add(landmarkAnnotation.getDescription());
+    }
+
+    return descriptions;
+  }
+
   /** 
    * Return the bytes representing the image 
    *
@@ -119,7 +135,7 @@ public final class AnnotatedImage {
   public List<EntityAnnotation> getLabelAnnotations() {
     return Collections.unmodifiableList(labelAnnotations);
   }
-
+  
   /** 
    * Return the landmarks annotated to the image 
    *

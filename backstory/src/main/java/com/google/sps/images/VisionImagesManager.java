@@ -86,7 +86,7 @@ public final class VisionImagesManager implements ImagesManager {
 
     // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
     if (!(responses.size() == size)) {
-      throw new IllegalArgumentException(
+      throw new RuntimeException(
           "The number of responses is not equal to the number of requests.");
     }
 
