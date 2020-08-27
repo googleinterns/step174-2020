@@ -35,7 +35,7 @@ import org.json.JSONObject;
 @WebServlet("/gpt2")
 public final class GPT2Servlet extends HttpServlet {
   
-  public static final int DEFAULT_WMAX_STORY_LENGTH = 200;
+  public static final int DEFAULT_MAX_STORY_LENGTH = 200;
   public static final Double DEFAULT_TEMPERATURE = 0.7;
   private static StoryManagerURLProvider URLProvider;
 
