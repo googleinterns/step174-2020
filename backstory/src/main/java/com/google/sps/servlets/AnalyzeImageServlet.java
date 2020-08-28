@@ -253,11 +253,11 @@ public class AnalyzeImageServlet extends HttpServlet {
 
     // From the image annotations (the analytics) the prompt can be created.
     // FUTURE PROMPT CREATION:
-    // PromptManager promptManager = new PromptManager(descriptions, locations);
-    // String prompt = promptManager.generatePrompt();
+    PromptManager promptManager = new PromptManager(descriptions, locations);
+    String prompt = promptManager.generatePrompt();
     // CURRENT PROMPT CREATION:
-    PromptManager promptManager = new PromptManager(descriptions);
-    String prompt = promptManager.generatePrompt(DELIMITER);
+    // PromptManager promptManager = new PromptManager(descriptions);
+    // String prompt = promptManager.generatePrompt(DELIMITER);
 
     StoryManager storyManager = storyManagerFactory.newInstance(
         prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManangerURLProvider);

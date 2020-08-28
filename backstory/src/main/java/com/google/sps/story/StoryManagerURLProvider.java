@@ -24,6 +24,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.IdTokenCredentials;
 import com.google.auth.oauth2.IdTokenProvider;
+import java.util.concurrent.ThreadLocalRandom;
 import java.io.IOException;
 
 /**
@@ -46,11 +47,10 @@ public class StoryManagerURLProvider {
    *
    */
   synchronized public void cycleURL() {
-    if (selectedURLIndex < serviceURLs.length - 1) {
-      selectedURLIndex++;
-    } else {
-      selectedURLIndex = 0;
-    }
+    // nextInt is normally exclusive of the top value,
+    // so add 1 to make it inclusive
+    int randomURLIndex = ThreadLocalRandom.current().nextInt(serviceURLs.length);
+    selectedURLIndex = randomURLIndex;
   }
 
   /**
