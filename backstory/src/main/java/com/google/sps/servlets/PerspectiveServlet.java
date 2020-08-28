@@ -16,9 +16,9 @@ package com.google.sps.servlets;
 
 import au.com.origma.perspectiveapi.v1alpha1.PerspectiveAPI;
 import com.google.gson.Gson;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.PerspectiveAPIClient;
 import com.google.sps.perspective.data.PerspectiveAPIFactory;
@@ -83,10 +83,10 @@ public final class PerspectiveServlet extends HttpServlet {
     try {
       perspectiveDecision = manager.generatePerspectiveDecision(text);
     } catch (NullPointerException exception) {
-      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
-        "Perspective was unable to analyze your sample text. This occurs sometimes with text in other languages, " 
-        + "\"fake\" text (e.g. lorem ipsum dolor) and other text that doesn't fall within the English language."
-        + " Some non-proper English text (e.g. haha) is still capable of being analyzed.");
+      handleError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+          "Perspective was unable to analyze your sample text. This occurs sometimes with text in other languages, "
+              + "\"fake\" text (e.g. lorem ipsum dolor) and other text that doesn't fall within the English language."
+              + " Some non-proper English text (e.g. haha) is still capable of being analyzed.");
       return;
     }
 

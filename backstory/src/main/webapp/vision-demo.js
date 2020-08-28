@@ -18,9 +18,9 @@
  * validate vision demo image upload, display correct file upload
  */
 
-import { fetchBlobstoreUrl } from './features/fetch-blobstore-url.js';
-import { validateImageUpload } from './features/image-validation.js';
-import { updateFileName } from './features/update-file-name.js';
+import {fetchBlobstoreUrl} from './features/fetch-blobstore-url.js';
+import {validateImageUpload} from './features/image-validation.js';
+import {updateFileName} from './features/update-file-name.js';
 
 // export methods by making them global
 window.fetchBlobstoreUrlForDemo = fetchBlobstoreUrlForDemo;
@@ -28,9 +28,9 @@ window.getAnalyzedImagesForDemo = getAnalyzedImagesForDemo;
 window.validateVisionImageUpload = validateVisionImageUpload;
 window.updateFileNameForDemo = updateFileNameForDemo;
 
-// FETCH BLOBSTORE URL 
+// FETCH BLOBSTORE URL
 /**
- * Fetch blobstore url and set it by calling the 
+ * Fetch blobstore url and set it by calling the
  * fetchBlobstoreUrl() method for the Vision Demo
  * image-upload-form element
  */
@@ -40,8 +40,8 @@ function fetchBlobstoreUrlForDemo() {
 
 // RETRIEVE/FORMAT IMAGES & LABELS
 
-/** 
- * Adds the analyzed images to the image-list unordered list element 
+/**
+ * Adds the analyzed images to the image-list unordered list element
  */
 function getAnalyzedImagesForDemo() {
   fetch('/analyzed-images')
@@ -145,9 +145,9 @@ function formatLabelsAsTable(labels) {
   return table;
 }
 
-// VALIDATE VISION IMAGE UPLOAD 
+// VALIDATE VISION IMAGE UPLOAD
 
-/** 
+/**
  * Validate the image upload by calling validateImageUpload
  * on the image-upload element.
  */
@@ -159,7 +159,7 @@ function validateVisionImageUpload() {
 // DISPLAY CORRECT FILE NAME
 
 /**
- * Updates the text of the file upload label to match 
+ * Updates the text of the file upload label to match
  * the uploaded file for the 'image-upload' file upload
  * and 'upload-visual' label.
  */

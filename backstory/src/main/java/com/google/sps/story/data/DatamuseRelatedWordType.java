@@ -12,25 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/*
- * JS for Fetching Blobstore URL
- */
-
-export {fetchBlobstoreUrl};
+package com.google.sps.story.data;
 
 /**
- * On load of the application, this function fetches the blobstore Url and sets
- * it as the action of the form with the passed-in name.
- *
- * @param formName - the name of the form to set the action for
+ * An enum to hold the current word types supported
+ * to be used as word type in the fetchRelatedWords()
+ * method of the DatamuseRequestClient.
  */
-function fetchBlobstoreUrl(formName) {
-  fetch('/blobstore-upload-url')
-      .then((response) => {
-        return response.text();
-      })
-      .then((imageUploadUrl) => {
-        const imageUploadForm = document.getElementById(formName);
-        imageUploadForm.action = imageUploadUrl;
-      });
+public enum DatamuseRelatedWordType {
+  ADJECTIVE,
+  GERUND,
 }

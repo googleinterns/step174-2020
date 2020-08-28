@@ -18,7 +18,7 @@
 
 /* exported validateImageUpload */
 
-export { validateImageUpload };
+export {validateImageUpload};
 
 /**
  * Validate that the file uploaded to image upload

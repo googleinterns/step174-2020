@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* 
+/*
  * JS for Home page
- * features: validate form (& add loading animation) on submit of form, 
- * get blobstore url for the backstory form, retrieve analyzed images, 
+ * features: validate form (& add loading animation) on submit of form,
+ * get blobstore url for the backstory form, retrieve analyzed images,
  * and updates to front end when file uploaded.
  */
 
-import { fetchBlobstoreUrl } from './features/fetch-blobstore-url.js';
-import { validateImageUpload } from './features/image-validation.js';
-import { createBackstoryLoadingElement } from './features/backstory-loading-element.js';
-import { updateFileName } from './features/update-file-name.js';
+import {createBackstoryLoadingElement} from './features/backstory-loading-element.js';
+import {fetchBlobstoreUrl} from './features/fetch-blobstore-url.js';
+import {validateImageUpload} from './features/image-validation.js';
+import {updateFileName} from './features/update-file-name.js';
 
 // export methods by making them global
 window.checkForm = checkForm;

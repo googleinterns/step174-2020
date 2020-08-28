@@ -27,19 +27,38 @@ import com.google.auth.oauth2.IdTokenProvider;
 import java.io.IOException;
 
 /**
- * Interface for story generation network requests.
+ * Object for providing container URLs to StoryManager.
  */
-public interface StoryManagerRequestFactory {
+public class StoryManagerURLProvider {
+  /** serviceUrls - URLs for each story generation container */
+  private final static String[] serviceURLs = {
+      "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
+      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
+
+  /** Index of URL to provide. */
+  private int selectedURLIndex;
+
   /**
-   * Builds a PostRequest given parameters. Uses String JSON body
-   * to generate headers for Post request.
+   * Cycles to next serviceUrl to an alternate container.
    *
-   * @param requestBody JSON String to form POST Request
-   * @param serviceURL URL to send POST Request to.
-   * @return HttpRequest Post Request
-   * @throws IllegalStateException If credentials are invalid.
-   * @throws IOException If there's an error with HTTP.
    */
-  public HttpRequest newInstance(String requestBody, String serviceUrl)
-      throws IllegalStateException, IOException;
+  synchronized public void cycleURL() {
+    if (selectedURLIndex < serviceURLs.length - 1) {
+      selectedURLIndex++;
+    } else {
+      selectedURLIndex = 0;
+    }
+  }
+
+  /**
+   * Returns the current URL as cycled.
+   *
+   * @return The current url.
+   */
+  synchronized public String getCurrentURL() {
+    return serviceURLs[selectedURLIndex];
+  }
 }

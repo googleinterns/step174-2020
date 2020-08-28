@@ -16,7 +16,7 @@
  * features: display story
  */
 
-import { createBackstoryLoadingElement } from './features/backstory-loading-element.js'
+import {createBackstoryLoadingElement} from './features/backstory-loading-element.js'
 
 // export displayStory by making it global
 window.displayStory = displayStory;

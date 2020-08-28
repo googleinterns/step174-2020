@@ -12,19 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/* 
+/*
  * JS for Backstory Loading Element Feature
  */
 
-export { createBackstoryLoadingElement };
+export {createBackstoryLoadingElement};
 
 /**
  * Helper function to create and set a loading element to display after the
  * photo-upload form is submitted, while image is being analyzed and the
  * backstory is being created. Only execute this function if valid
  * image uploaded.
- * 
- * @param displayName - the name of the element to display the loading graphic in
+ *
+ * @param displayName - the name of the element to display the loading graphic
+ *     in
  */
 function createBackstoryLoadingElement(displayName) {
   const backstoryLoadingIcon = document.createElement('div');
