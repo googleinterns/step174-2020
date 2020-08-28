@@ -26,7 +26,7 @@ import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
@@ -53,6 +53,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.sps.story.StoryManagerURLProvider;
 
 /**
  * Backend servlet which manages the analysis of images, creation of stories, filtrations of stories, and uploading
@@ -74,17 +75,16 @@ public class AnalyzeImageServlet extends HttpServlet {
   private StoryAnalysisManagerFactory storyAnalysisManagerFactory;
   /** Creates the Entity instance which will be uploaded to permanent storage; analogous to a row in a table. */
   private EntityFactory entityFactory;
-  /** 
-   * Delimiter which will be placed between the labels for prompt creation. 
-   *  ex: "<label1> and <label2> and <label3>" 
-   */
-  private final String DELIMITER = " and ";
   /** World length parameter for the story to be generated */
   private final int STORY_WORD_LENGTH = 200;
   /** Temperature parameter for the story to be generated; indicates the coherence of the story */
   private final double TEMPERATURE = .7;
   /** Determines the nubmer of times GPT2 will be called to attempt to generate text */
   private final int MAX_GENERATION_ATTEMPS = 3;
+  /** The delimiter to be placed between words for prompt generation */
+  private final String DELIMITER = " and ";
+  /** Helper class for managing the text generation container URLs */
+  private final StoryManagerURLProvider storyManangerURLProvider;
 
   /**
    * Constructor which sets the manager factories to return their online implementations
@@ -95,6 +95,7 @@ public class AnalyzeImageServlet extends HttpServlet {
    * @throws APINotAvailableException if an error occurs when connecting to the story analysis API.
    */
   public AnalyzeImageServlet() throws IOException, APINotAvailableException {
+    storyManangerURLProvider = new StoryManagerURLProvider();
     backstoryUserServiceFactory = () -> {
       return UserServiceFactory.getUserService();
     };
@@ -107,8 +108,8 @@ public class AnalyzeImageServlet extends HttpServlet {
     imagesManagerFactory = () -> {
       return new VisionImagesManager();
     };
-    storyManagerFactory = (String prompt, int storyLength, double temperature) -> {
-      return new StoryManagerImpl(prompt, storyLength, temperature);
+    storyManagerFactory = (String prompt, int storyLength, double temperature, StoryManagerURLProvider StoryManagerURLProvider) -> {
+      return new StoryManagerImpl(prompt, storyLength, temperature, storyManangerURLProvider);
     };
     storyAnalysisManagerFactory = () -> {
       return new PerspectiveStoryAnalysisManager();
@@ -246,16 +247,21 @@ public class AnalyzeImageServlet extends HttpServlet {
     List<String> descriptions = annotatedImage.getLabelDescriptions();
 
     // From the image annotations (the analytics) the prompt can be created.
-    PromptManager promptManager = new PromptManager(descriptions);
+    // FUTURE PROMPT CREATION:
+    // PromptManager promptManager = new PromptManager(descriptions); 
+    // String prompt = promptManager.generatePrompt();
+    // CURRENT PROMPT CREATION:
+    PromptManager promptManager = new PromptManager(descriptions); 
     String prompt = promptManager.generatePrompt(DELIMITER);
 
-    StoryManager storyManager = storyManagerFactory.newInstance(prompt, STORY_WORD_LENGTH, TEMPERATURE);
+    StoryManager storyManager = storyManagerFactory.newInstance(prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManangerURLProvider);
     // The loop is necessary because of a memory leak in the GPT2 container which causes generation to fail.
     // TODO: Fix the memory leak within the GPT2 container itself.
     String rawBackstory = "";
     int textGenerationAttemps = 0;
     while (textGenerationAttemps < MAX_GENERATION_ATTEMPS) {
       try {
+        storyManangerURLProvider.cycleURL();
         rawBackstory = storyManager.generateText();
       } catch (RuntimeException exception) {
         System.err.println(exception);

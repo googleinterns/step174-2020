@@ -45,9 +45,48 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/backstory")
 public class GetBackstoryServlet extends HttpServlet {
+  /** Creates the UserService instance, which includes authentication functionality. */
+  private BackstoryUserServiceFactory backstoryUserServiceFactory;
+   /** Creates the DatastoreService instance, which includes permanent storage functionality. */
+  private BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory;
+
+  /**
+   *
+   */
+  public GetBackstoryServlet() {
+    backstoryUserServiceFactory = () -> {
+      return UserServiceFactory.getUserService();
+    };
+    backstoryDatastoreServiceFactory = () -> {
+      return DatastoreServiceFactory.getDatastoreService();
+    };
+  }
+
+  /**
+   * Sets the BackstoryUserServiceFactory.
+   *
+   * @param backstoryUserServiceFactory a BackstoryUserServiceFactory object set to return a new
+   *     UserService.
+   */
+  public void setBackstoryUserServiceFactory(
+      BackstoryUserServiceFactory backstoryUserServiceFactory) {
+    this.backstoryUserServiceFactory = backstoryUserServiceFactory;
+  }
+
+  /**
+   * Sets the BackstoryDatastoreServiceFactory.
+   *
+   * @param backstoryDatastoreServiceFactory a BackstoryDatastoreServiceFactory object set to return
+   *     a new DatastoreService.
+   */
+  public void setBackstoryDatastoreServiceFactory(
+      BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory) {
+    this.backstoryDatastoreServiceFactory = backstoryDatastoreServiceFactory;
+  }
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    UserService userService = UserServiceFactory.getUserService();
+    UserService userService = backstoryUserServiceFactory.newInstance();
     if (!userService.isUserLoggedIn()) {
       String urlToRedirectToAfterUserLogsIn = "/backstory";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
@@ -70,7 +109,7 @@ public class GetBackstoryServlet extends HttpServlet {
     // result, Thus displaying the most recent story uploaded.
     int backstoryFetchLimit = 1;
 
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
     PreparedQuery results = datastore.prepare(query);
     List<Backstory> backstories = new ArrayList<>();
     for (Entity entity :

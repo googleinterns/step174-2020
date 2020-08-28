@@ -27,7 +27,6 @@ import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
 import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
-import com.google.sps.perspective.data.APINotAvailableException;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
@@ -56,9 +55,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
-import com.google.sps.perspective.data.APINotAvailableException;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
+import com.google.sps.story.StoryManagerURLProvider;
 
 /**
  * Tests for the analyze image servlet, which contains all image analysis and backstory generation
@@ -108,14 +108,14 @@ public final class AnalyzeImageServletTest {
     when(uploadedAnnotatedImage.getLabelDescriptions()).thenReturn(uploadedImageDescriptions);
     List<AnnotatedImage> uploadedAnnotatedImages = Arrays.asList(uploadedAnnotatedImage);
     when(mockImagesManager.createAnnotatedImagesFromImagesAsByteArrays(
-      any(List.class)
+        Arrays.asList(uploadedImageBytes)
     )).thenReturn(uploadedAnnotatedImages);
 
     String sampleRawBackstory = "sampleRawBackstory";
     when(mockStoryManager.generateText()).thenReturn(sampleRawBackstory);
 
     StoryDecision sampleStoryDecision = new StoryDecision(sampleRawBackstory);
-    when(mockStoryAnalysisManager.generateDecision(anyString())).thenReturn(sampleStoryDecision);
+    when(mockStoryAnalysisManager.generateDecision(sampleRawBackstory)).thenReturn(sampleStoryDecision);
 
     // Create and set the factories to return the configured mocks.
     BackstoryUserServiceFactory backstoryUserServiceFactory = () -> {
@@ -130,7 +130,7 @@ public final class AnalyzeImageServletTest {
     ImagesManagerFactory imagesManagerFactory = () -> {
       return mockImagesManager;
     };
-    StoryManagerFactory storyManagerFactory = (String prompt, int storyLength, double temperature) -> {
+    StoryManagerFactory storyManagerFactory = (String prompt, int storyLength, double temperature, StoryManagerURLProvider storyManagerURLProvider) -> {
       return mockStoryManager;
     };
     StoryAnalysisManagerFactory storyAnalysisManagerFactory = () -> {
@@ -151,19 +151,20 @@ public final class AnalyzeImageServletTest {
     servlet.doPost(mockRequest, mockResponse);
 
     // Check that the request is as expected:
-    ArgumentCaptor<HttpServletRequest> requestCaptor = ArgumentCaptor.forClass(HttpServletRequest.class);
     ArgumentCaptor<String> formInputNameCaptor = ArgumentCaptor.forClass(String.class);
-    verify(mockBlobstoreManager).getUploadedFileBlobKeyString(requestCaptor.capture(), formInputNameCaptor.capture());
+    verify(mockBlobstoreManager).getUploadedFileBlobKeyString(any(HttpServletRequest.class), formInputNameCaptor.capture());
     // The formInputName must be "image-upload" because that is the name of the front-end form input element.
     String expectedFormInputName = "image-upload";
     String actualFormInputName = formInputNameCaptor.getValue();
     Assert.assertEquals(expectedFormInputName, actualFormInputName);
 
     // Verify that the proper properties are set for the entity
-    Text sampleBackstory = new Text(sampleRawBackstory);
     verify(mockAnalyzedImageEntity).setProperty("userEmail", userEmail);
     verify(mockAnalyzedImageEntity).setProperty("blobKeyString", blobKeyString);
-    verify(mockAnalyzedImageEntity).setProperty(eq("backstory"), any(Text.class));
+    ArgumentCaptor<Text> backstoryCaptor = ArgumentCaptor.forClass(Text.class);
+    verify(mockAnalyzedImageEntity).setProperty(eq("backstory"), backstoryCaptor.capture());
+    String actualBackstoryProperty = backstoryCaptor.getValue().getValue();
+    Assert.assertTrue(actualBackstoryProperty.length() > 0);
     verify(mockAnalyzedImageEntity).setProperty(eq("timestamp"), anyLong());
 
     // Check that the analyzed image entity goes into datastore.
