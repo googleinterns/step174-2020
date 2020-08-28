@@ -241,22 +241,19 @@ public class AnalyzeImageServlet extends HttpServlet {
     // Generate a list of AnnotatedImages, with each annotatedImage consisting of an image with
     // labels.
     ImagesManager imagesManager = imagesManagerFactory.newInstance();
-    List<byte[]> imagesAsByteArrays = Arrays.asList(bytes);
+    List<byte[]> imagesAsByteArrays = new ArrayList<>();
+    imagesAsByteArrays.add(bytes);
     List<AnnotatedImage> annotatedImages =
         imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
-    // Validate that annotatedImages only includes one image since, currently, Backstory
-    // only supports single image uploads.
-    if (annotatedImages.size() != 1) {
-      // Redirect back to the HTML page.
-      response.sendError(400, "Please upload exactly one image.");
-      return;
-    }
+    // Currently, Backstory only supports single image uploads.
+    // which is why we only get the first annotatedImage element here from annotatedImages.
     AnnotatedImage annotatedImage = annotatedImages.get(0);
     List<String> descriptions = annotatedImage.getLabelDescriptions();
+    List<String> locations = annotatedImage.getLandmarkDescriptions();
 
     // From the image annotations (the analytics) the prompt can be created.
     // FUTURE PROMPT CREATION:
-    // PromptManager promptManager = new PromptManager(descriptions);
+    // PromptManager promptManager = new PromptManager(descriptions, locations);
     // String prompt = promptManager.generatePrompt();
     // CURRENT PROMPT CREATION:
     PromptManager promptManager = new PromptManager(descriptions);
