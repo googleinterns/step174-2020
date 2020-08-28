@@ -16,7 +16,10 @@
  * features: display story
  */
 
-/* exported displayStory */
+import {createBackstoryLoadingElement} from './features/backstory-loading-element.js'
+
+// export displayStory by making it global
+window.displayStory = displayStory;
 
 // DISPLAY STORY
 
@@ -32,20 +35,22 @@ async function displayStory() {
     return;
   }
 
-  console.log(input);
+  const inputObj = {text: input};
+  const inputJSON = JSON.stringify(inputObj);
 
-  // get display
-  const display = document.getElementById('story-display');
-  display.appendChild(formatResponse('Generating... Please be patient.'));
+  createBackstoryLoadingElement('gpt2-story-display');
+
   // grab data and get its text version (it is sent as JSON)
   const response = await fetch('/gpt2', {
     method: 'post',
     headers: {'Content-Type': 'application/json'},
-    body: `{text: ${input}}`,
+    body: inputJSON,
   });
 
   const data = await response.text();
 
+  // get display
+  const display = document.getElementById('gpt2-story-display');
   display.innerHTML = data;
 
   // parse the JSON into an object

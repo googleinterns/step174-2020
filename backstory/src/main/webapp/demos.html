@@ -2,13 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Demos</title>
+    <title>Backstory Playground</title>
+
+    <!-- Stylesheets and Fonts API -->
     <link rel="stylesheet" href="style.css" />
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
-    <script src="script.js"></script>
+
+    <!-- Script Calls -->
     <script
       src="https://code.jquery.com/jquery-3.3.1.js"
       integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
@@ -25,7 +29,15 @@
     <div id="nav-bar"></div>
 
     <div class="content vertical-flex-container" id="demo-content">
-      <h1 class="header dark-blue-header" id="demos-header">Backstory Demos</h1>
+      <h1 class="header dark-blue-header" id="demos-header">Backstory Playground</h1>
+
+      <div id="demos-description-div">
+        <h4 id="demos-description">
+          Here you'll find demos for three of the APIs necessary to the functionality of our project: Cloud Vision (for
+          image analysis), GPT-2 (for text generation), and Perspective (for content filtration). Feel free to try them
+          out!
+        </h4>
+      </div>
 
       <div class="vertical-flex-container" id="demo-divs">
         <a href="vision-demo.html">
