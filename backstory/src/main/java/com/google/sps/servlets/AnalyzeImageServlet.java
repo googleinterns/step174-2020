@@ -273,6 +273,7 @@ public class AnalyzeImageServlet extends HttpServlet {
       try {
         storyManangerURLProvider.cycleURL();
         rawBackstory = storyManager.generateText();
+        break;
       } catch (RuntimeException exception) {
         System.err.println(exception);
       }
