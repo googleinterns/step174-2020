@@ -13,6 +13,7 @@
 // limitations under the License.
 package com.google.sps.story;
 
+import com.google.common.collect.ImmutableList;
 import com.google.sps.story.data.*;
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
@@ -26,9 +27,9 @@ import java.util.Scanner;
  */
 public final class PromptManager {
   /** Keywords for generation */
-  private final List<String> keywords;
+  private final ImmutableList<String> keywords;
   /** Locations for generation */
-  private final List<String> locations;
+  private final ImmutableList<String> locations;
   /** Word fetching/processing client */
   private PromptManagerAPIsClient wordAPIsClient;
   /** Randomness flag. */
@@ -48,8 +49,8 @@ public final class PromptManager {
       throw new IllegalArgumentException("Input lists cannot be null.");
     }
 
-    this.keywords = keywords;
-    this.locations = locations;
+    this.keywords = ImmutableList.copyOf(keywords);
+    this.locations = ImmutableList.copyOf(locations);
   }
 
   /**
@@ -76,8 +77,14 @@ public final class PromptManager {
    * @return A String containing the output prompt.
    */
   public String generatePrompt() {
-    // Prepare story-like prefix.
-    String prompt = "Once upon a time" + getFormattedLocation() + ", ";
+    String locationString = getFormattedLocation();
+    // if the location string isn't empty put a space before it
+    if (locationString.length() > 0) {
+      locationString = " " + locationString;
+    }
+
+    // Prepare a story-like prefix
+    String prompt = "Once upon a time" + locationString + ", ";
 
     // Initialize bodyFactory to process template construction
     PromptManagerBodyGenerator bodyGenerator;
@@ -114,9 +121,9 @@ public final class PromptManager {
     // else return " near " + location
     if (location.length() > prefixLength
         && location.substring(0, prefixLength).toLowerCase().equals(prefix)) {
-      return " at " + prefix + location.substring(prefixLength);
+      return "at " + prefix + location.substring(prefixLength);
     } else {
-      return " near " + location;
+      return "near " + location;
     }
   }
 }
