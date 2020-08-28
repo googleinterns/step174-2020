@@ -29,5 +29,6 @@ public interface StoryManagerFactory {
    * @param temperature the temperature of the story to be generated.
    * @return an instance of StoryManager.
    */
-  public StoryManager newInstance(String prompt, int storyLength, double temperature, StoryManagerURLProvider storyManagerURLProvider);
+  public StoryManager newInstance(String prompt, int storyLength, double temperature,
+      StoryManagerURLProvider storyManagerURLProvider);
 }

@@ -79,8 +79,7 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
     PreparedQuery results = datastore.prepare(query);
 
     BlobKey blobKey = null;
-    for (Entity entity :
-        results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
+    for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
       blobKey = new BlobKey((String) entity.getProperty("blobKeyString"));
     }
 

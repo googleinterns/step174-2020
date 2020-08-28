@@ -21,12 +21,12 @@ import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.protobuf.ByteString;
+import com.google.sps.APINotAvailableException;
 import com.google.sps.images.ImagesManager;
 import com.google.sps.images.VisionImagesManager;
 import com.google.sps.images.data.AnnotatedImage;
 import com.google.sps.perspective.PerspectiveStoryAnalysisManager;
 import com.google.sps.perspective.StoryAnalysisManager;
-import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
@@ -40,6 +40,7 @@ import com.google.sps.servlets.data.StoryManagerFactory;
 import com.google.sps.story.PromptManager;
 import com.google.sps.story.StoryManager;
 import com.google.sps.story.StoryManagerImpl;
+import com.google.sps.story.StoryManagerURLProvider;
 import com.google.sps.story.data.StoryEndingTools;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,17 +54,19 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.sps.story.StoryManagerURLProvider;
 
 /**
- * Backend servlet which manages the analysis of images, creation of stories, filtrations of stories, and uploading
- * the analyzed images along with its story to permanent storage.
+ * Backend servlet which manages the analysis of images, creation of stories, filtrations of
+ * stories, and uploading the analyzed images along with its story to permanent storage.
  */
 @WebServlet("/analyze-image")
 public class AnalyzeImageServlet extends HttpServlet {
   /** Creates the UserService instance, which includes authentication functionality. */
   private BackstoryUserServiceFactory backstoryUserServiceFactory;
-  /** Creates the BlobstoreManager instance, which manages Backstory's BLOB (binary large object) upload functionality. */
+  /**
+   * Creates the BlobstoreManager instance, which manages Backstory's BLOB (binary large object)
+   * upload functionality.
+   */
   private BlobstoreManagerFactory blobstoreManagerFactory;
   /** Creates the DatastoreService instance, which includes permanent storage functionality. */
   private BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory;
@@ -73,7 +76,10 @@ public class AnalyzeImageServlet extends HttpServlet {
   private StoryManagerFactory storyManagerFactory;
   /** Creates the StoryAnalysisManager, which manages Backstory's story analysis and filtration. */
   private StoryAnalysisManagerFactory storyAnalysisManagerFactory;
-  /** Creates the Entity instance which will be uploaded to permanent storage; analogous to a row in a table. */
+  /**
+   * Creates the Entity instance which will be uploaded to permanent storage; analogous to a row in
+   * a table.
+   */
   private EntityFactory entityFactory;
   /** World length parameter for the story to be generated */
   private final int STORY_WORD_LENGTH = 200;
@@ -90,7 +96,8 @@ public class AnalyzeImageServlet extends HttpServlet {
    * Constructor which sets the manager factories to return their online implementations
    * (such that each manager is connected to the network).
    *
-   * @return an instance of the backstory backend, capable of handling a request containing an image for Backstory creation.
+   * @return an instance of the backstory backend, capable of handling a request containing an image
+   *     for Backstory creation.
    * @throws IOException if an error occurs when reading the uploaded BLOB.
    * @throws APINotAvailableException if an error occurs when connecting to the story analysis API.
    */
@@ -108,7 +115,8 @@ public class AnalyzeImageServlet extends HttpServlet {
     imagesManagerFactory = () -> {
       return new VisionImagesManager();
     };
-    storyManagerFactory = (String prompt, int storyLength, double temperature, StoryManagerURLProvider StoryManagerURLProvider) -> {
+    storyManagerFactory = (String prompt, int storyLength, double temperature,
+        StoryManagerURLProvider StoryManagerURLProvider) -> {
       return new StoryManagerImpl(prompt, storyLength, temperature, storyManangerURLProvider);
     };
     storyAnalysisManagerFactory = () -> {
@@ -236,8 +244,8 @@ public class AnalyzeImageServlet extends HttpServlet {
     List<byte[]> imagesAsByteArrays = Arrays.asList(bytes);
     List<AnnotatedImage> annotatedImages =
         imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
-    // Validate that annotatedImages only includes one image since, currently, Backstory 
-    //only supports single image uploads.
+    // Validate that annotatedImages only includes one image since, currently, Backstory
+    // only supports single image uploads.
     if (annotatedImages.size() != 1) {
       // Redirect back to the HTML page.
       response.sendError(400, "Please upload exactly one image.");
@@ -248,14 +256,16 @@ public class AnalyzeImageServlet extends HttpServlet {
 
     // From the image annotations (the analytics) the prompt can be created.
     // FUTURE PROMPT CREATION:
-    // PromptManager promptManager = new PromptManager(descriptions); 
+    // PromptManager promptManager = new PromptManager(descriptions);
     // String prompt = promptManager.generatePrompt();
     // CURRENT PROMPT CREATION:
-    PromptManager promptManager = new PromptManager(descriptions); 
+    PromptManager promptManager = new PromptManager(descriptions);
     String prompt = promptManager.generatePrompt(DELIMITER);
 
-    StoryManager storyManager = storyManagerFactory.newInstance(prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManangerURLProvider);
-    // The loop is necessary because of a memory leak in the GPT2 container which causes generation to fail.
+    StoryManager storyManager = storyManagerFactory.newInstance(
+        prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManangerURLProvider);
+    // The loop is necessary because of a memory leak in the GPT2 container which causes generation
+    // to fail.
     // TODO: Fix the memory leak within the GPT2 container itself.
     String rawBackstory = "";
     int textGenerationAttemps = 0;
@@ -269,8 +279,8 @@ public class AnalyzeImageServlet extends HttpServlet {
       textGenerationAttemps++;
     }
     if (rawBackstory == "") {
-      response.sendError(400,
-          "Sorry! There was an error in your backstory generation. Please try again!");
+      response.sendError(
+          400, "Sorry! There was an error in your backstory generation. Please try again!");
       return;
     }
 

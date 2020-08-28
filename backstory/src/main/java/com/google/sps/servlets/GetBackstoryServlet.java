@@ -37,6 +37,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
+import com.google.sps.servlets.data.BackstoryUserServiceFactory;
 
 /**
  * Servlet which gets the Backstory resource. Currently, only the most recently uploaded Backstory
@@ -47,7 +49,7 @@ import javax.servlet.http.HttpServletResponse;
 public class GetBackstoryServlet extends HttpServlet {
   /** Creates the UserService instance, which includes authentication functionality. */
   private BackstoryUserServiceFactory backstoryUserServiceFactory;
-   /** Creates the DatastoreService instance, which includes permanent storage functionality. */
+  /** Creates the DatastoreService instance, which includes permanent storage functionality. */
   private BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory;
 
   /**
@@ -110,10 +112,9 @@ public class GetBackstoryServlet extends HttpServlet {
     int backstoryFetchLimit = 1;
 
     DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
-    PreparedQuery results = datastore.prepare(query);
+    PreparedQuery results = datastoreService.prepare(query);
     List<Backstory> backstories = new ArrayList<>();
-    for (Entity entity :
-        results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
+    for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
       Backstory backstory =
           new Backstory((String) ((Text) entity.getProperty("backstory")).getValue());
       backstories.add(backstory);

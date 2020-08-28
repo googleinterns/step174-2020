@@ -14,8 +14,8 @@
 
 package com.google.sps.servlets.data;
 
-import com.google.sps.perspective.StoryAnalysisManager;
 import com.google.sps.APINotAvailableException;
+import com.google.sps.perspective.StoryAnalysisManager;
 
 /**
  * Factory pattern for StoryAnalysisManager.
