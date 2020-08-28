@@ -31,7 +31,7 @@ public class PromptManagerAPIsClient {
   /**
    * Initialize Datamuse API object.
    */
-  public PromptManagerAPIsClient() throws IOException {
+  public PromptManagerAPIsClient() {
     wordFetcher = new DatamuseRequestClient();
   }
 
