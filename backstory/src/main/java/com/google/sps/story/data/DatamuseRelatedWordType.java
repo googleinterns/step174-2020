@@ -12,25 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.story;
-import java.io.IOException;
+package com.google.sps.story.data;
 
 /**
- * Interface for story generation class.
+ * An enum to hold the current word types supported
+ * to be used as word type in the fetchRelatedWords()
+ * method of the DatamuseRequestClient.
  */
-public interface StoryManager {
-  /**
-   * Returns generated text output.
-   *
-   * @return String Generated output text.
-   * @throws RuntimeException If cannot convert from JSON.
-   */
-  public String generateText() throws RuntimeException;
-
-  /**
-   * Allow public setting of RequestFactory for alternative posting.
-   *
-   * @param factory StoryManagerRequestFactory to use for HttpRequests.
-   */
-  public void setRequestFactory(StoryManagerRequestFactory factory);
+public enum DatamuseRelatedWordType {
+  ADJECTIVE,
+  GERUND,
 }

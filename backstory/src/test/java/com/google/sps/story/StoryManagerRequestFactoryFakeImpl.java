@@ -44,9 +44,11 @@ public class StoryManagerRequestFactoryFakeImpl implements StoryManagerRequestFa
   /**
    * Builds a PostRequest given parameters.
    *
+   * @param requestBody JSON String to form POST Request
+   * @param serviceURL URL to send POST Request to.
    * @return HttpRequest Post Request
    */
-  public HttpRequest newInstance(String requestBody) {
+  public HttpRequest newInstance(String requestBody, String serviceUrl) {
     this.lastRequestBody = requestBody;
     return request;
   }
