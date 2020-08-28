@@ -208,11 +208,10 @@ public class AnalyzeImageServlet extends HttpServlet {
         // which is why we only get the first annotatedImage element here from annotatedImages.
         AnnotatedImage annotatedImage = annotatedImages.get(0);
         List<String> descriptions = annotatedImage.getLabelDescriptions();
+        List<String> locations = annotatedImage.getLandmarkDescriptions();
 
-        PromptManager promptManager = new PromptManager(descriptions);
-        // The delimiter for the MVP prompt will be tentatively be " and ", ex:
-        // "<label1> and <label2> and <label3>"
-        String prompt = promptManager.generatePrompt(" and ");
+        PromptManager promptManager = new PromptManager(descriptions, locations);
+        String prompt = promptManager.generatePrompt();
 
         // Tentative backstory generation parameters: a 200 word-long story, with a .7 temperature.
         StoryManager storyManager = storyManagerFactory.newInstance(prompt, 200, .7);
