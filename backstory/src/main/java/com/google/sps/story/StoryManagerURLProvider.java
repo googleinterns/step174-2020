@@ -33,7 +33,7 @@ public class StoryManagerURLProvider {
     
   /** serviceUrls - URLs for each story generation container */
   private String[] serviceURLs = {
-      "http://gpu-test",
+      //"http://10.128.0.45",
       "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",

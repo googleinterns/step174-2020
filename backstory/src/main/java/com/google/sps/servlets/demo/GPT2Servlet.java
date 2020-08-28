@@ -73,7 +73,7 @@ public final class GPT2Servlet extends HttpServlet {
       }
       StoryManager storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
       generatedText = storyManager.generateText();
-      URLProvider.cycleURL();
+      //URLProvider.cycleURL();
     } catch (Exception exception) {
       System.out.println(exception);
       // Displays if internal server error.

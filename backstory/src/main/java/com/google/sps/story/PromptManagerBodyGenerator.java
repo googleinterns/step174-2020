@@ -105,6 +105,8 @@ public class PromptManagerBodyGenerator {
    * @return A String containing the output prompt.
    */
   public String generateBody() {
+      return makeListTemplate();
+      /**
     try {
       // Instantiate wordTools within try-catch if not supplied.
       if (wordAPIsClient == null) {
@@ -128,6 +130,7 @@ public class PromptManagerBodyGenerator {
       // In case of network exception, use list method.
       return makeListTemplate();
     }
+    **/
   }
 
   /**

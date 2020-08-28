@@ -210,7 +210,7 @@ public class AnalyzeImageServlet extends HttpServlet {
    */
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Check to see if the user is currently logged in
-    UserService userService = backstoryUserServiceFactory.newInstance();
+    UserService userService = UserServiceFactory.getUserService();
     if (!userService.isUserLoggedIn()) {
       String urlToRedirectToAfterUserLogsIn = "/analyze-image";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
@@ -222,7 +222,7 @@ public class AnalyzeImageServlet extends HttpServlet {
     String userEmail = userService.getCurrentUser().getEmail();
 
     // The blobKeyString of the image will be used to serve the image back to the front-end.
-    BlobstoreManager blobstoreManager = blobstoreManagerFactory.newInstance();
+    BlobstoreManager blobstoreManager = new BlobstoreManager();
     final String blobKeyString =
         blobstoreManager.getUploadedFileBlobKeyString(request, "image-upload");
     // The raw byte array representing the image will be used for image analytics.
@@ -236,7 +236,7 @@ public class AnalyzeImageServlet extends HttpServlet {
 
     // Generate a list of AnnotatedImages, with each annotatedImage consisting of an image with
     // labels.
-    ImagesManager imagesManager = imagesManagerFactory.newInstance();
+    ImagesManager imagesManager = new VisionImagesManager();
     List<byte[]> imagesAsByteArrays = Arrays.asList(bytes);
     List<AnnotatedImage> annotatedImages =
         imagesManager.createAnnotatedImagesFromImagesAsByteArrays(imagesAsByteArrays);
@@ -270,15 +270,19 @@ public class AnalyzeImageServlet extends HttpServlet {
     // queue.add(TaskOptions.Builder.withUrl("/generate-text").param("prompt", prompt));
     // System.out.println("Queued");
 
-    StoryManager storyManager = storyManagerFactory.newInstance(prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManagerURLProvider);
+    StoryManager storyManager = new StoryManagerImpl(prompt, STORY_WORD_LENGTH, TEMPERATURE, storyManagerURLProvider);
+    String rawBackstory = "";
+    rawBackstory = storyManager.generateText();
+    
     // The loop is necessary because of a memory leak in the GPT2 container which causes generation to fail.
     // TODO: Fix the memory leak within the GPT2 container itself.
-    String rawBackstory = "";
+    /**
     int textGenerationAttemps = 0;
     while (textGenerationAttemps < MAX_GENERATION_ATTEMPS) {
       try {
         // storyManagerURLProvider.cycleURL();
         rawBackstory = storyManager.generateText();
+        break;
       } catch (RuntimeException exception) {
         System.err.println(exception);
       }
@@ -289,8 +293,10 @@ public class AnalyzeImageServlet extends HttpServlet {
           "Sorry! There was an error in your backstory generation. Please try again!");
       return;
     }
+    */
 
     String backstory = "";
+    /**
     try {
       StoryAnalysisManager storyAnalysisManager = storyAnalysisManagerFactory.newInstance();
       StoryDecision storyDecision = storyAnalysisManager.generateDecision(rawBackstory);
@@ -299,21 +305,22 @@ public class AnalyzeImageServlet extends HttpServlet {
       response.sendError(400,
           "Sorry! No appropriate Backstory was found for your image. Please try again with another image.");
     }
+    */
 
     // Adds an ending to a story which passes the filtration check.
-    Text finalBackstory = new Text(StoryEndingTools.endStory(backstory));
+    Text finalBackstory = new Text(StoryEndingTools.endStory(rawBackstory));
 
     // Get metadata about the backstory
     final long timestamp = System.currentTimeMillis();
 
     // Add the input to datastore
-    Entity analyzedImageEntity = entityFactory.newInstance("analyzed-image"); //analyzed-backstory-image
+    Entity analyzedImageEntity = new Entity("analyzed-image"); //analyzed-backstory-image
     analyzedImageEntity.setProperty("userEmail", userEmail);
     analyzedImageEntity.setProperty("blobKeyString", blobKeyString);
     analyzedImageEntity.setProperty("backstory", finalBackstory);
     analyzedImageEntity.setProperty("timestamp", timestamp);
 
-    DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
+    DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
     datastoreService.put(analyzedImageEntity);
     System.out.println("added to datastore");
 
