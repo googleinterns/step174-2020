@@ -46,7 +46,9 @@ public final class VisionImagesManager implements ImagesManager {
   }
 
   /**
-   * Creates a vision manager object using a mock image annotator client.
+   * Creates a vision manager object using a passed-in image annotator client.
+   *
+   * @param imageAnnotatorClient the client to use to analyze the image
    */
   public VisionImagesManager(ImageAnnotatorClient imageAnnotatorClient) {
     this.imageAnnotatorClient = imageAnnotatorClient;
@@ -55,52 +57,50 @@ public final class VisionImagesManager implements ImagesManager {
   @Override
   public List<AnnotatedImage> createAnnotatedImagesFromImagesAsByteArrays(
       List<byte[]> imagesAsByteArrays) throws IOException {
-    List<AnnotatedImage> annotatedImages = new ArrayList<>();
+    // add the features we want (labels & landmarks to list)
+    List<Feature> features = new ArrayList<Feature>();
 
-    // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
-    for (byte[] rawImageData : imagesAsByteArrays) {
-      List<EntityAnnotation> labelAnnotations = detectLabelsFromImageBytes(rawImageData);
-      AnnotatedImage annotatedImage = new AnnotatedImage(rawImageData, labelAnnotations);
-      annotatedImages.add(annotatedImage);
+    Feature labelFeature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
+    Feature landmarkFeature = Feature.newBuilder().setType(Feature.Type.LANDMARK_DETECTION).build();
+
+    features.add(labelFeature);
+    features.add(landmarkFeature);
+
+    // the requests we'll send to Vision API
+    List<AnnotateImageRequest> requests = new ArrayList<AnnotateImageRequest>();
+
+    for (byte[] imageBytes : imagesAsByteArrays) {
+      Image image = Image.newBuilder().setContent(ByteString.copyFrom(imageBytes)).build();
+      AnnotateImageRequest request =
+          AnnotateImageRequest.newBuilder().addAllFeatures(features).setImage(image).build();
+      requests.add(request);
+    }
+
+    // The invocation of batchAnnotateImages() makes a network call.
+    BatchAnnotateImagesResponse batchResponse = imageAnnotatorClient.batchAnnotateImages(requests);
+    List<AnnotateImageResponse> responses = batchResponse.getResponsesList();
+
+    if (!(responses.size() == imagesAsByteArrays.size())) {
+      throw new RuntimeException("The number of responses is not equal to the number of requests.");
+    }
+
+    List<AnnotatedImage> annotatedImages = new ArrayList<AnnotatedImage>();
+
+    // add an annotated image to list for every image received as byte array
+    for (int i = 0; i < responses.size(); i++) {
+      AnnotateImageResponse response = responses.get(i);
+
+      if (response.hasError()) {
+        throw new IOException(response.getError().getMessage());
+      }
+
+      // For full list of available annotations, see http://g.co/cloud/vision/docs
+      List<EntityAnnotation> labels = response.getLabelAnnotationsList();
+      List<EntityAnnotation> locations = response.getLandmarkAnnotationsList();
+
+      annotatedImages.add(new AnnotatedImage(imagesAsByteArrays.get(i), labels, locations));
     }
 
     return annotatedImages;
-  }
-
-  /**
-   * Creates and returns label annotations for the image represented in bytes, using the Vision API.
-   *
-   * @param bytes The raw image byte data for the image from which labels will be annotated.
-   * @return The list of label annotations related to the image, with each individual label being
-   *     represented as an EntityAnnotation object.
-   */
-  private List<EntityAnnotation> detectLabelsFromImageBytes(byte[] bytes) throws IOException {
-    List<AnnotateImageRequest> requests = new ArrayList<>();
-    List<EntityAnnotation> labels;
-
-    Image img = Image.newBuilder().setContent(ByteString.copyFrom(bytes)).build();
-    Feature feat = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
-    AnnotateImageRequest request =
-        AnnotateImageRequest.newBuilder().addFeatures(feat).setImage(img).build();
-    requests.add(request);
-
-    // The invocation of batchAnnotateImages() makes a network call.
-    BatchAnnotateImagesResponse response = imageAnnotatorClient.batchAnnotateImages(requests);
-    List<AnnotateImageResponse> responses = response.getResponsesList();
-
-    // TODO: parallelize calls to detectLabelsFromImageBytes() since it requires a network call.
-    if (!(responses.size() == 1)) {
-      throw new IllegalArgumentException(
-          "detectLabelsFromImageBytes only supports analytics on one image");
-    }
-    AnnotateImageResponse res = responses.get(0);
-
-    if (res.hasError()) {
-      throw new IOException(res.getError().getMessage());
-    }
-
-    // For full list of available annotations, see http://g.co/cloud/vision/docs
-    labels = res.getLabelAnnotationsList();
-    return labels;
   }
 }

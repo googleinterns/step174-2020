@@ -1,15 +1,13 @@
 {
-  "parserOptions": {
-    "ecmaVersion": 2017
-  },
-  "env": {
-    "browser": true,
-    "es6": true
-  },
-  "extends": ["eslint:recommended", "google"],
-  "rules": {
-    "no-multi-spaces": "off",
-    "require-jsdoc": "off",
-    "valid-jsdoc": "off"
-  }
+    "env": {
+        "browser": true,
+        "es2020": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module"
+    },
+    "rules": {
+    }
 }
