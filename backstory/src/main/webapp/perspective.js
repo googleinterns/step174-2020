@@ -16,14 +16,18 @@
  * features: display analysis
  */
 
-/* exported displayAnalysis */
+// export the display analysis method so it's global
+window.displayAnalysis = displayAnalysis;
 
 // DISPLAY ANALYSIS
 
-/** displays the Perspective scores for the text in the "text-for-analysis" element  */
+/**
+ * displays the Perspective scores for the text in the "text-for-analysis"
+ * element
+ */
 async function displayAnalysis() {
   /* eslint-disable no-unused-vars */
-  let input = document.getElementById('text-for-analysis').value;
+  const input = document.getElementById('text-for-analysis').value;
 
   if (input === '' || input === null) {
     alert('You need to enter a value');
@@ -38,36 +42,37 @@ async function displayAnalysis() {
   const inputJSON = JSON.stringify(inputObj);
 
   // grab data and get its text version (it is sent as JSON)
-  const response = await fetch('/perspective', 
-    {
-      method: 'post', 
-      headers: {'Content-Type': 'application/json'},
-      body: inputJSON,
-    }
-  );
+  const response = await fetch('/perspective', {
+    method: 'post',
+    headers: {'Content-Type': 'application/json'},
+    body: inputJSON,
+  });
 
-  const ok = response.ok; // checks if status of response is an error
+  const ok = response.ok;  // checks if status of response is an error
   const data = await response.text();
 
   // parse the JSON into an object
-  // if there was an error, should be a string error message 
-  // if there wasn't an error, should be an array such that 
+  // if there was an error, should be a string error message
+  // if there wasn't an error, should be an array such that
   // [decision (as boolean), scores (as map)]
   const jsonObject = JSON.parse(data);
 
-  // properly format and display either the error message or the results from Perspective
+  // properly format and display either the error message or the results from
+  // Perspective
   if (!ok) {
     display.innerHTML = formatErrorMessage(jsonObject);
+    display.style.textAlign = 'center';
   } else {
     if (display.firstChild) display.firstChild.remove();
-    display.appendChild(formatResponse(jsonObject.isAppropriate, jsonObject.attributeTypesToScores));
+    display.appendChild(formatResponse(
+        jsonObject.isAppropriate, jsonObject.attributeTypesToScores));
   }
 }
 
 /**
- * Returns HTML formatting (simple paragraph tags) for error message 
+ * Returns HTML formatting (simple paragraph tags) for error message
  *
- * @param {string} message - the error message to be shown 
+ * @param {string} message - the error message to be shown
  * @return {string} - HTML formatting for error message
  */
 function formatErrorMessage(message) {
@@ -138,14 +143,16 @@ function formatResponse(decision, attributes) {
 }
 
 /**
- * Converts a String from this format ("ATTACK_ON_AUTHOR") [aka all caps snakecase]
- * to this format ("Attack On Author") (title case except all words not just major words capitalized) 
- * by replacing underscores with spaces and changing the capitalization.
+ * Converts a String from this format ("ATTACK_ON_AUTHOR") [aka all caps
+ * snakecase] to this format ("Attack On Author") (title case except all words
+ * not just major words capitalized) by replacing underscores with spaces and
+ * changing the capitalization.
  *
- * @param {string} uppercaseSnakeCaseText - the type as an all caps snake case string
+ * @param {string} uppercaseSnakeCaseText - the type as an all caps snake case
+ *     string
  * @return {string} - a formatted type String (in modified title case)
  */
-function uppercaseSnakeCaseToTitleCase (uppercaseSnakeCaseText) {
+function uppercaseSnakeCaseToTitleCase(uppercaseSnakeCaseText) {
   const words = uppercaseSnakeCaseText.split('_');
   let format = '';
 

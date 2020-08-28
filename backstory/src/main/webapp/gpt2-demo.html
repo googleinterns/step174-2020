@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato" />
 
     <!-- Script Calls -->
-    <script src="gpt2.js"></script>
+    <script type="module" src="gpt2.js"></script>
 
     <script
       src="https://code.jquery.com/jquery-3.3.1.js"
@@ -31,13 +31,14 @@
 
     <div class="content demo-content vertical-flex-container" id="gpt2-content">
       <h1 class="header yellow-header">GPT-2 Demo</h1>
+
       <div class="vertical-flex-container" id="gpt2-div">
         <div class="demo-div vertical-flex-container" id="gpt2-form">
           <label id="prompt-label" name="prompt">Prompt:</label>
           <textarea id="prompt" name="prompt"></textarea>
-          <button type="button" onclick="displayStory()">Generate Story</button>
+          <button type="button" onclick="displayStory()" id="gpt2-button">Generate Story</button>
         </div>
-        <div id="story-display"></div>
+        <div id="gpt2-story-display"></div>
       </div>
     </div>
   </body>

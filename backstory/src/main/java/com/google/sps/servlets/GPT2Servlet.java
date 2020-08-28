@@ -34,14 +34,12 @@ import org.json.JSONObject;
 /** Servlet that returns a generated story. */
 @WebServlet("/gpt2")
 public final class GPT2Servlet extends HttpServlet {
-  
   public static final int DEFAULT_MAX_STORY_LENGTH = 200;
   public static final Double DEFAULT_TEMPERATURE = 0.7;
   private static StoryManagerURLProvider URLProvider;
 
   // Maintain synchronized calls.
   private static final Object URLProviderLock = new Object();
-
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -67,16 +65,20 @@ public final class GPT2Servlet extends HttpServlet {
       handleError(response, HttpServletResponse.SC_BAD_REQUEST, "Text input was null or empty");
       return;
     }
+
     String generatedText;
+
     try {
-      StoryManager storyManager;      
+      StoryManager storyManager;
       synchronized (URLProviderLock) {
         if (URLProvider == null) {
           URLProvider = new StoryManagerURLProvider();
         }
-        storyManager = new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
-        
+
+        storyManager =
+            new StoryManagerImpl(text, DEFAULT_MAX_STORY_LENGTH, DEFAULT_TEMPERATURE, URLProvider);
       }
+
       generatedText = storyManager.generateText();
       synchronized (URLProviderLock) {
         URLProvider.cycleURL();
@@ -89,7 +91,7 @@ public final class GPT2Servlet extends HttpServlet {
     }
 
     // Return Generated Text as JSON
-    response.getWriter().println(generatedText);
+    response.getWriter().println(gson.toJson(generatedText));
   }
 
   /**

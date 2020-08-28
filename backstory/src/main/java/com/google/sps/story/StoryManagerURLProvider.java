@@ -30,15 +30,13 @@ import java.io.IOException;
  * Object for providing container URLs to StoryManager.
  */
 public class StoryManagerURLProvider {
-    
   /** serviceUrls - URLs for each story generation container */
   private final static String[] serviceURLs = {
       "https://backstory-text-gen-1-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-2-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-3-pdaqhmzgva-uc.a.run.app",
       "https://backstory-text-gen-4-pdaqhmzgva-uc.a.run.app",
-      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"
-  };
+      "https://backstory-text-gen-5-pdaqhmzgva-uc.a.run.app"};
 
   /** Index of URL to provide. */
   private int selectedURLIndex;
