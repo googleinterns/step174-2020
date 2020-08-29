@@ -26,7 +26,6 @@ import java.util.Map;
  * and Datamuse through a single object.
  */
 public class PromptManagerAPIsClient {
-
   /** Client object for word classification */
   private NLServiceClient nlServiceClient;
   /** Client object for word fetching */
@@ -68,7 +67,7 @@ public class PromptManagerAPIsClient {
    * @throws IOException Exception for network problem.
    */
   public Map<WordType, List<String>> groupByWordType(List<String> words) throws IOException {
-    if(nlServiceClient == null){
+    if (nlServiceClient == null) {
       nlServiceClient = new NLServiceClient();
     }
     Map<WordType, List<String>> groupings = nlServiceClient.groupByWordType(words);

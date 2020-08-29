@@ -39,9 +39,6 @@ public final class PromptManagerTest {
   private final String NOUN_CAT = "cat";
   private final String NOUN_TREE = "tree";
 
-
- 
-
   /** Strings with locations for testing */
   private final String LOCATION = "Oxford, England";
   private final String LOCATION_WITH_THE = "The Radcliffe Camera";
@@ -60,7 +57,7 @@ public final class PromptManagerTest {
   /**
    * Checks an exception is thrown if keywords is null
    */
-  @Test (expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void nullKeywordsInput() throws IOException, APINotAvailableException {
     PromptManager promptManager = new PromptManager(null, locations);
   }
@@ -68,8 +65,8 @@ public final class PromptManagerTest {
   /**
    * Checks an exception is thrown if locations is null
    */
-  @Test (expected = IllegalArgumentException.class)
-  public void nullLocationsInput()throws IOException, APINotAvailableException {
+  @Test(expected = IllegalArgumentException.class)
+  public void nullLocationsInput() throws IOException, APINotAvailableException {
     PromptManager promptManager = new PromptManager(keywords, null);
   }
 
@@ -82,10 +79,9 @@ public final class PromptManagerTest {
   public void checkStartWithoutKeywordsOrLocation() throws IOException, APINotAvailableException {
     PromptManager promptManager = new PromptManager(keywords, locations);
     String expectedStart = "Once upon a time,";
-    String actualStart = promptManager.generatePrompt().substring(0,expectedStart.length());
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
 
-    Assert.assertEquals(actualOutput,expectedStart);
-
+    Assert.assertEquals(actualStart, expectedStart);
   }
 
   /**
@@ -99,9 +95,9 @@ public final class PromptManagerTest {
 
     // Network calls should not be made without keywords.
     String expectedStart = "Once upon a time near Oxford, England,";
-    String actualStart = promptManager.generatePrompt().substring(0,expectedStart.length());
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
 
-    Assert.assertEquals(actualOutput,expectedStart);
+    Assert.assertEquals(actualStart, expectedStart);
   }
 
   /**
@@ -115,9 +111,9 @@ public final class PromptManagerTest {
 
     // Network calls should not be made without keywords.
     String expectedStart = "Once upon a time at the Radcliffe Camera,";
-    String actualStart = promptManager.generatePrompt().substring(0,expectedStart.length());
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
 
-    Assert.assertEquals(actualOutput,expectedStart);
+    Assert.assertEquals(actualStart, expectedStart);
   }
 
   /**
@@ -126,15 +122,15 @@ public final class PromptManagerTest {
    */
   @Test
   public void checkStartMultipleLocations() throws IOException, APINotAvailableException {
-    locations.add(LOCATION);
     locations.add(LOCATION_WITH_THE);
+    locations.add(LOCATION);
     PromptManager promptManager = new PromptManager(keywords, locations);
 
     // Network calls should not be made without keywords.
     String expectedStart = "Once upon a time at the Radcliffe Camera,";
-    String actualStart = promptManager.generatePrompt().substring(0,expectedStart.length());
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
 
-    Assert.assertEquals(actualOutput,expectedStart);
+    Assert.assertEquals(actualStart, expectedStart);
   }
 
   /**
