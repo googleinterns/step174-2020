@@ -110,4 +110,58 @@ public final class PromptManagerAPIsClientTest {
     // Ensure canned API output is returned.
     Assert.assertEquals(actualOutput, sampleOutput);
   }
+
+  @Test
+  /**
+   * Ensure fetchRelatedAdjectives() calls the DatamuseRequestClient method, verify containing
+   * for shuffled method.
+   *
+   */
+  public void fetchRelatedAdjectivesWithShufflingCallsAPI()
+      throws IOException, APINotAvailableException {
+    // Prepare input string
+    String inputWord = "";
+    // Prepare input cap
+    int inputCap = 1;
+    // Prepare canned topic resource
+    String sampleTopic = "Sampletopic";
+
+    // Prepare output output array.
+    String[] sampleOutput = {"String One", "String two"};
+
+    PromptManagerAPIsClient promptManagerAPIsClient = new PromptManagerAPIsClient();
+
+    // Inject mock API instance
+    DatamuseRequestClient mockDatamuseRequestClient = mock(DatamuseRequestClient.class);
+    promptManagerAPIsClient.setDatamuseRequestClient(mockDatamuseRequestClient);
+
+    ArgumentCaptor<String> acTopic = ArgumentCaptor.forClass(String.class);
+    // Stub API Call to return null array
+    when(mockDatamuseRequestClient.fetchRelatedWords(
+             anyString(), any(), anyInt(), acTopic.capture()))
+        .thenReturn(sampleOutput);
+
+    // Get shuffled output.
+    String[] actualOutput =
+        promptManagerAPIsClient.fetchRelatedAdjectives(inputWord, inputCap, true);
+
+    // Ensure proper API Call
+    verify(mockDatamuseRequestClient)
+        .fetchRelatedWords(
+            inputWord, DatamuseRelatedWordType.ADJECTIVE, inputCap, acTopic.getValue());
+
+    List<String> sampleAsList = Arrays.asList(sampleOutput);
+    List<String> outputAsList = Arrays.asList(actualOutput);
+
+    // Ensure shuffled output contains all strings.
+    boolean containsCheck = true;
+    for (String sample : sampleAsList) {
+      if (!outputAsList.contains(sample)) {
+        containsCheck = false;
+      }
+    }
+
+    // Ensure canned API output is returned.
+    Assert.assertTrue(containsCheck);
+  }
 }
