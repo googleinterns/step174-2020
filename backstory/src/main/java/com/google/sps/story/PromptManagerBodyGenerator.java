@@ -29,12 +29,12 @@ public class PromptManagerBodyGenerator {
   /** Keywords for prompt generation */
   private final List<String> keywords;
   /** Word processing client */
-  private PromptManagerAPIsClient wordAPIsClient;
+  private PromptManagerAPIsClient promptManagerAPIsClient;
   /** randomness flag */
-  private boolean chooseRandomly;
+  private boolean isTemplateRandomized;
 
   /** Random number generator */
-  private Random templateChooser;
+  private Random templateChooser = new Random();
 
   /** Data structures to hold classified words */
   private List<String> gerunds;
@@ -45,8 +45,9 @@ public class PromptManagerBodyGenerator {
   private final int MINIMUM_NOUNS = 3;
 
   /** Final output string. */
-  private String outputBody;
+  private String outputBody = "";
 
+  // TODO: Move these to external file for long term integration.
   /** Templates for introductory sentence completion */
   private final static List<String> INTRO_TEMPLATES = Collections.unmodifiableList(
       Arrays.asList("a <adj> <noun> as well as a <adj> <noun> decided to come together.",
@@ -71,61 +72,58 @@ public class PromptManagerBodyGenerator {
   private final static String EMPTY_ENDING = "a hectic, unrecognizable scene took place.";
 
   /**
-   * Initializes fields and takes in word processing client if supplied.
-   *
-   * @param keywords Input words for generation.
-   * @param chooseRandomly Whether or not to randomly select a template.
-   * @param wordTools Client for word processing API calls.
-   */
-  public PromptManagerBodyGenerator(
-      List<String> keywords, boolean chooseRandomly, PromptManagerAPIsClient wordAPIsClient) {
-    this(keywords, chooseRandomly);
-    this.wordAPIsClient = wordAPIsClient;
-  }
-
-  /**
    * Initializes fields.
    *
    * @param keywords Input words for generation.
-   * @param chooseRandomly Whether or not to randomly select a template.
+   * @param isTemplateRandomized Whether or not to randomly select a template.
    */
-  public PromptManagerBodyGenerator(List<String> keywords, boolean chooseRandomly) {
+  public PromptManagerBodyGenerator(List<String> keywords, boolean isTemplateRandomized) {
     this.keywords = keywords;
-    this.chooseRandomly = chooseRandomly;
-    templateChooser = new Random();
-    outputBody = "";
+    this.isTemplateRandomized = isTemplateRandomized;
+  }
+
+  /**
+   * Sets promptManagerAPIsClient for word processing API calls.
+   *
+   * @param promptManagerAPIsClient promptManagerAPIsClient instance.
+   */
+  public void setAPIsClient(PromptManagerAPIsClient promptManagerAPIsClient) {
+    this.promptManagerAPIsClient = promptManagerAPIsClient;
   }
 
   /**
    * Generates prompt body using given labels. If randomness
    * is disabled, the first of each applicable template type
    * will be used. Templates are filled using first available
-   * of each WordType.
-   *
+   * of each WordType based on the following configurations.
+   * Usage cases include: 1. 3 nouns + 1 gerund
+   *                      2. 3 nouns
+   *                      3. Keywords are listed.
    * @return A String containing the output prompt.
    */
   public String generateBody() {
+    int nounsListSize;
     try {
-      // Instantiate wordTools within try-catch if not supplied.
-      if (wordAPIsClient == null) {
-        wordAPIsClient = new PromptManagerAPIsClient();
+      // Instantiate promptManagerAPIsClient within try-catch if not supplied.
+      if (promptManagerAPIsClient == null) {
+        promptManagerAPIsClient = new PromptManagerAPIsClient();
       }
 
       // Classify given word inputs.
-      typeMap = wordAPIsClient.groupByWordType(keywords);
+      typeMap = promptManagerAPIsClient.groupByWordType(keywords);
       nouns = typeMap.get(WordType.NOUN);
 
       // Isolate gerunds
       gerunds = typeMap.get(WordType.GERUND);
-
-      // Determine method based on given noun count.
-      if (nouns.size() >= MINIMUM_NOUNS) {
-        return makeDescriptiveTemplate();
-      } else {
-        return makeListTemplate();
-      }
+      nounsListSize = nouns.size();
     } catch (Exception e) {
       // In case of network exception, use list method.
+      return makeListTemplate();
+    }
+    // Determine method based on given noun count.
+    if (nouns.size() >= MINIMUM_NOUNS) {
+      return makeDescriptiveTemplate();
+    } else {
       return makeListTemplate();
     }
   }
@@ -155,8 +153,8 @@ public class PromptManagerBodyGenerator {
           // Replace double-adjective noun case with first available noun and fetched adjectives.
         } else if (outputBody.contains("<adj> <adj> <noun>")) {
           String doubleAdjectiveNoun = nouns.remove(0).toLowerCase();
-          String[] relatedAdjectives =
-              wordAPIsClient.fetchRelatedAdjectives(doubleAdjectiveNoun, 2, chooseRandomly);
+          String[] relatedAdjectives = promptManagerAPIsClient.fetchRelatedAdjectives(
+              doubleAdjectiveNoun, 2, isTemplateRandomized);
 
           doubleAdjectiveNoun =
               relatedAdjectives[0] + " " + relatedAdjectives[1] + " " + doubleAdjectiveNoun;
@@ -165,8 +163,8 @@ public class PromptManagerBodyGenerator {
           // Replace single-adjective noun case with first available noun and fetched adjective.
         } else if (outputBody.contains("<adj> <noun>")) {
           String singleAdjectiveNoun = nouns.remove(0).toLowerCase();
-          String[] relatedAdjectives =
-              wordAPIsClient.fetchRelatedAdjectives(singleAdjectiveNoun, 1, chooseRandomly);
+          String[] relatedAdjectives = promptManagerAPIsClient.fetchRelatedAdjectives(
+              singleAdjectiveNoun, 1, isTemplateRandomized);
 
           singleAdjectiveNoun = relatedAdjectives[0] + " " + singleAdjectiveNoun;
           outputBody = outputBody.replaceFirst("<adj> <noun>", singleAdjectiveNoun);
@@ -221,7 +219,7 @@ public class PromptManagerBodyGenerator {
    * @return Template obtained.
    */
   private String getTemplate(List<String> templateList) {
-    if (chooseRandomly) {
+    if (isTemplateRandomized) {
       return templateList.get(templateChooser.nextInt(templateList.size()));
     } else {
       return templateList.get(0);

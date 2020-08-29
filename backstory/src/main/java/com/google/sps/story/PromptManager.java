@@ -31,6 +31,8 @@ public final class PromptManager {
   private PromptManagerAPIsClient wordAPIsClient;
   /** Randomness flag. */
   private boolean isTemplateRandomized = true;
+  /** Prompt Body Generator */
+  private PromptManagerBodyGenerator promptManagerBodyGenerator;
 
   /**
    * Initialize keywords and randomness parameters.
@@ -47,25 +49,26 @@ public final class PromptManager {
   }
 
   /**
-   * Sets wordTools for word processing API calls.
-   *
-   * @param wordTools PromptManagerWordTools instance.
-   */
-  public void setAPIsClient(PromptManagerAPIsClient wordAPIsClient) {
-    this.wordAPIsClient = wordAPIsClient;
-  }
-
-  /**
    * Sets use of randomness in prompt template selection.
    * If false, the first template for each input configuration is chosen.
+   *
    * @param boolean Whether or not to randomly choose output templates.
    */
-  public void isTemplateRandomized(boolean isTemplateRandomized) {
+  public void setTemplateRandomized(boolean isTemplateRandomized) {
     this.isTemplateRandomized = isTemplateRandomized;
   }
 
   /**
-   * Generates prompt using keywords given.
+   * Sets PromptManagerBodyInstance for generation of prompt body.
+   *
+   * @param PromptManagerBodyGenerator Generation object for body of output prompt.
+   */
+  public void setPromptManagerBodyGenerator(PromptManagerBodyGenerator promptManagerBodyGenerator) {
+    this.promptManagerBodyGenerator = promptManagerBodyGenerator;
+  }
+
+  /**
+   * Generates prompt using keywords given. "Once upon a time, " is appended.
    *
    * @return A String containing the output prompt.
    */
@@ -73,17 +76,12 @@ public final class PromptManager {
     // Prepare story-like prefix.
     String prompt = "Once upon a time, ";
 
-    // Initialize bodyFactory to process template construction
-    PromptManagerBodyGenerator bodyGenerator;
-    if (wordAPIsClient == null) {
-      bodyGenerator = new PromptManagerBodyGenerator(keywords, isTemplateRandomized);
-    } else {
-      bodyGenerator =
-          new PromptManagerBodyGenerator(keywords, isTemplateRandomized, wordAPIsClient);
+    if (promptManagerBodyGenerator == null) {
+      promptManagerBodyGenerator = new PromptManagerBodyGenerator(keywords, isTemplateRandomized);
     }
 
     // Append generated prompt body.
-    prompt += bodyGenerator.generateBody();
+    prompt += promptManagerBodyGenerator.generateBody();
     return prompt;
   }
 }

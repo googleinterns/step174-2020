@@ -22,27 +22,42 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Facilitates API calls through a single object.
+ * Facilitates API calls to Cloud Natural Language
+ * and Datamuse through a single object.
  */
 public class PromptManagerAPIsClient {
   /** Client object for word classification */
-  private NLServiceClient wordClassifier;
+  private NLServiceClient nlServiceClient;
   /** Client object for word fetching */
-  private DatamuseRequestClient wordFetcher;
+  private DatamuseRequestClient datamuseRequestClient;
 
   /**
    * Initialize API objects.
    *
-   * @throws IOException Exception for network problem.
+   * @throws IOException Exception for NLServiceClient instantiation error.
    */
   public PromptManagerAPIsClient() throws IOException {
-    try {
-      // Instantiate API objects
-      wordClassifier = new NLServiceClient();
-      wordFetcher = new DatamuseRequestClient();
-    } catch (IOException ioException) {
-      throw ioException;
-    }
+    // Instantiate API objects
+    nlServiceClient = new NLServiceClient();
+    datamuseRequestClient = new DatamuseRequestClient();
+  }
+
+  /**
+   * Sets NLServiceClient instance for word classifying.
+   *
+   * @param NLServiceClient The NLServiceClient instance to set.
+   */
+  public void setNLServiceClient(NLServiceClient nlServiceClient) {
+    this.nlServiceClient = nlServiceClient;
+  }
+
+  /**
+   * Sets DatamuseRequestClient instance for word classifying.
+   *
+   * @param DatamuseRequestClient The DatamuseRequestClient instance to set.
+   */
+  public void setDatamuseRequestClient(DatamuseRequestClient datamuseRequestClient) {
+    this.datamuseRequestClient = datamuseRequestClient;
   }
 
   /**
@@ -52,7 +67,7 @@ public class PromptManagerAPIsClient {
    * @return A mapping of WordTypes to given words.
    */
   public Map<WordType, List<String>> groupByWordType(List<String> words) {
-    return wordClassifier.groupByWordType(words);
+    return nlServiceClient.groupByWordType(words);
   }
 
   /**
@@ -70,7 +85,7 @@ public class PromptManagerAPIsClient {
       throws APINotAvailableException, RuntimeException, IllegalArgumentException {
     try {
       String storytellingTopic = DatamuseRequestClient.getRandomStorytellingTopic();
-      String[] relatedAdjectives = wordFetcher.fetchRelatedWords(
+      String[] relatedAdjectives = datamuseRequestClient.fetchRelatedWords(
           noun, DatamuseRelatedWordType.ADJECTIVE, cap, storytellingTopic);
 
       if (isRandom) {
