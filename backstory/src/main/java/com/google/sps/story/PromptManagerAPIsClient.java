@@ -26,19 +26,19 @@ import java.util.Map;
  * and Datamuse through a single object.
  */
 public class PromptManagerAPIsClient {
+
   /** Client object for word classification */
   private NLServiceClient nlServiceClient;
   /** Client object for word fetching */
   private DatamuseRequestClient datamuseRequestClient;
 
   /**
-   * Initialize API objects.
+   * Initialize DataMuseRequestClient object.
    *
    * @throws IOException Exception for NLServiceClient instantiation error.
    */
   public PromptManagerAPIsClient() throws IOException {
-    // Instantiate API objects
-    nlServiceClient = new NLServiceClient();
+    // Instantiate datamuseRequestClient
     datamuseRequestClient = new DatamuseRequestClient();
   }
 
@@ -65,9 +65,16 @@ public class PromptManagerAPIsClient {
    *
    * @param words A list of Strings containing keywords for prompts.
    * @return A mapping of WordTypes to given words.
+   * @throws IOException Exception for network problem.
    */
-  public Map<WordType, List<String>> groupByWordType(List<String> words) {
-    return nlServiceClient.groupByWordType(words);
+  public Map<WordType, List<String>> groupByWordType(List<String> words) throws IOException {
+    if(nlServiceClient == null){
+      nlServiceClient = new NLServiceClient();
+    }
+    Map<WordType, List<String>> groupings = nlServiceClient.groupByWordType(words);
+    nlServiceClient.close();
+
+    return groupings;
   }
 
   /**

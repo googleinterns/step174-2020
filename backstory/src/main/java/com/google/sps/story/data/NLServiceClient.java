@@ -163,6 +163,14 @@ public class NLServiceClient {
   }
 
   /**
+   * Close out the NLServiceClient by closing out
+   * the LanguageServiceClient.
+   */
+  public void close() {
+    client.close();
+  }
+
+  /**
    * Build and return a document from the given test.
    *
    * @param text the text to build a document from
