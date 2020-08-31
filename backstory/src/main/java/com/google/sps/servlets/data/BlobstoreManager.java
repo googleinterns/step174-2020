@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Wrapper class for the blobstore service and all related operations.
@@ -148,5 +149,15 @@ public class BlobstoreManager {
       return null;
     }
     return blobKey;
+  }
+
+  /**
+   * Serves a blobkey to an HTTP request.
+   *
+   * @param blobKey the key for the BLOB to be served.
+   * @param resonse the HTTP response to which the BLOB will be served.
+   */
+  public void serve(BlobKey blobKey, HttpServletResponse response) throws IOException {
+    blobstoreService.serve(blobKey, response);
   }
 }

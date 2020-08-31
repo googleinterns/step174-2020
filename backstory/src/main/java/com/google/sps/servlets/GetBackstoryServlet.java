@@ -30,15 +30,18 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.sps.servlets.data.Backstory;
+import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
+import com.google.sps.servlets.data.BackstoryUserServiceFactory;
+import com.google.sps.servlets.data.QueryFactory;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
-import com.google.sps.servlets.data.BackstoryUserServiceFactory;
 
 /**
  * Servlet which gets the Backstory resource. Currently, only the most recently uploaded Backstory
@@ -51,9 +54,14 @@ public class GetBackstoryServlet extends HttpServlet {
   private BackstoryUserServiceFactory backstoryUserServiceFactory;
   /** Creates the DatastoreService instance, which includes permanent storage functionality. */
   private BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory;
+  /**
+   * Creates the Query instance, which performs a network call to datastore to return all
+   * entities of a given type/name.
+   */
+  private QueryFactory queryFactory;
 
   /**
-   *
+   * Initializes the servlet with online versions of the userService and datastoreService factories.
    */
   public GetBackstoryServlet() {
     backstoryUserServiceFactory = () -> {
@@ -61,6 +69,9 @@ public class GetBackstoryServlet extends HttpServlet {
     };
     backstoryDatastoreServiceFactory = () -> {
       return DatastoreServiceFactory.getDatastoreService();
+    };
+    queryFactory = (String queryName) -> {
+      return new Query(queryName);
     };
   }
 
@@ -86,6 +97,16 @@ public class GetBackstoryServlet extends HttpServlet {
     this.backstoryDatastoreServiceFactory = backstoryDatastoreServiceFactory;
   }
 
+  /**
+   * Sets the QueryFactory.
+   *
+   * @param queryFactory a BackstoryDatastoreServiceFactory object set to return
+   *     a new DatastoreService.
+   */
+  public void setQueryFactory(QueryFactory queryFactory) {
+    this.queryFactory = queryFactory;
+  }
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     UserService userService = backstoryUserServiceFactory.newInstance();
@@ -104,7 +125,7 @@ public class GetBackstoryServlet extends HttpServlet {
     // TODO: figure out what to do in the case that user emails are recycled.
     Filter userBackstoriesFilter =
         new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
-    Query query = new Query("analyzed-image")
+    Query query = queryFactory.newInstance("analyzed-image")
                       .setFilter(userBackstoriesFilter)
                       .addSort("timestamp", SortDirection.DESCENDING);
     // Will limit the Query (which is sorted from newest to oldest) to only return the first
@@ -121,7 +142,7 @@ public class GetBackstoryServlet extends HttpServlet {
     }
 
     response.setContentType("application/json;");
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Gson gson = new Gson();
     String backstoriesJsonArray = gson.toJson(backstories);
     response.getWriter().println(backstoriesJsonArray);
   }

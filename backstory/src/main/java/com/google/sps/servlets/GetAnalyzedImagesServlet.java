@@ -32,6 +32,11 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.sps.servlets.data.BackstoryDatastoreServiceFactory;
+import com.google.sps.servlets.data.BackstoryUserServiceFactory;
+import com.google.sps.servlets.data.BlobstoreManager;
+import com.google.sps.servlets.data.BlobstoreManagerFactory;
+import com.google.sps.servlets.data.QueryFactory;
 import java.io.IOException;
 import java.lang.NullPointerException;
 import java.util.ArrayList;
@@ -49,9 +54,84 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet("/analyzed-images")
 public class GetAnalyzedImagesServlet extends HttpServlet {
+  /** Creates the UserService instance, which includes authentication functionality. */
+  private BackstoryUserServiceFactory backstoryUserServiceFactory;
+  /** Creates the DatastoreService instance, which includes permanent storage functionality. */
+  private BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory;
+  /**
+   * Creates the Query instance, which performs a network call to datastore to return all
+   * entities of a given type/name.
+   */
+  private QueryFactory queryFactory;
+  /**
+   * Creates the BlobstoreManager instance, which manages Backstory's BLOB (binary large object)
+   * upload functionality.
+   */
+  private BlobstoreManagerFactory blobstoreManagerFactory;
+
+  /**
+   * Initializes the servlet with online versions of the userService and datastoreService factories.
+   */
+  public GetAnalyzedImagesServlet() {
+    backstoryUserServiceFactory = () -> {
+      return UserServiceFactory.getUserService();
+    };
+    backstoryDatastoreServiceFactory = () -> {
+      return DatastoreServiceFactory.getDatastoreService();
+    };
+    queryFactory = (String queryName) -> {
+      return new Query(queryName);
+    };
+    blobstoreManagerFactory = () -> {
+      return new BlobstoreManager();
+    };
+  }
+
+  /**
+   * Sets the BlobstoreManagerFactory.
+   *
+   * @param blobstoreManagerFactory a BlobstoreManagerFactory object set to return a new
+   *     BlobstoreManager.
+   */
+  public void setBlobstoreManagerFactory(BlobstoreManagerFactory blobstoreManagerFactory) {
+    this.blobstoreManagerFactory = blobstoreManagerFactory;
+  }
+
+  /**
+   * Sets the BackstoryUserServiceFactory.
+   *
+   * @param backstoryUserServiceFactory a BackstoryUserServiceFactory object set to return a new
+   *     UserService.
+   */
+  public void setBackstoryUserServiceFactory(
+      BackstoryUserServiceFactory backstoryUserServiceFactory) {
+    this.backstoryUserServiceFactory = backstoryUserServiceFactory;
+  }
+
+  /**
+   * Sets the BackstoryDatastoreServiceFactory.
+   *
+   * @param backstoryDatastoreServiceFactory a BackstoryDatastoreServiceFactory object set to return
+   *     a new DatastoreService.
+   */
+  public void setBackstoryDatastoreServiceFactory(
+      BackstoryDatastoreServiceFactory backstoryDatastoreServiceFactory) {
+    this.backstoryDatastoreServiceFactory = backstoryDatastoreServiceFactory;
+  }
+
+  /**
+   * Sets the QueryFactory.
+   *
+   * @param queryFactory a BackstoryDatastoreServiceFactory object set to return
+   *     a new DatastoreService.
+   */
+  public void setQueryFactory(QueryFactory queryFactory) {
+    this.queryFactory = queryFactory;
+  }
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    UserService userService = UserServiceFactory.getUserService();
+    UserService userService = backstoryUserServiceFactory.newInstance();
     if (!userService.isUserLoggedIn()) {
       String urlToRedirectToAfterUserLogsIn = "/analyzed-images";
       String loginUrl = userService.createLoginURL(urlToRedirectToAfterUserLogsIn);
@@ -62,21 +142,21 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
     // Get user identification
     String userEmail = userService.getCurrentUser().getEmail();
 
-    BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+    BlobstoreManager blobstoreManager = blobstoreManagerFactory.newInstance();
 
     // Query to find all analyzed image entities. We will filter to only return the current
     // user's backstories.
     Filter userBackstoriesFilter =
         new FilterPredicate("userEmail", FilterOperator.EQUAL, userEmail);
-    Query query = new Query("analyzed-image")
+    Query query = queryFactory.newInstance("analyzed-image")
                       .setFilter(userBackstoriesFilter)
                       .addSort("timestamp", SortDirection.DESCENDING);
     // Will limit the Query (which is sorted from newest to oldest) to only return the first
     // result, Thus displaying the most recent story uploaded.
     int backstoryFetchLimit = 1;
 
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    PreparedQuery results = datastore.prepare(query);
+    DatastoreService datastoreService = backstoryDatastoreServiceFactory.newInstance();
+    PreparedQuery results = datastoreService.prepare(query);
 
     BlobKey blobKey = null;
     for (Entity entity : results.asIterable(FetchOptions.Builder.withLimit(backstoryFetchLimit))) {
@@ -89,6 +169,6 @@ public class GetAnalyzedImagesServlet extends HttpServlet {
           "No image(s) were uploaded, this servlet should not have been called.");
     }
 
-    blobstoreService.serve(blobKey, response);
+    blobstoreManager.serve(blobKey, response);
   }
 }

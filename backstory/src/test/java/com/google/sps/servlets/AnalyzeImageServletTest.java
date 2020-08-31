@@ -49,7 +49,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.ArgumentCaptor;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
@@ -59,6 +58,9 @@ import com.google.sps.APINotAvailableException;
 import com.google.sps.perspective.data.NoAppropriateStoryException;
 import com.google.sps.perspective.data.StoryDecision;
 import com.google.sps.story.StoryManagerURLProvider;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Tests for the analyze image servlet, which contains all image analysis and backstory generation
