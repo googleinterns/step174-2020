@@ -13,67 +13,149 @@
 // limitations under the License.
 
 package com.google.sps.story;
+import static org.mockito.Mockito.*;
 
+import com.google.sps.APINotAvailableException;
+import com.google.sps.story.data.*;
+import java.io.IOException;
+import java.lang.Exception;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
- * Test the Prompt Creation Suite
+ * Test PromptManager
  */
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public final class PromptManagerTest {
-  private static final String FIRST_KEYWORD = "First_Keyword";
-  private static final String SECOND_KEYWORD = "Second_Keyword";
-  private static final String THIRD_KEYWORD = "Third_Keyword";
+  /** keywords to use for testing */
+  private final String NOUN_DOG = "dog";
+  private final String NOUN_CAT = "cat";
+  private final String NOUN_TREE = "tree";
 
-  private List<String> inputList;
+  /** Strings with locations for testing */
+  private final String LOCATION = "Oxford, England";
+  private final String LOCATION_WITH_THE = "The Radcliffe Camera";
+
+  /** the keywords to input */
+  private List<String> keywords;
+  /** the locations to input */
+  private List<String> locations;
+
   @Before
   public void setUp() {
-    inputList = new ArrayList<String>();
+    keywords = new ArrayList<String>();
+    locations = new ArrayList<String>();
   }
 
-  @Test
-  /** Ensure the output prompt contains all keywords. */
-  public void verifyContains() {
-    inputList.add(FIRST_KEYWORD);
-    inputList.add(SECOND_KEYWORD);
-    inputList.add(THIRD_KEYWORD);
-
-    PromptManager testPromptManager = new PromptManager(inputList);
-    String outputPrompt = testPromptManager.generatePrompt(" ");
-
-    Assert.assertEquals(outputPrompt, "First_Keyword Second_Keyword Third_Keyword.");
+  /**
+   * Checks an exception is thrown if keywords is null
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void nullKeywordsInput() throws IOException, APINotAvailableException {
+    PromptManager promptManager = new PromptManager(null, locations);
   }
 
-  @Test
-  /** Ensure empty prompt return for empty input. */
-  public void noKeywordInput() {
-    PromptManager testPromptManager = new PromptManager(inputList);
-    String expected = "";
-    String actual = testPromptManager.generatePrompt(" ");
-
-    Assert.assertEquals(expected, actual);
+  /**
+   * Checks an exception is thrown if locations is null
+   */
+  @Test(expected = IllegalArgumentException.class)
+  public void nullLocationsInput() throws IOException, APINotAvailableException {
+    PromptManager promptManager = new PromptManager(keywords, null);
   }
 
+  /**
+   * Verifies the case of an empty list input and empty location input. The output prompt
+   * should use a standard "Once upon a time," starting.
+   *
+   */
   @Test
-  /** Ensures period at end of output. */
-  public void endsInPeriod() {
-    inputList.add(FIRST_KEYWORD);
-    inputList.add(SECOND_KEYWORD);
-    inputList.add(THIRD_KEYWORD);
-    PromptManager testPromptManager = new PromptManager(inputList);
-    String expected = ".";
-    String generated = testPromptManager.generatePrompt(" ");
-    String actual = generated.substring(generated.length() - 1);
+  public void checkStartWithoutKeywordsOrLocation() throws IOException, APINotAvailableException {
+    PromptManager promptManager = new PromptManager(keywords, locations);
+    String expectedStart = "Once upon a time,";
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
 
+    Assert.assertEquals(actualStart, expectedStart);
+  }
+
+  /**
+   * Verifies that an input location is correctly formatted.
+   *
+   */
+  @Test
+  public void checkStartLocation() throws IOException, APINotAvailableException {
+    locations.add(LOCATION);
+    PromptManager promptManager = new PromptManager(keywords, locations);
+
+    // Network calls should not be made without keywords.
+    String expectedStart = "Once upon a time near Oxford, England,";
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
+
+    Assert.assertEquals(actualStart, expectedStart);
+  }
+
+  /**
+   * Verifies that an input with "The" is correctly formatted.
+   *
+   */
+  @Test
+  public void checkStartLocationWithThe() throws IOException, APINotAvailableException {
+    locations.add(LOCATION_WITH_THE);
+    PromptManager promptManager = new PromptManager(keywords, locations);
+
+    // Network calls should not be made without keywords.
+    String expectedStart = "Once upon a time at the Radcliffe Camera,";
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
+
+    Assert.assertEquals(actualStart, expectedStart);
+  }
+
+  /**
+   * Verifies that if multiple locations given, prompt will choose first one.
+   *
+   */
+  @Test
+  public void checkStartMultipleLocations() throws IOException, APINotAvailableException {
+    locations.add(LOCATION_WITH_THE);
+    locations.add(LOCATION);
+    PromptManager promptManager = new PromptManager(keywords, locations);
+
+    // Network calls should not be made without keywords.
+    String expectedStart = "Once upon a time at the Radcliffe Camera,";
+    String actualStart = promptManager.generatePrompt().substring(0, expectedStart.length());
+
+    Assert.assertEquals(actualStart, expectedStart);
+  }
+
+  /**
+   * Verifies a prompt is returned with "Once upon a time" as its start.
+   *
+   */
+  public void listMethodTwoNounsNonRandom() throws IOException, APINotAvailableException {
+    // Prepare input list
+    keywords.add(NOUN_DOG);
+    keywords.add(NOUN_CAT);
+
+    PromptManager promptManager = new PromptManager(keywords, locations);
+
+    // Inject mock PromptManagerBodyGenerator
+    PromptManagerBodyGenerator mockGenerator = mock(PromptManagerBodyGenerator.class);
+    promptManager.setPromptManagerBodyGenerator(mockGenerator);
+
+    // Stub generator calls to output canned prompt body.
+    when(mockGenerator.generateBody()).thenReturn("the dog and the cat ran around.");
+
+    // Ensure "Once upon a time," is concatenated to canned body.
+    String expected = "Once upon a time, the dog and the cat ran away.";
+    String actual = promptManager.generatePrompt();
+
+    verify(mockGenerator).generateBody();
     Assert.assertEquals(expected, actual);
   }
 }
