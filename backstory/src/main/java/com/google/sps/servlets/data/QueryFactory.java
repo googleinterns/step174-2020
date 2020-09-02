@@ -14,18 +14,17 @@
 
 package com.google.sps.servlets.data;
 
-import com.google.sps.APINotAvailableException;
-import com.google.sps.perspective.StoryAnalysisManager;
+import com.google.appengine.api.datastore.Query;
 
 /**
- * Factory pattern for StoryAnalysisManager.
+ * Factory pattern for Query.
  */
-public interface StoryAnalysisManagerFactory {
+public interface QueryFactory {
   /**
-   * Create a new instance of StoryAnalysisManager.
+   * Create a new instance of Query.
    *
-   * @return an instance of StoryAnalysisManager.
-   * @throws APINotAvailableException if there is an error in accessing the StoryAnalysis API.
+   * @param queryName the type, or name, of the Query to be created.
+   * @return an instance of Query.
    */
-  public StoryAnalysisManager newInstance() throws APINotAvailableException;
+  public Query newInstance(String queryName);
 }

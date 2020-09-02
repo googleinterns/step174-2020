@@ -15,6 +15,7 @@
 package com.google.sps.servlets.data;
 
 import com.google.sps.story.StoryManager;
+import com.google.sps.story.StoryManagerURLProvider;
 
 /**
  * Factory pattern for StoryManager.
@@ -28,5 +29,6 @@ public interface StoryManagerFactory {
    * @param temperature the temperature of the story to be generated.
    * @return an instance of StoryManager.
    */
-  public StoryManager newInstance(String prompt, int storyLength, double temperature);
+  public StoryManager newInstance(String prompt, int storyLength, double temperature,
+      StoryManagerURLProvider storyManagerURLProvider);
 }

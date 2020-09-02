@@ -15,6 +15,7 @@
 package com.google.sps.servlets.data;
 
 import com.google.sps.servlets.data.BlobstoreManager;
+import java.io.IOException;
 
 /**
  * Factory pattern for BlobstoreManager.
@@ -24,6 +25,7 @@ public interface BlobstoreManagerFactory {
    * Create a new instance of BlobstoreManager.
    *
    * @return an instance of BlobstoreManager.
+   * @throws IOException if there is an issue with the image uploaded.
    */
-  public BlobstoreManager newInstance();
+  public BlobstoreManager newInstance() throws IOException;
 }
